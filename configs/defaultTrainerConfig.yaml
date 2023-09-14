@@ -1,0 +1,33 @@
+## lightning.pytorch==2.0.8
+seed_everything: 113
+trainer:
+  accelerator: auto
+  strategy: auto
+  devices: auto
+  num_nodes: 1
+  default_root_dir: /tmp/supervised/
+  callbacks:
+    - class_path: lightning.pytorch.callbacks.EarlyStopping
+      init_args:
+        patience: 10
+        monitor: val_loss
+        verbose: true
+    - class_path: lightning.pytorch.callbacks.ModelCheckpoint
+      init_args:
+        monitor: val_loss
+        save_last: true
+        save_top_k: 2
+        verbose: true
+  max_epochs: 400
+  overfit_batches: 0.0
+  val_check_interval: null
+  check_val_every_n_epoch: 1
+  log_every_n_steps: null
+  enable_model_summary: null
+  accumulate_grad_batches: 1
+  gradient_clip_val: null
+  gradient_clip_algorithm: null
+  precision: 32-true
+  detect_anomaly: false
+  sync_batchnorm: false
+  reload_dataloaders_every_n_epochs: 0

@@ -1,0 +1,10 @@
+## lightning.pytorch==2.0.8
+seed_everything: 113
+trainer:
+#  ckpt_path: null # To be provided as --ckpt_path
+  accelerator: auto
+  strategy: auto
+  devices: auto
+  num_nodes: 1
+  default_root_dir: null
+  logger: False

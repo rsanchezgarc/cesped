@@ -1,0 +1,16 @@
+argParseFromDoc
+e3nn
+healpy
+mrcfile
+numpy
+omegaconf
+pandas
+lightning
+#pytorch_lightning
+#"lightning[pytorch-extra]" #TODO: Check if this works
+requests
+scipy
+starfile
+starstack
+torch
+torchvision
