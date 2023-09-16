@@ -11,14 +11,14 @@ from cesped.zenodo import tokens
 
 #TODO: Ask for symmetry and store it.
 
-SANDBOX = True
-CHUNK_SIZE = 1024 ** 2 * 100  # 100MB
+SANDBOX = False
+CHUNK_SIZE = 1024 ** 2 * 300  # 300MB
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-d", "--dirname" , type=str, required=True)
     parser.add_argument("-e", "--empiarID" , type=int, required=True)
     parser.add_argument("-s", "--split" , type=int, required=True)
-    parser.add_argument("-y", "--symmetry" , type=int, required=True)
+    parser.add_argument("-y", "--symmetry" , type=str, required=True)
 
     args = parser.parse_args()
     # dir_to_upload = "/homes/sanchezg/ScipionUserData/projects/EMPIAR-10166/Runs/000463_ProtRelionAutorefSplitData/extra/subset_1/"  # "/home/sanchezg/tmp/ConorData/bound/postprocess/"
@@ -74,8 +74,9 @@ if __name__ == "__main__":
             'license': "cc-by-4.0",
             'upload_type': 'dataset',
             'version': '0.1',
-            'description': f'{dataset_name} is part of the Supervised Pose Estimation Cryo Challenge benchmark.'
-                           f' The particles*.star file contains the metadata, and the .mrcs.chunk* contains the images',
+            'description': f'{dataset_name} is part of the Cryo-EM Supervised Pose Estimation'
+                           f' Dataset benchmark. The particles*.star file contains the metadata, and '
+                           f'the .mrcs.chunk* contains the images',
             'creators': [{'name': 'Anonymous, Anonymous',
                           'affiliation': 'Anonymous'}]
         }
@@ -86,7 +87,7 @@ if __name__ == "__main__":
 
 
     def upload_with_chunks(file_path, upload_url, web_filename, chunk_size=CHUNK_SIZE):
-        file_size = os.stat(path).st_size
+        file_size = os.stat(file_path).st_size
         if file_size <= chunk_size:
             upload(file_path, upload_url, web_filename)
             return
@@ -119,17 +120,19 @@ if __name__ == "__main__":
                 assert r.status_code == 200, f"Error, {web_filename} was not uploaded"
 
 
+    with tempfile.TemporaryDirectory() as temp_dir:
+        temp_file_path = os.path.join(temp_dir, f"info_{args.split}.json")
+        with open(temp_file_path, "w") as f:
+            json.dump({"symmetry": args.symmetry.upper()}, f)
+            f.seek(0)
+        upload_with_chunks(f.name, bucket_url, os.path.basename(f.name))
+
     for filename in os.listdir(dir_to_upload):
         path = os.path.join(dir_to_upload, filename)
         print(f"Uploading {path}")
         upload_with_chunks(path, bucket_url, filename)
 
-    with tempfile.TemporaryDirectory() as temp_dir:
-        temp_file_path = os.path.join(temp_dir, f"info_{args.split}.json")
-        with open(temp_file_path, "w") as f:
-            json.dump({"symmetry": args.symmetry.upper()}, f)
-        f.seek(0)
-        upload_with_chunks(f.name, bucket_url, os.path.basename(f.name))
+
 
 
     print("URL TO CHECK IN THE BROWSER", r.json()["links"]["latest_draft_html"])

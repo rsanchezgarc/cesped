@@ -69,6 +69,7 @@ def download_record(record_id, destination_dir, root_url):
 
     starFname = None
     mrcsFnames = []
+    jsonFname = None
     files_info_dict = {}
 
     for fileRecord in r.json()["files"]:
@@ -79,14 +80,23 @@ def download_record(record_id, destination_dir, root_url):
             starFname = fname
         elif ".mrcs" in fname:
             mrcsFnames.append(fname)
+        elif fname.endswith(".json"):
+            jsonFname = fname
         else:
             raise ValueError(f"Error, unexpected file {fname} found in the record")
+
 
     assert starFname, "Error, starfile not found in the record"
     url, size, checksum = files_info_dict[starFname]
     output_file_path = os.path.join(destination_dir, starFname)
     download_and_concatenate_files([url], [size], [checksum], output_file_path)
     print(f"Particle metadata downloaded at {output_file_path}")
+
+    assert jsonFname, "Error, json file not found in the record"
+    url, size, checksum = files_info_dict[jsonFname]
+    output_file_path = os.path.join(destination_dir, jsonFname)
+    download_and_concatenate_files([url], [size], [checksum], output_file_path)
+    print(f"Particle json downloaded at {output_file_path}")
 
     assert mrcsFnames, "Error, mrcs files not found in the record"
     urls = []

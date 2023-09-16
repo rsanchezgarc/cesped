@@ -12,7 +12,7 @@ class TestParticlesDataset(TestCase):
         print(len(ds))
         ds = ParticlesDataset(testTargetName, 1, benchmarkDir=benchmarkDir)
         print(len(ds))
-        img, rotMat, xyShiftAngs, confidence, metadata = ds[0]
+        iid, img, (rotMat, xyShiftAngs, confidence), metadata = ds[0]
         print([x.shape for x in [img, rotMat, xyShiftAngs]])
         self.assertEqual(img.shape, (1, 312,312))
 

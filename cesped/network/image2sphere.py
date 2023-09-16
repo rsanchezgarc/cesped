@@ -1,4 +1,5 @@
 #Modified from https://colab.research.google.com/github/dmklee/image2sphere/blob/main/model_walkthrough.ipynb
+import functools
 import warnings
 
 import numpy as np
@@ -276,6 +277,10 @@ def so3_healpix_grid(hp_order: int = 3):
     result = torch.stack((alpha, beta, gamma)).float()
     return result
 
+@functools.cache
+def compute_symmetry_group_matrices(symmetry:str):
+    return torch.stack([torch.FloatTensor(x) for x in R.create_group(symmetry.upper()).as_matrix()])
+
 class I2S(nn.Module):
     '''
     Instantiate I2S-style network for predicting distributions over SO(3) from
@@ -334,8 +339,7 @@ class I2S(nn.Module):
             "output_rotmats", output_rotmats
         )
 
-        self.register_buffer("symmetryGroupMatrix", torch.stack([torch.FloatTensor(x)
-                                                     for x in R.create_group(self.symmetry).as_matrix()]))
+        self.register_buffer("symmetryGroupMatrix", compute_symmetry_group_matrices(self.symmetry))
 
     def _forward(self, x):
         '''Returns so3 irreps
@@ -391,12 +395,13 @@ class I2S(nn.Module):
         '''
         return rotation_error_rads(rotA, rotB)
 
-    def compute_loss(self, img, gt_rot):
+    def compute_loss(self, img, gt_rot, per_img_weight=None):
         '''Compute cross entropy loss using ground truth rotation, the correct label
         is the nearest rotation in the spatial grid to the ground truth rotation
 
         :img: float tensor of shape (B, c, L, L)
         :gt_rotation: valid rotation matrices, tensor of shape (B, 3, 3)
+        :per_img_weight: float tensor of shape (B,) with per_image_weight for loss calculation
         '''
 
         grid_signal, pred_rotmats, maxprob, probs = self.forward(img)
@@ -405,18 +410,20 @@ class I2S(nn.Module):
             #Perform symmetry expansion
             rotMats = self.symmetryGroupMatrix[None, ...] @ gt_rot[:, None, ...]
             rotMat_gtIds = self.nearest_rotmat(rotMats.view(-1, 3, 3)).view(grid_signal.shape[0], -1)
-            target_ohe = torch.zeros_like(grid_signal)
+            target_he = torch.zeros_like(grid_signal)
             rows = torch.arange(grid_signal.shape[0]).view(-1, 1).repeat(1, self.symmetryGroupMatrix.shape[0])
-            target_ohe[rows, rotMat_gtIds] = 1 / self.symmetryGroupMatrix.shape[0]
-            loss = nn.functional.cross_entropy(grid_signal, target_ohe)
+            target_he[rows, rotMat_gtIds] = 1 / self.symmetryGroupMatrix.shape[0]
+            loss = nn.functional.cross_entropy(grid_signal, target_he, reduction="none")
         else:
             # find nearest grid point to ground truth rotation matrix
             rot_id = nearest_rotmat(gt_rot, self.output_rotmats)
-            loss = nn.functional.cross_entropy(grid_signal, rot_id)
+            loss = nn.functional.cross_entropy(grid_signal, rot_id, reduction="none")
 
+        if per_img_weight is not None:
+            loss = loss * per_img_weight.squeeze(-1)
+        loss = loss.mean()
         with torch.no_grad():
             error_rads = rotation_error_rads(gt_rot, pred_rotmats)
-
         return loss, error_rads, pred_rotmats, maxprob, probs
 
     @torch.no_grad()

@@ -16,6 +16,8 @@ from torch.utils.data import Dataset, DataLoader
 from torchvision.transforms.v2 import CenterCrop, Resize, Compose
 
 from cesped import default_configs_dir, defaultBenchmarkDir
+from cesped.constants import RELION_EULER_CONVENTION, RELION_ANGLES_NAMES, RELION_SHIFTS_NAMES, \
+    RELION_ORI_POSE_CONFIDENCE_NAME, RELION_PRED_POSE_CONFIDENCE_NAME
 from cesped.zenodo.bechmarkUrls import ROOT_URL_PATTERN, NAME_PARTITION_TO_RECORID
 from cesped.utils.ctf import apply_ctf
 from cesped.utils.tensors import data_to_numpy
@@ -46,15 +48,6 @@ class ParticlesDataset(Dataset):
     <br>
     """
 
-    RELION_EULER_CONVENTION: str ="ZYZ"
-    """ Euler convention used by Relion. Rot, Tilt and Psi angles"""
-    RELION_ANGLES_NAMES: List[str] = ['rlnAngleRot', 'rlnAngleTilt', 'rlnAnglePsi']
-    """ Euler angles names in Relion. Rot, Tilt and Psi correspond to rotations on Z, Y and Z"""
-    RELION_SHIFTS_NAMES: List[str] = ['rlnOriginXAngst', 'rlnOriginYAngst']
-    """ Image shifts names in Relion. They are measured in Å (taking into account the sampling rate (aka pixel size) """
-    RELION_POSE_CONFIDENCE_NAME: str = 'rlnParticleFigureOfMerit'
-    """ The name of the metadata field used to weight the particles for the volume reconstruction"""
-
     def __init__(self, targetName: Union[PathLike, str],
                  halfset: Literal[0, 1],
                  benchmarkDir: str = defaultBenchmarkDir,
@@ -84,8 +77,8 @@ class ParticlesDataset(Dataset):
         assert halfset in [0, 1], f"Error, data halfset should be 0 or 1. Currently it is {halfset}"
         self.targetName = targetName
         self.halfset = halfset
-        self.benchmarkDir = benchmarkDir
-        self.image_size = image_size
+        self.benchmarkDir = osp.expanduser(benchmarkDir)
+        self._image_size = image_size
         self.apply_perImg_normalization = apply_perImg_normalization
         assert ctf_correction in ["none", "phase_flip"]
         self.ctf_correction = ctf_correction
@@ -101,6 +94,13 @@ class ParticlesDataset(Dataset):
             _preprocessing += [Resize(image_size, antialias=True)]
         self._preprocessing = Compose(_preprocessing)
 
+    @property
+    def image_size(self):
+        """The image size in pixels"""
+        if self._image_size is None:
+            return self.particles.particle_shape[-1]
+        else:
+            return self._image_size
     @property
     def datadir(self):
         """ the directory where the target is stored"""
@@ -134,6 +134,10 @@ class ParticlesDataset(Dataset):
                 self._symmetry = json.load(f)["symmetry"].upper()
         return self._symmetry
 
+    @property
+    def sampling_rate(self):
+        """The particle image sampling rate in A/pixels"""
+        return self.particles.sampling_rate
     @classmethod
     def addNewEntryLocally(cls, starFname: Union[str, PathLike], particlesRootDir: Union[str, PathLike],
                            newTargetName: Union[str, PathLike], halfset: Literal[0, 1], symmetry:str,
@@ -246,17 +250,18 @@ class ParticlesDataset(Dataset):
 
     def __getitem__(self, item):
         img, metadata = self.particles[item]
+        iid = metadata["rlnImageName"]
         img = torch.from_numpy(img)
         if self.apply_perImg_normalization:
             img = self._normalize(img)
 
-        rotMat = R.from_euler(self.RELION_EULER_CONVENTION, [metadata[name] for name in self.RELION_ANGLES_NAMES],
+        rotMat = R.from_euler(RELION_EULER_CONVENTION, [metadata[name] for name in RELION_ANGLES_NAMES],
                               degrees=True).as_matrix()
         rotMat = torch.from_numpy(rotMat.astype(np.float32))
-        xyShiftAngs = torch.FloatTensor([metadata[name] for name in self.RELION_SHIFTS_NAMES])
-        confidence = torch.FloatTensor([metadata["rlnMaxValueProbDistribution"]])
+        xyShiftAngs = torch.FloatTensor([metadata[name] for name in RELION_SHIFTS_NAMES])
+        confidence = torch.FloatTensor([metadata[RELION_ORI_POSE_CONFIDENCE_NAME]])
         if self.ctf_correction != "none":
-            ctf, wimg = apply_ctf(img, self.particles.sampling_rate, dfu=metadata["rlnDefocusU"],
+            ctf, wimg = apply_ctf(img, self.sampling_rate, dfu=metadata["rlnDefocusU"],
                                   dfv=metadata["rlnDefocusV"],
                                   dfang=metadata["rlnDefocusAngle"],
                                   volt=float(self.particles.optics_md["rlnVoltage"][0]),
@@ -270,7 +275,7 @@ class ParticlesDataset(Dataset):
         img = img.unsqueeze(0)
         img = self._preprocessing(img)
         # TODO: Implement filter banks
-        return img, rotMat, xyShiftAngs, confidence, metadata.to_dict()
+        return iid, img, (rotMat, xyShiftAngs, confidence), metadata.to_dict()
 
     def __len__(self):
         return len(self.particles)
@@ -305,27 +310,27 @@ class ParticlesDataset(Dataset):
             angles = data_to_numpy(angles)
             if angles_format == "rotmat":
                 r = R.from_matrix(angles)
-                rots, tilts, psis = r.as_euler(self.RELION_EULER_CONVENTION, degrees=True).T
+                rots, tilts, psis = r.as_euler(RELION_EULER_CONVENTION, degrees=True).T
             else:
                 rots, tilts, psis = [angles[:, i] for i in range(3)]
 
             col2val.update({ #RELION_ANGLES_NAMES
-                self.RELION_ANGLES_NAMES[0]: rots,
-                self.RELION_ANGLES_NAMES[0]: tilts,
-                self.RELION_ANGLES_NAMES[0]: psis
+                RELION_ANGLES_NAMES[0]: rots,
+                RELION_ANGLES_NAMES[0]: tilts,
+                RELION_ANGLES_NAMES[0]: psis
             })
 
         if shifts is not None:
             shifts = data_to_numpy(shifts)
             col2val.update({
-                self.RELION_SHIFTS_NAMES[0]: shifts[:, 0],
-                self.RELION_SHIFTS_NAMES[1]: shifts[:, 1],
+                RELION_SHIFTS_NAMES[0]: shifts[:, 0],
+                RELION_SHIFTS_NAMES[1]: shifts[:, 1],
             })
 
         if confidence is not None:
             confidence = data_to_numpy(confidence)
             col2val.update({
-                self.RELION_POSE_CONFIDENCE_NAME: confidence,
+                RELION_PRED_POSE_CONFIDENCE_NAME: confidence,
             })
 
         assert col2val, "Error, no editing values were provided"
@@ -377,7 +382,7 @@ class ParticlesDataModule(pl.LightningDataModule):
         self.save_hyperparameters()
         self.targetName = targetName
         self.halfset = halfset
-        self.benchmarkDir = benchmarkDir
+        self.benchmarkDir = os.path.expanduser(benchmarkDir)
         self.image_size = image_size
         self.apply_perImg_normalization = apply_perImg_normalization
         self.ctf_correction = ctf_correction
@@ -440,9 +445,9 @@ if __name__ == "__main__":
 
     parser = ArgumentParser("Visualize dataset")
     parser.add_argument("-t", "--targetName", help="The target to visualize", type=str, required=True)
-    parser.add_argument("-p", "--halfset", help="The target to visualize", choices=[0, 1], default=0)
+    parser.add_argument("-p", "--halfset", help="The target to visualize", choices=["0", "1"], default="0")
     parser.add_argument("-b", "--benchmarkDir", help="The benchmark's directory", type=str,
-                        default=cfg.data.benchmarkDir)
+                        default=defaultBenchmarkDir)
     parser.add_argument("-s", "--image_size", help="The desired image size", type=int,
                         default=cfg.data.image_size)
     parser.add_argument("-c", "--image_size_factor_for_crop", help="Percentage of image to crop",
@@ -453,7 +458,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     ps = ParticlesDataset(targetName=args.targetName,
-                          halfset=args.halfset,
+                          halfset=int(args.halfset),
                           benchmarkDir=args.benchmarkDir,
                           image_size=args.image_size,
                           ctf_correction="phase_flip" if args.phase_flippling else "none",
@@ -463,7 +468,7 @@ if __name__ == "__main__":
 
     channels_to_show = args.channels_to_show if args.channels_to_show else [0]
     for elem in ps:
-        img, *_ = elem
+        iid, img, *_ = elem
         assert 1 <= len(channels_to_show) <= 4, "Error, at least one channel required and no more than 4"
         f, axes = plt.subplots(1, len(channels_to_show), squeeze=False)
         for j, c in enumerate(channels_to_show):

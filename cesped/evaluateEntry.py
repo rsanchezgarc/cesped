@@ -14,7 +14,10 @@ import numpy as np
 import starfile
 
 from cesped import defaultBenchmarkDir, relionBinDir, mpirunCmd
+from cesped.constants import RELION_ANGLES_NAMES, RELION_SHIFTS_NAMES, RELION_PRED_POSE_CONFIDENCE_NAME, \
+    RELION_ORI_POSE_CONFIDENCE_NAME
 from cesped.particlesDataset import ParticlesDataset
+from cesped.utils.anglesStats import computeAngularError
 from cesped.utils.volumeStats import compute_stats
 
 warnings.warn("TODO: DEAL WITH SYMMETRY")  # TODO: DEAL WITH SYMMETRY. NEEDS TO BE ANNOTATED IN THE BENCHMARK
@@ -59,7 +62,7 @@ class Evaluator():
                 cmd += ["--i", starFname, "--o", f.name, "--ctf", "--sym", symmetry.lower()]
                 if self.usePredConfidence:
                     data = starfile.read(starFname)
-                    if ParticlesDataset.RELION_POSE_CONFIDENCE_NAME in data["particles"]:
+                    if RELION_PRED_POSE_CONFIDENCE_NAME in data["particles"]:
                         cmd += ["--fom_weighting"]
                 wdir = particlesDir if particlesDir else osp.dirname(starFname)
                 subprocess.run(cmd, cwd=wdir, check=True, capture_output=not self.verbose)
@@ -103,32 +106,38 @@ class Evaluator():
         return outvol, sr0, corr, resolt
 
 
-    def preparePredStar(self, mainStarFname: str, predStarFname: str, outname:str):
+    def preparePredStar(self, mainStarFname: str, predStarFname: str, outname:str, symmetry:str):
 
         if self.predictionType == "S2":
-            keys = ParticlesDataset.RELION_ANGLES_NAMES[:2].copy()
+            keys = RELION_ANGLES_NAMES[:2].copy()
         elif self.predictionType == "SO3":
-            keys = ParticlesDataset.RELION_ANGLES_NAMES.copy()
+            keys = RELION_ANGLES_NAMES.copy()
         elif self.predictionType == "SO3xR2":
-            keys = ParticlesDataset.RELION_ANGLES_NAMES + ParticlesDataset.RELION_SHIFTS_NAMES.copy()
+            keys = RELION_ANGLES_NAMES + RELION_SHIFTS_NAMES.copy()
         else:
             raise ValueError(f"Error, predictionType option {self.predictionType} is not valid")
         if self.usePredConfidence:
-            keys += [ParticlesDataset.RELION_POSE_CONFIDENCE_NAME]
+            keys += [RELION_PRED_POSE_CONFIDENCE_NAME]
 
         mainData = starfile.read(mainStarFname)
-        if ParticlesDataset.RELION_POSE_CONFIDENCE_NAME not in mainData["particles"]:
-            mainData["particles"][ParticlesDataset.RELION_POSE_CONFIDENCE_NAME] = 1.
+        if RELION_PRED_POSE_CONFIDENCE_NAME not in mainData["particles"]:
+            mainData["particles"][RELION_PRED_POSE_CONFIDENCE_NAME] = 1.
         predData = starfile.read(predStarFname)
-        if ParticlesDataset.RELION_POSE_CONFIDENCE_NAME not in predData["particles"]:
-            predData["particles"][ParticlesDataset.RELION_POSE_CONFIDENCE_NAME] = 1.
+        if RELION_PRED_POSE_CONFIDENCE_NAME not in predData["particles"]:
+            predData["particles"][RELION_PRED_POSE_CONFIDENCE_NAME] = 1.
 
+        meanAngularError, wMeanAngularError, totalConf = computeAngularError(predData[RELION_ANGLES_NAMES].values,
+                                                  mainData[RELION_ANGLES_NAMES].values,
+                                                  confidence=mainData[RELION_ORI_POSE_CONFIDENCE_NAME],
+                                                                  symmetry=symmetry)
+        meanAbsShiftError = np.sum(np.abs(predData[RELION_SHIFTS_NAMES].values -
+                                          mainData[RELION_SHIFTS_NAMES].values), -1)
         result = mainData.copy()
         result["particles"] = result["particles"].copy()
         result["particles"][keys] = predData["particles"][keys]
         if outname is not None:
             starfile.write(result, outname)
-        return result
+        return result, meanAngularError.mean(), wMeanAngularError.mean(), meanAbsShiftError.mean(), totalConf
 
     def runEvaluate(self, targetName, half0PredsFname, half1PredsFname):
 
@@ -145,9 +154,11 @@ class Evaluator():
             gt_map, gt_sampling, gt_cor, gt_resolut = self.computeAvgMap(ps0.starFname, ps1.starFname,
                                                                          particlesDir=ps0.datadir, outbasename="gt")
             prepStarFname0 = osp.join(tmpdir, "prepStarFname0.star")
-            self.preparePredStar(ps0.starFname, half0PredsFname, prepStarFname0)
+            _, meanAngularError0, wMeanAngularError0, meanAbsShiftError0, totalConf0 = \
+                            self.preparePredStar(ps0.starFname, half0PredsFname, prepStarFname0, ps0.symmetry)
             prepStarFname1 = osp.join(tmpdir, "prepStarFname1.star")
-            self.preparePredStar(ps1.starFname, half1PredsFname, prepStarFname1)
+            _, meanAngularError1, wMeanAngularError1, meanAbsShiftError1, totalConf1 = \
+                            self.preparePredStar(ps1.starFname, half1PredsFname, prepStarFname1, ps1.symmetry)
 
             pred_map, pred_sampling, pred_corr, pred_resolut = self.computeAvgMap(prepStarFname0, prepStarFname1,
                                                                           particlesDir=ps0.datadir, outbasename="pred")
@@ -156,7 +167,14 @@ class Evaluator():
             mapVsGT_cor, (mapVsGT_resolt, *_) = compute_stats(gt_map, pred_map, samplingRate=gt_sampling,
                                      resolution_threshold=self.resolution_threshold)
 
-            metrics = dict(GT_correlation=gt_cor, GT_resolution=gt_resolut,
+            meanAngularError = .5 * (meanAngularError0 + meanAngularError1)
+            wMeanAngularError = (totalConf0 * wMeanAngularError0 + totalConf1 * wMeanAngularError1) / (
+                        totalConf0 + totalConf1)
+            meanAbsShiftError = .5 * (meanAbsShiftError0 + meanAbsShiftError1)
+
+            metrics = dict(meanAngularError=meanAngularError, wMeanAngularError=wMeanAngularError,
+                           meanAbsShiftError = meanAbsShiftError,
+                           GT_correlation=gt_cor, GT_resolution=gt_resolut,
                            half2half_resolution=pred_resolut,
                            mapVsGT_correlaton=mapVsGT_cor,
                            mapVsGT_resolution = mapVsGT_resolt)
@@ -166,6 +184,9 @@ class Evaluator():
 GT_correlation:           {gt_cor}
 GT_resolution (Å):        {gt_resolut}
 > RESULTS
+mean_angular_error (°):   {meanAngularError} 
+w_mean_angular_error (°): {wMeanAngularError} 
+mean_abs_shift_error (Å): {meanAbsShiftError}
 half2half_resolution (Å): {pred_resolut}
 mapVsGT_correlaton:       {mapVsGT_cor}
 mapVsGT_resolution (Å):   {mapVsGT_resolt}
@@ -207,7 +228,7 @@ def evaluate(targetName: str, half0PredsFname: str, half1PredsFname: str,
             wdir=tmpdir
         evaluator = Evaluator(predictionType, usePredConfidence=usePredConfidence, benchmarkDir=benchmarkDir,
                               relionBinDir=relionBinDir, mpirun=mpirun, n_cpus=n_cpus, wdir=wdir)
-        evaluator.runEvaluate(targetName, half0PredsFname, half1PredsFname)
+        return evaluator.runEvaluate(targetName, half0PredsFname, half1PredsFname)
 
 
 def _test():

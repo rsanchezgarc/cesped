@@ -2,7 +2,7 @@
 data:
 #  targetName: TEST #provide data.targetName as cmd argument
 #  halfset: 0  #provide data.halfset as cmd argument
-  benchmarkDir: /tmp/cryoSupervisedDataset
+  benchmarkDir: ~/tmp/cryoSupervisedDataset
   image_size: 256
   train_validation_split:
     - 0.7

@@ -1,1 +1,295 @@
-#TODO: Implement augmentations
+import os.path as osp
+import functools
+import random
+from typing import Optional, Dict, Tuple
+
+import numpy as np
+import torch
+import torch.nn.functional as F
+import torchvision.transforms
+from omegaconf import OmegaConf
+from scipy.spatial.transform import Rotation
+from torchvision.datasets import CIFAR100
+from torchvision.transforms import ToTensor
+from torchvision.transforms.v2 import RandomErasing
+import torchvision.transforms.functional as transformF
+from cesped import default_configs_dir
+
+
+#TODO: Implement augmentations in a better way
+#TODO: Not working at all
+
+class Augmenter:
+    def __init__(self, image_size:int, sampling_rate:float, operations: Optional[Dict[str, any]]=None,
+                 min_n_augm_per_img:Optional[int]=None,
+                 max_n_augm_per_img:Optional[int]= None):
+
+        self.imageSize = image_size
+        self.samplingRate = sampling_rate
+        defaultConfig = self.read_default_config()
+        self._augmentationTypes = defaultConfig.operations if (operations is None) \
+            else operations
+        self.augmentationTypes = self._augmentationTypes.copy() #We have self._augmentationTypes in case we want to reset probs
+
+        self.min_n_augm_per_img = defaultConfig.min_n_augm_per_img if (min_n_augm_per_img is None) else min_n_augm_per_img
+        self.max_n_augm_per_img = defaultConfig.max_n_augm_per_img if (max_n_augm_per_img is None) else max_n_augm_per_img
+        self.probSchedulers = {name: self._generate_scheduler(vals.get("probScheduler")) for name, vals in self.augmentationTypes.items()}
+
+        self.augmentation_count = 0
+
+    @classmethod
+    def read_default_config(cls):
+        return OmegaConf.load(osp.join(default_configs_dir, "defaultDataAugmentation.yaml"))
+
+    def _generate_scheduler(self, schedulerInfo):
+        if schedulerInfo is None:
+            return lambda x, current_step:x
+        else:
+            schedulerName = schedulerInfo["type"]
+            schedulerKwargs = schedulerInfo["kwargs"]
+            if schedulerName == "linear_up":
+                maxProb = schedulerKwargs.get("max_prob")
+                scheduler_steps = schedulerKwargs.get("scheduler_steps")
+                def linear_up(p, current_step):
+                    # Linearly increase from 0 to p over scheduler_steps
+                    increment =  (maxProb - p)  / scheduler_steps
+                    new_p = min(p + increment * current_step, maxProb)
+                    return new_p
+                return linear_up
+            elif schedulerName == "linear_down":
+                scheduler_steps = schedulerKwargs.get("scheduler_steps")
+                minProb = schedulerKwargs.get("min_prob")
+                def linear_down(p, current_step):
+                    # Linearly decrease from p to min_prob over scheduler_steps
+                    decrement = (p - minProb) / scheduler_steps
+                    new_p = max(p - decrement * current_step, minProb)
+                    return new_p
+                return linear_down
+            else:
+                raise NotImplementedError(f"False {schedulerName} is not valid")
+    @functools.lru_cache(1)
+    def _getRandomEraser(self, **kwargs):
+        return RandomErasing(p=1., **kwargs)
+
+    def _randomErase(self, img, **kwargs):
+        eraser = self._getRandomEraser(**kwargs)
+        return eraser(img)
+
+    def _get_nrounds(self):
+        return random.randint(self.min_n_augm_per_img, self.max_n_augm_per_img)
+
+    def _get_rand(self):
+        return random.random()
+
+    @classmethod
+    def generate_psi_rotation_matrix(cls, degs, device):
+
+        """
+
+        Generate a rotation matrix for Euler angles [0, 0, X] using PyTorch.
+
+        Parameters:
+
+        - degs (torch.Tensor): A tensor containing the Euler angles (degs) for rotation about last euler angle
+
+        Returns:
+
+        - torch.Tensor: The corrected rotation matrix.
+
+        """
+        radians = torch.deg2rad(degs)
+        cos_angles = torch.cos(radians)
+        sin_angles = torch.sin(radians)
+        # Initialize a tensor to hold the rotation matrices
+        rotation_matrices = torch.zeros((radians.shape[0], 3, 3), dtype=torch.float32, device=device)
+
+        # Fill the rotation matrices according to the Z-axis rotation matrix structure
+
+        rotation_matrices[:, 0, 0] = cos_angles
+        rotation_matrices[:, 0, 1] = -sin_angles
+        rotation_matrices[:, 1, 0] = sin_angles
+        rotation_matrices[:, 1, 1] = cos_angles
+        rotation_matrices[:, 2, 2] = 1.0
+
+        return rotation_matrices
+
+    def applyAugmentation(self, imgs, rotmatList, shiftAngsList):
+        if len(imgs.shape) > 3:
+            transformed_batch = []
+            rotmatsList_ = []
+            shiftAngsList_ = []
+            applied_transforms_ = []
+            for img_tensor, rot, shif in zip(imgs, rotmatList, shiftAngsList):
+                (transformed_img, rot, shif,
+                 applied_transforms) = self._applyAugmentation(img_tensor, rot, shif)
+                transformed_batch.append(transformed_img)
+                rotmatsList_.append(rot)
+                shiftAngsList_.append(shif)
+                applied_transforms_ += applied_transforms
+            return torch.stack(transformed_batch, dim=0), torch.stack(rotmatsList_, dim=0), \
+                    torch.stack(shiftAngsList_, dim=0), applied_transforms_
+        else:
+            return self._applyAugmentation(imgs, rotmatList, shiftAngsList)
+    def _applyAugmentation(self, img, rotmat, shiftAngs):
+        img = img.clone()
+        applied_transforms = []
+        n_rounds = self._get_nrounds()
+        for round in range(n_rounds):
+            for aug, v in self.augmentationTypes.items():
+                aug_kwargs = v["kwargs"]
+                p = self.probSchedulers[aug](v["p"], self.augmentation_count)
+                if self._get_rand() < p:
+                    if aug == "randomGaussNoise":
+                        scale = random.random() * aug_kwargs["scale"]
+                        applied_transforms.append((aug, dict(scale=scale)))
+                        img += torch.randn_like(img) * scale
+                    elif aug == "randomUnifNoise":
+                        scale = random.random() * aug_kwargs["scale"]
+                        img += (torch.rand_like(img) - 0.5) * scale
+                        applied_transforms.append((aug, dict(scale=scale)))
+
+                    elif aug == "inPlaneRotations90":
+                        rotOrder = random.randint(0, 3)
+                        randDegs = torch.FloatTensor([rotOrder * 90.])
+                        img = torch.rot90(img, rotOrder, [-2, -1])
+                        rotMatrix = self.generate_psi_rotation_matrix(randDegs, img.device) #TODO: check this
+                        rotmat = rotMatrix @ rotmat
+                        #VOY POR AQUI, chequear si la transformacion de la matriz de rotacion esta bien
+                    elif aug == "inPlaneRotations":
+                        randDeg = (torch.rand(1) - 0.5) * aug_kwargs["maxDegrees"]
+                        img, theta = rotTransImage(img.unsqueeze(0), randDeg, translationFract=torch.zeros(1),
+                                            scaling=1)[0].squeeze(0)
+
+                        rotmat = rotMatrix @ rotmat
+                        # relionAngles[-1] = (relionAngles[-1] + randDeg.item()) % 360
+
+                    elif aug == "inPlaneShiftsBoth": #It is important to do rotations before shifts
+
+                        randFractionShifts = (torch.rand(2) - 0.5) * aug_kwargs["maxShiftFraction"]
+                        img = rotTransImage(img.unsqueeze(0), torch.zeros(1), translationFract=randFractionShifts,
+                                            scaling=1)[0].squeeze(0)
+                        # shiftsFraction += randFractionShifts  # TODO: Important for in-plane check if I have to add or to remove
+
+                    elif aug == "sizePerturbation":
+                        scale = 1 + (random.random() - 0.5) * aug_kwargs["maxSizeFraction"]
+                        img = rotTransImage(img.unsqueeze(0), torch.zeros(1), translationFract=torch.zeros(2),
+                                            scaling=torch.FloatTensor([scale]))[0].squeeze(0)
+
+                    elif aug == "gaussianBlur":
+                        scale = 1e-3 + (1 + (random.random() - 0.5) * aug_kwargs["scale"])
+                        img = transformF.gaussian_blur(img, kernel_size=3 + 2 * int(scale), sigma=scale)
+
+                    elif aug == "erasing":
+                        kwargs = {k:tuple(v) for k, v in aug_kwargs.items()}
+                        img = self._randomErase(img, **kwargs)
+
+
+                    else:
+                        raise ValueError(f"Error, unknown augmentation {aug}")
+
+                # from matplotlib import pyplot as plt
+                # f, axes = plt.subplots(2,1)
+                # axes.flat[0].imshow(img[0,...], cmap="gray")
+                # axes.flat[1].imshow(targetImg[0,...], cmap="gray")
+                # plt.show()
+                # print()
+        self.augmentation_count += 1
+        return img, rotmat, shiftAngs, applied_transforms
+
+
+def rotTransImage(image, degrees, translationFract, scaling=1., padding_mode='reflection',
+                   interpolation_mode="bilinear", rotation_first=True) -> Tuple[torch.Tensor, torch.Tensor]:
+    """
+
+    :param image: BxCxNxN
+    :param degrees:
+    :param translationFract: The translation to be applied as a fraction of the total size in pixels
+    :param scaling:
+    :param padding_mode:
+    :param interpolation_mode:
+    :param rotation_first: if using to compute Relion alignment parameters, set it to True
+    :return:
+    """
+    align_corners = True  # If set to True, the extrema (-1 and 1) are considered as referring to the center points of the input’s corner pixels. If set to False, they are instead considered as referring to the corner points of the input’s corner pixels, making the sampling more resolution agnostic.
+    assert ((-1 < translationFract) & (translationFract < 1)).all(), \
+        (f"Error, translation should be provided as a fraction of the image."
+         f" {translationFract.min()} {translationFract.max()} ")
+    radians = torch.deg2rad(degrees)
+    cosAngle = torch.cos(radians)
+    sinAngle = torch.sin(radians)
+
+    # theta = torch.stack([cosAngle, -sinAngle, translation[..., 0:1], sinAngle, cosAngle, translation[..., 1:2]], -1).view(-1, 2, 3)
+
+    noTransformation = torch.eye(3).unsqueeze(0).repeat(sinAngle.shape[0],1,1).to(sinAngle.device)
+    rotMat = noTransformation.clone()
+    rotMat[:, :2, :2] = torch.stack([cosAngle, -sinAngle, sinAngle, cosAngle], -1).view(-1, 2, 2)
+
+    transMat = noTransformation.clone()
+    transMat[:,:2, -1] = translationFract
+
+    if rotation_first:
+        theta = torch.bmm(rotMat, transMat)[:,:2,:]
+    else:
+        theta = torch.bmm(transMat, rotMat)[:,:2,:]
+
+
+    # raise NotImplementedError("TODO: check if this is how to do it, rotTrans rather than transRot")
+    if scaling != 1:
+        theta[:,0,0] *= scaling
+        theta[:,1,1] *= scaling
+
+    if len(image.shape) == 3:
+        image = image.unsqueeze(0)
+    # Generate the grid for the transformation
+    grid = F.affine_grid(
+        theta,
+        size=image.shape,
+        align_corners=align_corners,
+    )
+
+    # Perform the affine transformation with automatic padding
+    image = F.grid_sample(
+        image,
+        grid,
+        padding_mode=padding_mode,
+        align_corners=align_corners,
+        mode=interpolation_mode
+
+    )
+    return image, theta
+
+if __name__ == "__main__":
+    augmentKwargs = Augmenter.read_default_config()
+    print(augmentKwargs)
+    # augmentKwargs["operations"] = {'randomGaussNoise': {'kwargs': {'scale': 0.5}, 'p': 1.}}
+    # augmentKwargs["operations"] = {'randomUnifNoise': {'kwargs': {'scale': 2}, 'p': 1.}}
+    augmentKwargs["operations"] = {'inPlaneRotations90': {'kwargs': {'scale': 2}, 'p': 1.}}
+
+    from cesped.particlesDataset import ParticlesDataset
+
+    # dataset = ParticlesDataset("TEST", 0)
+    # image_size, sampling_rate = dataset.image_size, dataset.sampling_rate
+
+    dataset = CIFAR100(root="/tmp/cifcar", transform=ToTensor(), download=True)
+    image_size, sampling_rate = 32, 1
+
+    augmenter = Augmenter(image_size, sampling_rate, **augmentKwargs)
+    augmenter._get_rand = lambda : 0
+    from torch.utils.data import DataLoader
+    dl = DataLoader(dataset, batch_size=4, num_workers=0, shuffle=False)
+    for batch in dl:
+        # _, img, (rotmat, shiftAngs, conf), *_ = batch
+        img, *_ = batch[0].unsqueeze(1) ; rotmat=torch.from_numpy(Rotation.random(batch[0].shape[0]).as_matrix().astype(np.float32)); shiftAngs=torch.zeros(batch[0].shape[0])
+        print(img.shape)
+        img_, rotmat_, shiftAngs_, applied_transforms = augmenter.applyAugmentation(img, rotmat, shiftAngs)
+        print(applied_transforms)
+        from matplotlib import pyplot as plt
+        f, axes = plt.subplots(1,2)
+        for i in range(img.shape[0]):
+            axes.flat[0].imshow(img[i, ...].permute(1,2,0))#, cmap="gray")
+            axes.flat[1].imshow(img_[i, ...].permute(1,2,0))#, cmap="gray")
+            plt.show()
+            print(img[i,...].min(), img[i,...].max())
+            print(img_[i,...].min(), img_[i,...].max())
+            print()
+        # break
