@@ -58,7 +58,7 @@ if __name__ == "__main__":
         assert osp.isdir(osp.dirname(outFname)), (f'Error, --outFname {outFname} not valid. Needs '
                                                           f'to end in .star')
         preds = cli.trainer.predict(cli.model, cli.datamodule, ckpt_path=cli.config[_ckpt_path_argname])
-        particlesDataset = cli.datamodule.dataset()
+        particlesDataset = cli.datamodule.createDataset()
         for pred_rotmats, maxprob, metadata in preds:
             ids = metadata["rlnImageName"]
             particlesDataset.updateMd(ids=ids, angles=pred_rotmats, shifts=None, confidence=maxprob,
@@ -66,8 +66,10 @@ if __name__ == "__main__":
         particlesDataset.saveMd(outFname)
 
     """
+    
 --data.targetName TEST \
 --data.halfset 1 \
 --outFname /tmp/results.star \
 --ckpt_path /tmp/supervised/lightning_logs/version_0/checkpoints/last.ckpt
+
 """

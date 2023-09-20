@@ -29,5 +29,5 @@ trainer:
   gradient_clip_algorithm: null
   precision: 32-true
   detect_anomaly: false
-  sync_batchnorm: false
+  sync_batchnorm: true
   reload_dataloaders_every_n_epochs: 0

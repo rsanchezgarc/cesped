@@ -4,6 +4,7 @@ See:
 https://packaging.python.org/en/latest/distributing.html
 https://github.com/pypa/sampleproject
 """
+import glob
 
 # Always prefer setuptools over distutils
 from setuptools import setup, find_packages
@@ -20,8 +21,12 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 with open('requirements.txt') as f:
     requirements = f.read().splitlines()
 
+version = None
 with open(path.join(here, 'cesped', '__init__.py'), encoding='utf-8') as f:
-    version = f.readline().split("=")[-1].strip().strip('"')
+    for line in f:
+        if line.startswith("__version__"):
+            version = line.split("=")[-1].strip().strip('"')
+assert version
 
 setup(
     name='cesped',
@@ -34,5 +39,5 @@ setup(
     keywords='deep learning cryoem pose estimation',  # Optional
     packages=find_packages(),
     install_requires=[requirements],
-    include_package_data=True  # This line is important to read MANIFEST.in
+    include_package_data=True,  # This line is important to read MANIFEST.in
 )

@@ -3,16 +3,23 @@ max_n_augm_per_img: 1
 operations:
   randomGaussNoise:
     kwargs:
-      scale: 0.5
+      scale: 0.3
     p: 0.1
   randomUnifNoise:
     kwargs:
-      scale: 0.5
+      scale: 1.
     p: 0.1
   inPlaneRotations90:
     kwargs: {}
     p: 1.0
-#
+  inPlaneRotations:
+    kwargs:
+      maxDegrees: 20
+    p: 0.5
+  inPlaneShifts:
+    kwargs:
+      maxShiftFraction: 0.05
+    p: 0.5
   erasing:
     kwargs:
       ratio:
@@ -26,13 +33,3 @@ operations:
     kwargs:
       scale: 2
     p: 0.2
-
-  inPlaneRotations:
-    kwargs:
-      maxDegrees: 20
-    p: 0.5
-  inPlaneShifts:
-    kwargs:
-      maxShiftFraction: 0.05
-      p: 0.5
-

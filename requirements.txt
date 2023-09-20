@@ -5,12 +5,12 @@ mrcfile
 numpy
 omegaconf
 pandas
-lightning
-#pytorch_lightning
-#"lightning[pytorch-extra]" #TODO: Check if this works
+#lightning
+lightning[pytorch-extra]
 requests
 scipy
 starfile
 starstack
+tensorboard
 torch
 torchvision

@@ -12,12 +12,11 @@ class MyLightningCLI(LightningCLI):
         parser.add_argument("--n_threads_torch", default=4, type=int, help="Number of inter_operation threads")
 
         parser.link_arguments("data.image_size", "model.image_size")
-        parser.link_arguments("data.batch_size", "model.batch_size")
 
         parser.link_arguments("data.symmetry", "model.true_symmetry", apply_on="instantiate")
 
     # def before_instantiate_classes(self) -> None:
-    #     self.config["model"]["image_size"] = self.config["data"]["image_size"] #This is not useful
+    #     self.config["model"]["image_size"] = self.config["data"]["image_size"]
 
     def _instantiate_trainer(self, config: Dict[str, Any], callbacks: List[Callback]) -> Trainer:
         assert config["logger"] in [None, False], ("Error, do not provide info about the logger as config. Modify"

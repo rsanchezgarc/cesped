@@ -288,13 +288,29 @@ class I2S(nn.Module):
     '''
 
     def __init__(self, imageEncoder, imageEncoderOutputShape,
-                 symmetry:str,
+                 true_symmetry: str, symmetry:str,
                  lmax:int=6, s2_fdim:int=512, so3_fdim:int=16,
                  hp_order_projector:int=2,
                  hp_order_s2:int=2,
                  hp_order_so3:int=3,
                  so3_act_resolution:int=10, #TODO: what is the effect of resolution??
                  rand_fraction_points_to_project:float=0.2):
+        """
+
+        Args:
+            imageEncoder:
+            imageEncoderOutputShape:
+            true_symmetry (str): The true symmetry of the dataset. Required to compute evaluation metrics
+            symmetry (str): The symmetry to be applied during training
+            lmax:
+            s2_fdim:
+            so3_fdim:
+            hp_order_projector:
+            hp_order_s2:
+            hp_order_so3:
+            so3_act_resolution:
+            rand_fraction_points_to_project:
+        """
         super().__init__()
         self.encoder = imageEncoder
         self.symmetry = symmetry.upper()
@@ -407,23 +423,32 @@ class I2S(nn.Module):
         grid_signal, pred_rotmats, maxprob, probs = self.forward(img)
 
         if self.symmetry != "C1":
+            n_groupElems = self.symmetryGroupMatrix.shape[0]
             #Perform symmetry expansion
-            rotMats = self.symmetryGroupMatrix[None, ...] @ gt_rot[:, None, ...]
-            rotMat_gtIds = self.nearest_rotmat(rotMats.view(-1, 3, 3)).view(grid_signal.shape[0], -1)
+            gtrotMats = self.symmetryGroupMatrix[None, ...] @ gt_rot[:, None, ...]
+            rotMat_gtIds = self.nearest_rotmat(gtrotMats.view(-1, 3, 3)).view(grid_signal.shape[0], -1)
             target_he = torch.zeros_like(grid_signal)
-            rows = torch.arange(grid_signal.shape[0]).view(-1, 1).repeat(1, self.symmetryGroupMatrix.shape[0])
-            target_he[rows, rotMat_gtIds] = 1 / self.symmetryGroupMatrix.shape[0]
+            rows = torch.arange(grid_signal.shape[0]).view(-1, 1).repeat(1, n_groupElems)
+            target_he[rows, rotMat_gtIds] = 1 / n_groupElems
             loss = nn.functional.cross_entropy(grid_signal, target_he, reduction="none")
+
+            with torch.no_grad():
+                error_rads = rotation_error_rads(gtrotMats.view(-1,3,3),
+                                                 torch.repeat_interleave(pred_rotmats, n_groupElems, dim=0))
+                error_rads = error_rads.view(-1, n_groupElems)
+                error_rads = error_rads.min(1).values
+
         else:
             # find nearest grid point to ground truth rotation matrix
             rot_id = nearest_rotmat(gt_rot, self.output_rotmats)
             loss = nn.functional.cross_entropy(grid_signal, rot_id, reduction="none")
+            with torch.no_grad():
+                error_rads = rotation_error_rads(gt_rot, pred_rotmats)
 
         if per_img_weight is not None:
             loss = loss * per_img_weight.squeeze(-1)
         loss = loss.mean()
-        with torch.no_grad():
-            error_rads = rotation_error_rads(gt_rot, pred_rotmats)
+
         return loss, error_rads, pred_rotmats, maxprob, probs
 
     @torch.no_grad()

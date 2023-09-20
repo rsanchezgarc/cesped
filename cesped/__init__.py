@@ -6,8 +6,13 @@ import os.path as osp
 from omegaconf import OmegaConf
 
 
-default_configs_dir = os.environ.get("CESPED_CONFIGDIR",
-                                     osp.abspath(osp.join(osp.dirname(osp.dirname(__file__)), "configs")))
+__version__ = "23.09.1"
+
+_dirname = osp.dirname(__file__)
+_filename = osp.join(osp.abspath(_dirname), "configs")
+
+
+default_configs_dir = os.environ.get("CESPED_CONFIGDIR", _filename)
 
 _defaultDataConf = OmegaConf.load(osp.join(default_configs_dir, "defaultDataConfig.yaml"))
 

@@ -4,6 +4,7 @@ import torch
 import numpy as np
 from scipy.spatial.transform import Rotation as R
 
+from cesped.constants import RELION_EULER_CONVENTION
 from cesped.network.image2sphere import compute_trace, compute_symmetry_group_matrices, rotation_error_rads
 from cesped.particlesDataset import ParticlesDataset
 
@@ -56,8 +57,8 @@ def computeAngularError(predEulers, trueEulers, confidence=None, symmetry="c1") 
     a_isTensor = torch.is_tensor(predEulers)
     b_isTensor = torch.is_tensor(predEulers)
     assert a_isTensor and b_isTensor or not (a_isTensor and b_isTensor), "Error, both inputs should be of the same type"
-    predRotM = R.from_euler(ParticlesDataset.RELION_EULER_CONVENTION, predEulers, degrees=True).as_matrix()
-    trueRotM = R.from_euler(ParticlesDataset.RELION_EULER_CONVENTION, trueEulers, degrees=True).as_matrix()
+    predRotM = R.from_euler(RELION_EULER_CONVENTION, predEulers, degrees=True).as_matrix()
+    trueRotM = R.from_euler(RELION_EULER_CONVENTION, trueEulers, degrees=True).as_matrix()
 
     predRotM = torch.from_numpy(predRotM.astype(np.float32))
     trueRotM = torch.from_numpy(trueRotM.astype(np.float32))
@@ -70,7 +71,8 @@ def computeAngularError(predEulers, trueEulers, confidence=None, symmetry="c1") 
     totalConf = confidence.sum()
     if confidence is not None:
         confidence = torch.from_numpy(confidence.astype(np.float32))
-        w_error = (confidence * error) / totalConf
+        w_error = (confidence * error).sum() / totalConf
+    error = error.mean()
     if not a_isTensor:
         error = error.numpy()
         w_error = w_error.numpy()

@@ -18,6 +18,8 @@ from torchvision.transforms.v2 import CenterCrop, Resize, Compose
 from cesped import default_configs_dir, defaultBenchmarkDir
 from cesped.constants import RELION_EULER_CONVENTION, RELION_ANGLES_NAMES, RELION_SHIFTS_NAMES, \
     RELION_ORI_POSE_CONFIDENCE_NAME, RELION_PRED_POSE_CONFIDENCE_NAME
+from cesped.utils.angles import euler_angles_to_matrix
+from cesped.utils.augmentations import Augmenter
 from cesped.zenodo.bechmarkUrls import ROOT_URL_PATTERN, NAME_PARTITION_TO_RECORID
 from cesped.utils.ctf import apply_ctf
 from cesped.utils.tensors import data_to_numpy
@@ -82,8 +84,10 @@ class ParticlesDataset(Dataset):
         self.apply_perImg_normalization = apply_perImg_normalization
         assert ctf_correction in ["none", "phase_flip"]
         self.ctf_correction = ctf_correction
+
         self._particles = None
         self._symmetry = None
+        self._augmenter = None
 
         assert 0 <= image_size_factor_for_crop < 0.5
         _preprocessing = []
@@ -138,6 +142,22 @@ class ParticlesDataset(Dataset):
     def sampling_rate(self):
         """The particle image sampling rate in A/pixels"""
         return self.particles.sampling_rate
+
+    @property
+    def augmenter(self):
+        """The data augmentator object to be applied"""
+        return self._augmenter
+
+    @augmenter.setter
+    def augmenter(self, augmenterObj:Augmenter):
+        """
+
+        Args:
+            augmenter: he data augmentator object to be applied
+
+        """
+        self._augmenter = augmenterObj
+
     @classmethod
     def addNewEntryLocally(cls, starFname: Union[str, PathLike], particlesRootDir: Union[str, PathLike],
                            newTargetName: Union[str, PathLike], halfset: Literal[0, 1], symmetry:str,
@@ -208,6 +228,11 @@ class ParticlesDataset(Dataset):
         download_record(NAME_PARTITION_TO_RECORID[self.targetName, self.halfset],
                         destination_dir=self.datadir,
                         root_url=ROOT_URL_PATTERN)
+        #Validation
+        pset = ParticlesStarSet(starFname=self.starFname, particlesDir=self.datadir)
+        for i in range(len(pset)):
+            img, md = pset[i]
+            assert len(img.shape) == 2, f"Error, there were problems downloading the target {self.targetName}"
 
     def _is_avaible(self):
         return osp.isfile(getDoneFname(self.datadir, self.halfset))
@@ -255,13 +280,23 @@ class ParticlesDataset(Dataset):
         if self.apply_perImg_normalization:
             img = self._normalize(img)
 
-        rotMat = R.from_euler(RELION_EULER_CONVENTION, [metadata[name] for name in RELION_ANGLES_NAMES],
-                              degrees=True).as_matrix()
-        rotMat = torch.from_numpy(rotMat.astype(np.float32))
+        degEuler = torch.FloatTensor([metadata[name] for name in RELION_ANGLES_NAMES])
         xyShiftAngs = torch.FloatTensor([metadata[name] for name in RELION_SHIFTS_NAMES])
         confidence = torch.FloatTensor([metadata[RELION_ORI_POSE_CONFIDENCE_NAME]])
+
+        img = img.unsqueeze(0) # TO BE 1xSxS
+
+        if self.augmenter is not None:
+            img, degEuler, shift, _ = self.augmenter(img, degEuler, shiftFraction=xyShiftAngs/self.image_size)
+            xyShiftAngs = shift * self.image_size
+
+        rotMat = euler_angles_to_matrix(torch.deg2rad(degEuler), RELION_EULER_CONVENTION)
+
         if self.ctf_correction != "none":
-            ctf, wimg = apply_ctf(img, self.sampling_rate, dfu=metadata["rlnDefocusU"],
+            #apply_ctf expects img to be SxS
+            ctf, wimg = apply_ctf(img.squeeze(0), self.sampling_rate,
+                                  #TODO: Hide here the complexity of extracting the required metadata
+                                  dfu=metadata["rlnDefocusU"],
                                   dfv=metadata["rlnDefocusV"],
                                   dfang=metadata["rlnDefocusAngle"],
                                   volt=float(self.particles.optics_md["rlnVoltage"][0]),
@@ -271,10 +306,8 @@ class ParticlesDataset(Dataset):
             wimg = torch.clamp(wimg, img.min(), img.max())
             wimg = torch.nan_to_num(wimg, nan=img.mean())
             img = wimg
-
-        img = img.unsqueeze(0)
+            img = img.unsqueeze(0) #Go back to 1xSxS
         img = self._preprocessing(img)
-        # TODO: Implement filter banks
         return iid, img, (rotMat, xyShiftAngs, confidence), metadata.to_dict()
 
     def __len__(self):
@@ -356,6 +389,7 @@ class ParticlesDataModule(pl.LightningDataModule):
     def __init__(self, targetName: Union[PathLike, str], halfset: Literal[0, 1], image_size: int,
                  benchmarkDir: str = defaultBenchmarkDir, apply_perImg_normalization: bool = True,
                  ctf_correction: Literal["none", "phase_flip"] = "phase_flip", image_size_factor_for_crop: float = 0.25,
+                 augmenter: Optional[Augmenter] = None,
                  train_validation_split: Tuple[float, float] = (0.7, 0.3), batch_size: int = 8,
                  num_data_workers: int = 0):
         """
@@ -372,6 +406,7 @@ class ParticlesDataModule(pl.LightningDataModule):
             image_size_factor_for_crop (float): Fraction of the image size to be cropped. Final size of the image \
             is origSize*(1-image_size_factor_for_crop). It is important because particles in cryo-EM tend to \
             be only 50% to 25% of the total area of the image.
+            augmenter (Augmenter): A data augmentator object to be applied to the training dataloader. If none, data won't be augmented
             train_validation_split (List[float]):
             batch_size (int): The batch size
             num_data_workers (int): The number of workers for data loading. Set it to 0 to use the same thread as the model
@@ -387,32 +422,31 @@ class ParticlesDataModule(pl.LightningDataModule):
         self.apply_perImg_normalization = apply_perImg_normalization
         self.ctf_correction = ctf_correction
         self.image_size_factor_for_crop = image_size_factor_for_crop
+        self.augmenter = augmenter
         self.train_validation_split = train_validation_split
         self.batch_size = batch_size
         self.num_data_workers = num_data_workers
 
-        self._dataset = None
+        self._symmetry = None
 
     @property
     def symmetry(self):
         """The point symmetry of the dataset"""
-        return self.dataset.symmetry
+        if self._symmetry is None:
+            dataset = self.createDataset()
+            self._symmetry = dataset.symmetry
+        return self._symmetry
 
-    @property
-    def dataset(self) -> ParticlesDataset:
-        """The particles dataset"""
-        if self._dataset is None:
-            self._dataset = ParticlesDataset(self.targetName, halfset=self.halfset, benchmarkDir=self.benchmarkDir,
+    def createDataset(self):
+        return ParticlesDataset(self.targetName, halfset=self.halfset, benchmarkDir=self.benchmarkDir,
                                 image_size=self.image_size)
-        return self._dataset
-
     def _create_dataloader(self, partitionName: Optional[str]):
-        dataset = self.dataset
+        dataset = self.createDataset()
         if partitionName in ["train", "val"]:
             assert self.train_validation_split is not None, "Error, self.train_validation_split required"
+            dataset.augmenter = self.augmenter if partitionName == "train" else None
             train_dataset, val_dataset = torch.utils.data.random_split(dataset, self.train_validation_split)
             if partitionName == "train":
-                warnings.warn("IMPLEMENT DATA AUGMENTATION LOGIC")
                 dataset = train_dataset
             else:
                 dataset = val_dataset

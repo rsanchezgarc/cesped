@@ -1,6 +1,0 @@
-## lightning.pytorch==2.0.8
-model:
-  lr: 0.0001
-  s2_fdim: 512
-  so3_fdim: 16
-  hp_order_so3: 2

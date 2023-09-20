@@ -1,0 +1,17 @@
+## lightning.pytorch==2.0.8
+data:
+#  targetName: TEST #to be provided data.targetName as cmd argument
+#  halfset: 0  #to be provided data.halfset as cmd argument
+  benchmarkDir: ~/tmp/cryoSupervisedDataset
+  image_size: 256
+  train_validation_split:
+    - 0.7
+    - 0.3
+  batch_size: 16
+  image_size_factor_for_crop: 0.25
+  num_data_workers: 0
+  augmenter:
+    class_path: cesped.utils.augmentations.Augmenter
+    init_args:
+      min_n_augm_per_img: 1
+      max_n_augm_per_img: 1
