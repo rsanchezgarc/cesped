@@ -13,7 +13,8 @@ class MyLightningCLI(LightningCLI):
 
         parser.link_arguments("data.image_size", "model.image_size")
 
-        parser.link_arguments("data.symmetry", "model.true_symmetry", apply_on="instantiate")
+        # parser.link_arguments("data.symmetry", "model.true_symmetry", apply_on="instantiate")
+        parser.link_arguments("data.symmetry", "model.symmetry", apply_on="instantiate")
 
     # def before_instantiate_classes(self) -> None:
     #     self.config["model"]["image_size"] = self.config["data"]["image_size"]
@@ -29,6 +30,10 @@ class MyLightningCLI(LightningCLI):
             logger2 = CSVLogger(saveDir, version=version)
             config["logger"] = [logger1, logger2]
         return super()._instantiate_trainer(config, callbacks)
+
+    def instantiate_classes(self) -> None:
+        """Instantiates the classes and sets their attributes."""
+        super().instantiate_classes()
 
     def before_instantiate_classes(self):
         torch.set_num_threads(self.config["n_threads_torch"])

@@ -1,28 +1,7 @@
 """
-This module provides utilities to load and train models for Cryo-EM Supervised Pose Inference models
-"""
-import os
-import os.path as osp
-from omegaconf import OmegaConf
+Utilities to train and evaluate deep learning models for Cryo-EM Supervised Particle Pose Inference.
 
+"""
 
 __version__ = "23.09.1"
 
-_dirname = osp.dirname(__file__)
-_filename = osp.join(osp.abspath(_dirname), "configs")
-
-
-default_configs_dir = os.environ.get("CESPED_CONFIGDIR", _filename)
-
-_defaultDataConf = OmegaConf.load(osp.join(default_configs_dir, "defaultDataConfig.yaml"))
-
-defaultBenchmarkDir = osp.expanduser(_defaultDataConf["data"]["benchmarkDir"])
-"""The deafult benchmark directory, where entries will be saved"""
-
-_defaultRelionConf = OmegaConf.load(osp.join(default_configs_dir, "defaultRelionConfig.yaml"))
-
-relionBinDir = osp.expanduser(_defaultRelionConf["Relion"]["relionBinDir"])
-"""The Relion bin directory"""
-
-mpirunCmd = _defaultRelionConf["Relion"]["mpirun"]
-"""The mpirun command to execute relion with several workers"""

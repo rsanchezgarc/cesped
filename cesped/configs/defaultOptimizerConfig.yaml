@@ -1,0 +1,16 @@
+## lightning.pytorch==2.0.8
+optimizer:
+  class_path: torch.optim.RAdam
+  init_args:
+    lr: 0.001
+    weight_decay: 1e-5
+lr_scheduler:
+  class_path: lightning.pytorch.cli.ReduceLROnPlateau
+  init_args:
+    mode: min
+    factor: 0.5
+    patience: 5
+    cooldown: 1
+    min_lr: 1e-8
+    verbose: true
+    monitor: val_error_degs

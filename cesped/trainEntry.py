@@ -5,7 +5,7 @@ import sys
 
 import psutil
 
-from cesped import default_configs_dir
+from cesped.constants import default_configs_dir
 from cesped.utils.cliBuilder import MyLightningCLI
 from cesped.network.plModule import PlModel
 from cesped.particlesDataset import ParticlesDataModule
@@ -44,13 +44,8 @@ def _copyCodeForReproducibility(logdir):
 
     # Copy the command
     fname = osp.join(logdir, "command.txt")
-    current_process = psutil.Process()
-    # Get the parent process
-    parent_process = current_process.parent()
-    # Get the command line of the parent process
-    parent_command = ' '.join(parent_process.cmdline())
     with open(fname, "w") as f:
-        f.write(parent_command)
+        f.write(" ".join(sys.argv))
 
 if __name__ == "__main__":
 
@@ -59,7 +54,9 @@ if __name__ == "__main__":
     #The order matters in config_fnames Load first Data, then Model and lastly trainer.
     config_fnames = [osp.join(default_configs_dir, "defaultDataConfig.yaml"),
                      osp.join(default_configs_dir, "defaultModelConfig.yaml"),
-                     osp.join(default_configs_dir, "defaultTrainerConfig.yaml")]
+                     osp.join(default_configs_dir, "defaultTrainerConfig.yaml"),
+                     osp.join(default_configs_dir, "defaultOptimizerConfig.yaml"),
+                     ]
 
     cli = MyLightningCLI(model_class=PlModel, datamodule_class=ParticlesDataModule,
                          parser_kwargs={"default_env": True, "parser_mode":"omegaconf",

@@ -6,6 +6,11 @@ from os import PathLike
 import os.path as osp
 from typing import Union, Literal, Optional, List, Tuple
 
+warnings.filterwarnings("ignore", "Gimbal lock detected. Setting third angle to zero since it "
+                                  "is not possible to uniquely determine all angles.")
+warnings.filterwarnings("ignore", message="The torchvision.datapoints and torchvision.transforms.v2 namespaces are"
+                                          " still Beta.")
+
 
 import numpy as np
 import torch
@@ -15,18 +20,14 @@ from starstack.particlesStar import ParticlesStarSet
 from torch.utils.data import Dataset, DataLoader
 from torchvision.transforms.v2 import CenterCrop, Resize, Compose
 
-from cesped import default_configs_dir, defaultBenchmarkDir
 from cesped.constants import RELION_EULER_CONVENTION, RELION_ANGLES_NAMES, RELION_SHIFTS_NAMES, \
-    RELION_ORI_POSE_CONFIDENCE_NAME, RELION_PRED_POSE_CONFIDENCE_NAME
+    RELION_ORI_POSE_CONFIDENCE_NAME, RELION_PRED_POSE_CONFIDENCE_NAME, default_configs_dir, defaultBenchmarkDir
 from cesped.utils.angles import euler_angles_to_matrix
 from cesped.utils.augmentations import Augmenter
 from cesped.zenodo.bechmarkUrls import ROOT_URL_PATTERN, NAME_PARTITION_TO_RECORID
 from cesped.utils.ctf import apply_ctf
 from cesped.utils.tensors import data_to_numpy
 from cesped.zenodo.downloadFromZenodo import download_record, getDoneFname
-
-warnings.filterwarnings("ignore",
-                        "Gimbal lock detected. Setting third angle to zero since it is not possible to uniquely determine all angles.")
 
 """
 This module implements the ParticlesDataset class. A Pytorch Dataset for dealing with Cryo-EM particles 
@@ -89,7 +90,7 @@ class ParticlesDataset(Dataset):
         self._symmetry = None
         self._augmenter = None
 
-        assert 0 <= image_size_factor_for_crop < 0.5
+        assert 0 <= image_size_factor_for_crop <= 0.5
         _preprocessing = []
         if image_size_factor_for_crop > 0:
             imgShape = [int(s * (1 - image_size_factor_for_crop)) for s in self.particles.particle_shape]
@@ -175,7 +176,7 @@ class ParticlesDataset(Dataset):
             benchmarkDir (str): The root directory where the datasets are downloaded.
 
         """
-        #TODO: Add symmetry
+
         stack = ParticlesStarSet(starFname=starFname, particlesDir=particlesRootDir)
         assert isinstance(stack[len(stack) - 1][0], np.ndarray), "Error, there is some problem reading your data"
         newTargetDir = os.path.join(benchmarkDir, newTargetName)
@@ -199,8 +200,7 @@ class ParticlesDataset(Dataset):
             List[Tuple[str,int]]: the list of available entries in benchmarkDir
 
         """
-        avail = []
-        return avail
+        return list(NAME_PARTITION_TO_RECORID.keys())
     @classmethod
     def getLocallyAvailableEntries(cls, benchmarkDir: Union[str, PathLike] = defaultBenchmarkDir) -> List[Tuple[str, int]]:
         """
@@ -477,36 +477,88 @@ if __name__ == "__main__":
 
     cfg = OmegaConf.load(osp.join(default_configs_dir, "defaultDataConfig.yaml"))
 
-    parser = ArgumentParser("Visualize dataset")
-    parser.add_argument("-t", "--targetName", help="The target to visualize", type=str, required=True)
-    parser.add_argument("-p", "--halfset", help="The target to visualize", choices=["0", "1"], default="0")
-    parser.add_argument("-b", "--benchmarkDir", help="The benchmark's directory", type=str,
-                        default=defaultBenchmarkDir)
-    parser.add_argument("-s", "--image_size", help="The desired image size", type=int,
-                        default=cfg.data.image_size)
-    parser.add_argument("-c", "--image_size_factor_for_crop", help="Percentage of image to crop",
-                        type=float, default=cfg.data.image_size_factor_for_crop)
-    parser.add_argument("-f", "--phase_flippling", help="Apply phase flippling", action="store_true")
-    parser.add_argument("-i", "--channels_to_show", help="Channels of the images to show",
-                        type=int, nargs="+")
+    parser = ArgumentParser(description="Dataset utility")
+    subparsers = parser.add_subparsers(title="mode", dest="mode", required=True)
+
+    # Create parser for 'visualize' mode
+    visualize_parser = subparsers.add_parser("visualize", help="Run dataset visualization")
+
+    visualize_parser.add_argument("-t", "--targetName", help="The target to use", type=str, required=True)
+    visualize_parser.add_argument("-p", "--halfset", help="The halfset to use", choices=["0", "1"], default="0")
+    visualize_parser.add_argument("-b", "--benchmarkDir", help="The benchmark's directory", type=str,
+                                  default=defaultBenchmarkDir)
+    visualize_parser.add_argument("-s", "--image_size", help="The desired image size", type=int,
+                                  default=cfg.data.image_size)
+    visualize_parser.add_argument("-c", "--image_size_factor_for_crop", help="Percentage of image to crop", type=float,
+                                  default=cfg.data.image_size_factor_for_crop)
+    visualize_parser.add_argument("-f", "--phase_flippling", help="Apply phase flippling", action="store_true")
+    visualize_parser.add_argument("-i", "--channels_to_show", help="Channels of the images to show", type=int,
+                                  nargs="+")
+
+    # Create parser for 'add_entry' mode
+    add_entry_parser = subparsers.add_parser("add_entry", help="Run addNewEntryLocally")
+    add_entry_parser.add_argument("--newTargetName", help="The name of the new target to use", type=str,
+                                  required=True)
+    add_entry_parser.add_argument("-p", "--halfset", help="The halfset to use", choices=["0", "1"],
+                                  required=True)
+    add_entry_parser.add_argument("-b", "--benchmarkDir", help="The benchmark's directory", type=str,
+                                  default=defaultBenchmarkDir)
+    add_entry_parser.add_argument("--starFname",
+                                  help="The star filename with the particles to be added to the local benchmark",
+                                  type=str, required=True)
+    add_entry_parser.add_argument("--particlesRootDir", help="The root directory referred to in the starFname",
+                                  type=str, required=True)
+    add_entry_parser.add_argument("--symmetry", help="The point symmetry of the dataset", type=str, required=True)
+
+
+    list_entries_parser = subparsers.add_parser("list_entries", help="List available entries")
+    list_entries_parser.add_argument("-b", "--benchmarkDir", help="The benchmark's directory", type=str, default=defaultBenchmarkDir)
+    list_entries_parser.add_argument("--remote", help="List remote entries instead of local", action="store_true")
+
+
     args = parser.parse_args()
 
-    ps = ParticlesDataset(targetName=args.targetName,
-                          halfset=int(args.halfset),
-                          benchmarkDir=args.benchmarkDir,
-                          image_size=args.image_size,
-                          ctf_correction="phase_flip" if args.phase_flippling else "none",
-                          image_size_factor_for_crop=args.image_size_factor_for_crop
-                          )
-    import matplotlib.pyplot as plt
+    if args.mode == "visualize":
+        # Run dataset visualization
+        ps = ParticlesDataset(targetName=args.targetName,
+                              halfset=int(args.halfset),
+                              benchmarkDir=args.benchmarkDir,
+                              image_size=args.image_size,
+                              ctf_correction="phase_flip" if args.phase_flippling else "none",
+                              image_size_factor_for_crop=args.image_size_factor_for_crop
+                              )
+        import matplotlib.pyplot as plt
 
-    channels_to_show = args.channels_to_show if args.channels_to_show else [0]
-    for elem in ps:
-        iid, img, *_ = elem
-        assert 1 <= len(channels_to_show) <= 4, "Error, at least one channel required and no more than 4"
-        f, axes = plt.subplots(1, len(channels_to_show), squeeze=False)
-        for j, c in enumerate(channels_to_show):
-            axes[0, c].imshow(img[c, ...], cmap="gray")
-        plt.show()
-        plt.close()
-    print("Done")
+        channels_to_show = args.channels_to_show if args.channels_to_show else [0]
+        for elem in ps:
+            iid, img, *_ = elem
+            assert 1 <= len(channels_to_show) <= 4, "Error, at least one channel required and no more than 4"
+            f, axes = plt.subplots(1, len(channels_to_show), squeeze=False)
+            for j, c in enumerate(channels_to_show):
+                axes[0, c].imshow(img[c, ...], cmap="gray")
+            plt.show()
+            plt.close()
+        print("Done")
+
+    elif args.mode == "add_entry":
+        # Run addNewEntryLocally
+        ParticlesDataset.addNewEntryLocally(starFname=args.starFname,
+                                            particlesRootDir=args.particlesRootDir,
+                                            newTargetName=args.newTargetName,
+                                            halfset=int(args.halfset),
+                                            symmetry=args.symmetry,
+                                            benchmarkDir=args.benchmarkDir)
+        print(
+            f"Successfully added new entry {args.newTargetName} with halfset {args.halfset} to benchmark "
+            f"directory {args.benchmarkDir}.")
+
+    elif args.mode == "list_entries":
+        # List available entries
+        if args.remote:
+            remote_entries = ParticlesDataset.getCESPEDEntries()
+            print("Available for donwload entries:", remote_entries)
+        else:
+            local_entries = ParticlesDataset.getLocallyAvailableEntries(benchmarkDir=args.benchmarkDir)
+            print("Locally available entries:", local_entries)
+    else:
+        raise ValueError("Error, option is not valid")

@@ -5,6 +5,7 @@ mrcfile
 numpy
 omegaconf
 pandas
+pdoc3
 #lightning
 lightning[pytorch-extra]
 requests

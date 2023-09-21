@@ -13,9 +13,8 @@ import mrcfile
 import numpy as np
 import starfile
 
-from cesped import defaultBenchmarkDir, relionBinDir, mpirunCmd
 from cesped.constants import RELION_ANGLES_NAMES, RELION_SHIFTS_NAMES, RELION_PRED_POSE_CONFIDENCE_NAME, \
-    RELION_ORI_POSE_CONFIDENCE_NAME
+    RELION_ORI_POSE_CONFIDENCE_NAME, defaultBenchmarkDir, relionBinDir, mpirunCmd
 from cesped.particlesDataset import ParticlesDataset
 from cesped.utils.anglesStats import computeAngularError
 from cesped.utils.volumeStats import compute_stats
@@ -58,7 +57,8 @@ class Evaluator():
         if not exists:
             cmd = []
             if self.n_cpus > 1:
-                cmd += [self.mpirun, "-np", str(self.n_cpus), osp.join(self.relionBinDir, "relion_reconstruct_mpi")]
+                cmd += self.mpirun.split() + ["-np", str(self.n_cpus),
+                                              osp.join(self.relionBinDir, "relion_reconstruct_mpi")]
             else:
                 cmd += [osp.join(self.relionBinDir, "relion_reconstruct")]
             with tempfile.NamedTemporaryFile(suffix=".mrc") as f:
@@ -68,6 +68,8 @@ class Evaluator():
                     if RELION_PRED_POSE_CONFIDENCE_NAME in data["particles"]:
                         cmd += ["--fom_weighting"]
                 wdir = particlesDir if particlesDir else osp.dirname(starFname)
+                if self.verbose:
+                    print(" ".join(cmd))
                 subprocess.run(cmd, cwd=wdir, check=True, capture_output=not self.verbose)
                 f.seek(0)
                 shutil.copyfile(f.name, outname)
@@ -131,9 +133,12 @@ class Evaluator():
         if RELION_PRED_POSE_CONFIDENCE_NAME not in predData["particles"]:
             predData["particles"][RELION_PRED_POSE_CONFIDENCE_NAME] = 1.
 
+        predAngles = predData["particles"][RELION_ANGLES_NAMES].values
+        gtAngles = mainData["particles"][RELION_ANGLES_NAMES].values
+        assert predAngles.shape[0] == gtAngles.shape[0], ("Error, mismatch in the number of predicted particles and gt"
+                                                          "particles")
         meanAngularError, wMeanAngularError, totalConf = computeAngularError(
-            predData["particles"][RELION_ANGLES_NAMES].values,
-            mainData["particles"][RELION_ANGLES_NAMES].values,
+            predAngles,gtAngles,
             confidence=mainData["particles"][RELION_ORI_POSE_CONFIDENCE_NAME].values,
             symmetry=symmetry)
 

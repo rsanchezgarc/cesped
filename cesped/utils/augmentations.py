@@ -12,7 +12,7 @@ from torchvision.datasets import CIFAR100
 from torchvision.transforms import ToTensor
 from torchvision.transforms.v2 import RandomErasing
 import torchvision.transforms.functional as transformF
-from cesped import default_configs_dir
+from cesped.constants import default_configs_dir
 
 
 # TODO: Implement augmentations in a better way, defining custom torchvision operations so that they can be used in batch mode seamingly.

@@ -7,8 +7,9 @@ data:
   train_validation_split:
     - 0.7
     - 0.3
-  batch_size: 16
+  batch_size: 128
   image_size_factor_for_crop: 0.25
+  ctf_correction: phase_flip
   num_data_workers: 0
   augmenter:
     class_path: cesped.utils.augmentations.Augmenter

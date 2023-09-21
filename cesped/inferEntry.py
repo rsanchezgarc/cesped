@@ -11,7 +11,7 @@ python -m cesped.inferEntry --data.targetName TEST \
 import sys
 import os.path as osp
 import tempfile
-from cesped import default_configs_dir
+from cesped.constants import default_configs_dir
 from cesped.utils.cliBuilder import MyLightningCLI
 from cesped.network.plModule import PlModel
 from cesped.particlesDataset import ParticlesDataModule
@@ -59,8 +59,7 @@ if __name__ == "__main__":
                                                           f'to end in .star')
         preds = cli.trainer.predict(cli.model, cli.datamodule, ckpt_path=cli.config[_ckpt_path_argname])
         particlesDataset = cli.datamodule.createDataset()
-        for pred_rotmats, maxprob, metadata in preds:
-            ids = metadata["rlnImageName"]
+        for ids, (pred_rotmats, maxprob), metadata in preds:
             particlesDataset.updateMd(ids=ids, angles=pred_rotmats, shifts=None, confidence=maxprob,
                                       angles_format="rotmat")
         particlesDataset.saveMd(outFname)

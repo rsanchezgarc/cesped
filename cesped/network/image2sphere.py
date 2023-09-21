@@ -288,7 +288,7 @@ class I2S(nn.Module):
     '''
 
     def __init__(self, imageEncoder, imageEncoderOutputShape,
-                 true_symmetry: str, symmetry:str,
+                 symmetry:str,
                  lmax:int=6, s2_fdim:int=512, so3_fdim:int=16,
                  hp_order_projector:int=2,
                  hp_order_s2:int=2,
@@ -300,7 +300,6 @@ class I2S(nn.Module):
         Args:
             imageEncoder:
             imageEncoderOutputShape:
-            true_symmetry (str): The true symmetry of the dataset. Required to compute evaluation metrics
             symmetry (str): The symmetry to be applied during training
             lmax:
             s2_fdim:

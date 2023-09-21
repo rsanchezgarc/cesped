@@ -15,7 +15,7 @@ def closest_symmetric_rotation(rot_pred, rot_true, symmetry):
     symmetry: the name of the point symmetry group.
     returns the closest symmetric rotation matrices to rot_true, tensor of shape (B,3,3)
     '''
-
+    assert rot_pred.shape[0] == rot_true.shape[0], "Error, different batch size for rot_pred and rot_true"
     assert symmetry.lower() != "c1", "Error c1 is not supported"
     symmetry_group = compute_symmetry_group_matrices(symmetry)
 
@@ -62,7 +62,6 @@ def computeAngularError(predEulers, trueEulers, confidence=None, symmetry="c1") 
 
     predRotM = torch.from_numpy(predRotM.astype(np.float32))
     trueRotM = torch.from_numpy(trueRotM.astype(np.float32))
-
     if symmetry.lower() != "c1":
         predRotM = closest_symmetric_rotation(predRotM, trueRotM, symmetry=symmetry)
     error = rotation_error_rads(predRotM, trueRotM)
