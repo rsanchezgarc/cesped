@@ -9,7 +9,7 @@ from cesped.utils.gaussianFilters import GaussianFilterBank
 
 class ResNetImageEncoder(nn.Module):
     def __init__(self, resnetName: str = "resnet50", load_imagenetweights: bool = True, sigma0: float = 1.,
-                 sigma1: float = 2):
+                 sigma1: float = 2.):
         """
 
         Args:
@@ -24,7 +24,7 @@ class ResNetImageEncoder(nn.Module):
         resnet = nn.Sequential(*list(cls(weights=None if not load_imagenetweights \
                                 else getattr(torchvision.models, f"ResNet{num}_Weights").IMAGENET1K_V2
                                          ).children())[:-2])
-        filterBank = GaussianFilterBank(1, [0, int(2 * sigma0) + 1, int(2 * sigma1) + 1],
+        filterBank = GaussianFilterBank(1, [0, int(3 * sigma0) + 1, int(3 * sigma1) + 1],
                                         sigma_values=[0, sigma0, sigma1])
         self.imageEncoder = nn.Sequential(filterBank, resnet)
 

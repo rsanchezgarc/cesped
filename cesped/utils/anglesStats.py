@@ -67,10 +67,13 @@ def computeAngularError(predEulers, trueEulers, confidence=None, symmetry="c1") 
     error = rotation_error_rads(predRotM, trueRotM)
     error = torch.rad2deg(error)
     w_error = torch.ones_like(error) * torch.nan
-    totalConf = confidence.sum()
     if confidence is not None:
+        totalConf = confidence.sum()
         confidence = torch.from_numpy(confidence.astype(np.float32))
         w_error = (confidence * error).sum() / totalConf
+    else:
+        totalConf = None
+
     error = error.mean()
     if not a_isTensor:
         error = error.numpy()

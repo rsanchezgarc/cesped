@@ -14,6 +14,8 @@ RELION_PRED_POSE_CONFIDENCE_NAME: str = 'rlnParticleFigureOfMerit'
 """ The name of the metadata field used to weight the particles for the volume reconstruction"""
 RELION_ORI_POSE_CONFIDENCE_NAME: str = 'rlnMaxValueProbDistribution'
 """ The name of the metadata field with the estimated pose probability"""
+RELION_IMAGE_FNAME: str = 'rlnImageName'
+""" The Relion image name, that is also used as id"""
 
 
 _dirname = osp.dirname(__file__)

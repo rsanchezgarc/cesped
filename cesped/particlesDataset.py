@@ -226,8 +226,7 @@ class ParticlesDataset(Dataset):
         assert (self.targetName, self.halfset) in NAME_PARTITION_TO_RECORID, (f"Error, unknown target and/or "
                                                                               f"halfset {self.targetName} {self.halfset}")
         download_record(NAME_PARTITION_TO_RECORID[self.targetName, self.halfset],
-                        destination_dir=self.datadir,
-                        root_url=ROOT_URL_PATTERN)
+                        destination_dir=self.datadir)
         #Validation
         pset = ParticlesStarSet(starFname=self.starFname, particlesDir=self.datadir)
         for i in range(len(pset)):
@@ -414,7 +413,7 @@ class ParticlesDataModule(pl.LightningDataModule):
         """
 
         super().__init__()
-        self.save_hyperparameters()
+        # self.save_hyperparameters()  #Not needed since we are using CLI
         self.targetName = targetName
         self.halfset = halfset
         self.benchmarkDir = os.path.expanduser(benchmarkDir)
@@ -448,8 +447,10 @@ class ParticlesDataModule(pl.LightningDataModule):
             train_dataset, val_dataset = torch.utils.data.random_split(dataset, self.train_validation_split)
             if partitionName == "train":
                 dataset = train_dataset
+                print(f"Train dataset {len(train_dataset)}")
             else:
                 dataset = val_dataset
+                print(f"Validation dataset {len(val_dataset)}")
         dl = DataLoader(
             dataset, batch_size=self.batch_size,
             shuffle=True if partitionName == "train" else False,

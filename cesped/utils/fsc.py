@@ -137,7 +137,8 @@ def getMaskCorrectedFSC(array1, array2, mask, samplingRate,
     return inv_resolution, unmaskedFSC, maskedFSC, phaseRndFSC, correctedFSC
 
 def determine_fsc_resolution(inv_resolution, fsc_values, threshold=0.143):
-    index = np.where(fsc_values < threshold)[0][0]  #TODO: add try except for IndexError
+
+    index = np.where(fsc_values < threshold)[0][0]  #TODO: add try except for IndexError, probably caused by too tight mask
     inv_res_at_threshold = inv_resolution[index - 1] + (inv_resolution[index] - inv_resolution[index - 1]) * (
                 threshold - fsc_values[index - 1]) / (fsc_values[index] - fsc_values[index - 1])
     res_at_threshold = 1 / inv_res_at_threshold
@@ -185,31 +186,33 @@ if __name__ == "__main__":
 
     with mrcfile.open(osp.expanduser(args.inputMap)) as f:
         array1 = f.data.copy()
-        samplingRate = f.voxel_size.x
+        samplingRate = float(f.voxel_size.x)
     with mrcfile.open(osp.expanduser(args.referenceMap)) as f:
         array2 = f.data.copy()
-        assert  samplingRate == f.voxel_size.x, "Error, input and reference map have different sampling rate"
+        assert round(samplingRate,3) == round(float(f.voxel_size.x),3), ("Error, input and reference map have different"
+                                                                 " sampling rate")
     if args.mask is not None:
         with mrcfile.open(osp.expanduser(args.mask)) as f:
             mask = f.data.copy()
-            assert samplingRate == f.voxel_size.x, "Error, input map and mask have different sampling rate"
+            assert round(samplingRate,3) == round(float(f.voxel_size.x),3), (f"Error, input map and mask have "
+                                                                             f"different sampling rate "
+                                                                             f"{samplingRate, f.voxel_size.x}")
     else:
         mask=None
     (inv_resolution, unmaskedFSC, maskedFSC,
      phaseRndFSC, correctedFSC) = getMaskCorrectedFSC(array1, array2, mask, samplingRate)
-
+    inv_res_at_threshold, resolution = determine_fsc_resolution(inv_resolution, unmaskedFSC, threshold=threshold)
+    print(f"Resolution {resolution} Å  (Sampling rate {samplingRate})")
 
     from matplotlib import pyplot as plt
-
-
     fig, ax = plt.subplots()
     ax.axhline(y=threshold, color='r', linestyle='--')
-    inv_res_at_threshold, _ = determine_fsc_resolution(inv_resolution, unmaskedFSC, threshold=threshold)
     plot_fsc(ax, inv_resolution, unmaskedFSC, inv_res_at_threshold,
              label=f'Unmasked FSC ({np.round(1/inv_res_at_threshold, 2)})')
 
     if maskedFSC is not None:
-        inv_res_at_threshold, _ = determine_fsc_resolution(inv_resolution, maskedFSC)
+        inv_res_at_threshold, maskedResolution = determine_fsc_resolution(inv_resolution, maskedFSC)
+        print(f"Masked Resolution {maskedResolution}")
         plot_fsc(ax, inv_resolution, maskedFSC, inv_res_at_threshold,
                  label=f'Masked FSC ({np.round(1/inv_res_at_threshold, 2)})')
 

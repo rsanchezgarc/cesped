@@ -25,3 +25,8 @@ NAME_PARTITION_TO_RECORID ={
     ("10280", 1): "8353737",
 
 }
+
+NAME_TO_MASK_URL={
+    "TEST":  "https://sandbox.zenodo.org/records/10000156/files/10166_mask.mrc",
+    "10166": "https://sandbox.zenodo.org/records/10000156/files/10166_mask.mrc",
+}

@@ -1,6 +1,7 @@
 import os
 
 import mrcfile
+import numpy as np
 from scipy.stats import pearsonr
 
 from cesped.utils.fsc import getFSCResolution
@@ -28,18 +29,25 @@ def compute_stats(gtVolOrFname, predVolOrFname, maskOrFname=None, samplingRate=N
 
     sr = [gtSr, predSr, maskSr]
     if any(sr):
-        assert len(set([round(x,3) for x in sr if x is not None])) == 1, "Error, different sampling rates"
+        sr_set = set([round(x,3) for x in sr if x is not None])
+        assert len(sr_set) == 1, "Error, different sampling rates"
+        sr_ = sr_set.pop()
         if samplingRate is not None:
-            assert sr[0] == samplingRate, "Error, different sampling rates"
+            assert round(sr_, 3) == round(samplingRate, 3), "Error, different sampling rates"
         else:
-            samplingRate = sr[0]
+            samplingRate = sr_
     else:
         assert samplingRate is not None, "Error, sampling rate was not provided"
 
     corr = pearsonr(gtData.flatten(), predData.flatten()).statistic
+    if mask is not None:
+        m_corr = pearsonr(gtData.flatten() * mask.flatten(), predData.flatten() * mask.flatten()).statistic
+    else:
+        m_corr = np.nan
+
     fscResolution = getFSCResolution(gtData, predData, mask=mask, samplingRate=samplingRate,
                                      resolution_threshold=resolution_threshold)
-    return corr, fscResolution
+    return (corr, m_corr), fscResolution
 
 
 # TODO: REMOVE THIS BAD TEST

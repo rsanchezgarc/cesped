@@ -14,7 +14,7 @@ class PlModel(pl.LightningModule):
                  hp_order_projector: int = 2,
                  hp_order_s2: int = 2,
                  hp_order_so3: int = 3,
-                 rand_fraction_points_to_project:float=.5):
+                 rand_fraction_points_to_project: float = .5):
         """
 
         Args:
@@ -30,26 +30,24 @@ class PlModel(pl.LightningModule):
              hemisphere. Works similarly to dropout. Smaller numbers should reduce overfitting.
         """
         super().__init__()
-        self.save_hyperparameters(ignore=['feature_extractor'])
+        # self.save_hyperparameters(ignore=['feature_extractor']) #Not needed since we are using CLI
 
         self.symmetry = symmetry
-        # Resnet before the global average pooling operation.
-        self.imageEncoder = feature_extractor
 
         example = torch.rand(1, 1, image_size, image_size)
+        imageEncoderOutputShape = feature_extractor(example).shape[1:]
 
-        imageEncoderOutputShape = self.imageEncoder(example).shape[1:]
-        self.model = I2S(imageEncoder=self.imageEncoder, imageEncoderOutputShape=imageEncoderOutputShape,
+        self.model = I2S(imageEncoder=feature_extractor, imageEncoderOutputShape=imageEncoderOutputShape,
                          symmetry=self.symmetry, lmax=lmax,
                          s2_fdim=s2_fdim, so3_fdim=so3_fdim,
-                         hp_order_projector = hp_order_projector,
-                         hp_order_s2 = hp_order_s2,
+                         hp_order_projector=hp_order_projector,
+                         hp_order_s2=hp_order_s2,
                          hp_order_so3=hp_order_so3,
                          rand_fraction_points_to_project=rand_fraction_points_to_project)
 
     def _step(self, batch, batch_idx):
         idd, imgs, (rotMats, shifts, conf), *_ = batch
-        loss, error_rads, pred_rotmats, maxprob, probs = self.model.compute_loss(imgs, rotMats, conf)
+        loss, error_rads, pred_rotmats, maxprob, probs = self.model.forward_and_loss(imgs, rotMats, conf)
         return loss, error_rads, pred_rotmats, maxprob, probs
 
     def training_step(self, batch, batch_idx):

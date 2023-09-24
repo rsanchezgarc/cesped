@@ -1,12 +1,17 @@
 import os
+import shutil
+import tempfile
 from hashlib import md5
 
 import requests
 from tqdm import tqdm
 
+from cesped.zenodo.bechmarkUrls import ROOT_URL_PATTERN
+
+
 def getDoneFname(destination_dir, record_id):
     return os.path.join(destination_dir, f"SUCCESSFUL_DOWNLOAD_{record_id}.txt")
-def download_record(record_id, destination_dir, root_url):
+def download_record(record_id, destination_dir, root_url=ROOT_URL_PATTERN):
 
     donefname = getDoneFname(destination_dir, record_id)
     if os.path.isfile(donefname):
@@ -115,3 +120,17 @@ def download_record(record_id, destination_dir, root_url):
         f.write("%s\n"%record_id)
         f.write("%s\n"%current_size)
     print()
+
+def download_mask(mask_url, mask_fname):
+
+    if os.path.exists(mask_fname):
+        return
+
+    response = requests.get(mask_url, stream=True)
+    assert response.status_code == 200, (f"Error downloading mask {mask_url}. If you cannot download it, place a "
+                                         f"mask named {os.path.basename(mask_fname)} "
+                                         f"on {os.path.split(mask_fname)[0]}")
+    with tempfile.NamedTemporaryFile() as tmpf:
+        for chunk in response.iter_content(chunk_size=100 * 1024 * 2):  # 100MB chunks
+            tmpf.write(chunk)
+        shutil.copyfile(tmpf.name, mask_fname)

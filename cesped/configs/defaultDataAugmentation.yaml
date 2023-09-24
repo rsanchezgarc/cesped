@@ -20,6 +20,14 @@ operations:
     kwargs:
       maxShiftFraction: 0.05
     p: 0.5
+  sizePerturbation:
+    kwargs:
+      maxSizeFraction: 0.05
+    p: 0.2
+  gaussianBlur:
+    kwargs:
+      scale: 2
+    p: 0.2
   erasing:
     kwargs:
       ratio:
@@ -29,7 +37,3 @@ operations:
       - 0.01
       - 0.02
     p: 0.1
-  gaussianBlur:
-    kwargs:
-      scale: 2
-    p: 0.2

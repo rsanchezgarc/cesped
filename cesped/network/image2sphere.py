@@ -410,7 +410,7 @@ class I2S(nn.Module):
         '''
         return rotation_error_rads(rotA, rotB)
 
-    def compute_loss(self, img, gt_rot, per_img_weight=None):
+    def forward_and_loss(self, img, gt_rot, per_img_weight=None):
         '''Compute cross entropy loss using ground truth rotation, the correct label
         is the nearest rotation in the spatial grid to the ground truth rotation
 
@@ -429,7 +429,7 @@ class I2S(nn.Module):
             target_he = torch.zeros_like(grid_signal)
             rows = torch.arange(grid_signal.shape[0]).view(-1, 1).repeat(1, n_groupElems)
             target_he[rows, rotMat_gtIds] = 1 / n_groupElems
-            loss = nn.functional.cross_entropy(grid_signal, target_he, reduction="none")
+            loss = nn.functional.cross_entropy(grid_signal, target_he, reduction="none", label_smoothing=0.1)
 
             with torch.no_grad():
                 error_rads = rotation_error_rads(gtrotMats.view(-1,3,3),
@@ -439,8 +439,8 @@ class I2S(nn.Module):
 
         else:
             # find nearest grid point to ground truth rotation matrix
-            rot_id = nearest_rotmat(gt_rot, self.output_rotmats)
-            loss = nn.functional.cross_entropy(grid_signal, rot_id, reduction="none")
+            rot_id = self.nearest_rotmat(gt_rot)
+            loss = nn.functional.cross_entropy(grid_signal, rot_id, reduction="none", label_smoothing=0.1)
             with torch.no_grad():
                 error_rads = rotation_error_rads(gt_rot, pred_rotmats)
 

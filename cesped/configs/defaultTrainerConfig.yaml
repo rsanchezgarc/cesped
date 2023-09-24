@@ -9,7 +9,7 @@ trainer:
   callbacks:
     - class_path: lightning.pytorch.callbacks.EarlyStopping
       init_args:
-        patience: 10
+        patience: 12
         monitor: val_error_degs
         verbose: true
     - class_path: lightning.pytorch.callbacks.ModelCheckpoint
@@ -18,6 +18,9 @@ trainer:
         save_last: true
         save_top_k: 2
         verbose: true
+    - class_path: lightning.pytorch.callbacks.LearningRateMonitor
+      init_args:
+        logging_interval: epoch
   max_epochs: 400
   overfit_batches: 0.0
   val_check_interval: null

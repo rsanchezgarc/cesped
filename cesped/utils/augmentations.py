@@ -161,8 +161,6 @@ class Augmenter:
                         kwargs = {k: tuple(v) for k, v in aug_kwargs.items()}
                         img = self._randomErase(img, **kwargs)
                         applied_transforms.append((aug, dict(kwargs=kwargs)))
-
-
                     else:
                         raise ValueError(f"Error, unknown augmentation {aug}")
         self.augmentation_count += 1
