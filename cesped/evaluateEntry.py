@@ -18,7 +18,6 @@ from cesped.constants import RELION_ANGLES_NAMES, RELION_SHIFTS_NAMES, RELION_PR
 from cesped.particlesDataset import ParticlesDataset
 from cesped.utils.anglesStats import computeAngularError
 from cesped.utils.volumeStats import compute_stats
-from cesped.zenodo.bechmarkUrls import NAME_TO_MASK_URL
 from cesped.zenodo.downloadFromZenodo import download_mask
 
 
@@ -242,7 +241,7 @@ class Evaluator():
             if self.use_gt_mask:
                 print("Downloading mask")
                 mask_fname = osp.join(wdir, "mask.mrc")
-                download_mask(NAME_TO_MASK_URL[targetName], mask_fname)
+                download_mask(targetName, mask_fname)
             else:
                 mask_fname = None
 
@@ -282,8 +281,13 @@ class Evaluator():
                                                                           resolution_threshold=0.5,
                                                                           maskOrFname=mask_fname)
             cor_diff = (gt_cor - mapVsGT_cor) / gt_cor
-            res_diff05 = (mapVsGT_resolt05 - gt_resolt05) / gt_resolt05
-            res_diff = (mapVsGT_resolt - gt_resolt0143) / gt_resolt0143
+
+            # res_diff05 = (mapVsGT_resolt05 - gt_resolt05) / gt_resolt05
+            res_diff05 = mapVsGT_resolt05 - gt_resolt05 #(1/mapVsGT_resolt05 - 1/gt_resolt05) / (0.5/gt_sampling)
+            res_diff = mapVsGT_resolt - gt_resolt0143
+
+            res_percent_diff05 = (1/gt_resolt05 - 1/mapVsGT_resolt05) / (0.5/gt_sampling)
+            res_percent_diff =   (1/gt_resolt0143 - 1/mapVsGT_resolt) / (0.5/gt_sampling)
 
             metrics = dict(meanAngularError=meanAngularError, wMeanAngularError=wMeanAngularError,
                            shiftsRMSE=shiftsRMSE,
@@ -299,24 +303,23 @@ class Evaluator():
                 json.dump(metrics, f)
 
             report_str = f"""
-> EVALUATION for target:                {targetName}
-GT_correlation:                         {gt_cor}
-GT_resolution (th=0.143, Å):            {gt_resolt0143}
-GT_resolution (th=0.5, Å):              {gt_resolt05}
+> EVALUATION for target:                  {targetName}
+GT_correlation:                           {gt_cor}
+GT_resolution (Å) (th=0.143, 0.5):        {gt_resolt0143}  {gt_resolt05}
 > RESULTS
-mean_angular_error (°):                 {meanAngularError} 
-w_mean_angular_error (°):               {wMeanAngularError} 
-shifts_RMSE (Å):                        {shiftsRMSE}
-half2half_correlation:                  {pred_corr}
-half2half_resolution (th=0.143, Å):     {pred_resolut}
-half2half_resolution (th=0.5, Å):       {pred_resolt05}
-mapVsGT_correlaton (masked, unmasked):  {" ".join(reversed([str(x) for x in mapVsGT_cor]))}
-mapVsGT_resolution (th=0.143, Å):       {mapVsGT_resolt}
-mapVsGT_resolution (th=0.5, Å):         {mapVsGT_resolt05}
-#Differences
-cor_diff (%) (masked, unmasked):        {" ".join(reversed([str(x * 100) for x in cor_diff]))}
-res_diff (thr=0.143, %)                 {res_diff * 100}
-res_diff (thr=0.5, %)                   {res_diff05 * 100}
+#Predictions
+mean_angular_error (°):                   {meanAngularError} 
+w_mean_angular_error (°):                 {wMeanAngularError} 
+shifts_RMSE (Å):                          {shiftsRMSE}
+#Reconstruction
+half2half_correlation:                    {pred_corr}
+half2half_resolution (Å) (th=0.143, 0.5): {pred_resolut}  {pred_resolt05}
+mapVsGT_correlaton (masked, unmasked):    {"  ".join(reversed([str(x) for x in mapVsGT_cor]))}
+mapVsGT_resolution (Å) (th=0.143, 0.5)    {mapVsGT_resolt}  {mapVsGT_resolt05}
+#Reconstruction differences
+cor_diff (%) (masked, unmasked):          {"  ".join(reversed([str(x * 100) for x in cor_diff]))}
+res_diff (Å) th=0.143, 0.5):              {res_diff}  {res_diff05}
+res_diff (%) (th=0.143, 0.5):             {res_percent_diff * 100} {res_percent_diff05 * 100}
 
             """
 

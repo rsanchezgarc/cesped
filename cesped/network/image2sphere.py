@@ -445,7 +445,7 @@ class I2S(nn.Module):
                 error_rads = rotation_error_rads(gt_rot, pred_rotmats)
 
         if per_img_weight is not None:
-            loss = loss * per_img_weight.squeeze(-1)
+            loss = loss * per_img_weight.squeeze(-1) #I may be using (per_img_weight**2) in the original code
         loss = loss.mean()
 
         return loss, error_rads, pred_rotmats, maxprob, probs

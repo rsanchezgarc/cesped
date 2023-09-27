@@ -388,7 +388,7 @@ class ParticlesDataModule(pl.LightningDataModule):
     def __init__(self, targetName: Union[PathLike, str], halfset: Literal[0, 1], image_size: int,
                  benchmarkDir: str = defaultBenchmarkDir, apply_perImg_normalization: bool = True,
                  ctf_correction: Literal["none", "phase_flip"] = "phase_flip", image_size_factor_for_crop: float = 0.25,
-                 augmenter: Optional[Augmenter] = None,
+                 augmenter: Optional[Augmenter] = None, train_validaton_split_seed: int = 113,
                  train_validation_split: Tuple[float, float] = (0.7, 0.3), batch_size: int = 8,
                  num_data_workers: int = 0):
         """
@@ -406,7 +406,8 @@ class ParticlesDataModule(pl.LightningDataModule):
             is origSize*(1-image_size_factor_for_crop). It is important because particles in cryo-EM tend to \
             be only 50% to 25% of the total area of the image.
             augmenter (Augmenter): A data augmentator object to be applied to the training dataloader. If none, data won't be augmented
-            train_validation_split (List[float]):
+            train_validaton_split_seed (int): The train/validation seed used for random split
+            train_validation_split (Tuple[float]): The fraction of the dateset that should be split for train and for validation
             batch_size (int): The batch size
             num_data_workers (int): The number of workers for data loading. Set it to 0 to use the same thread as the model
 
@@ -422,6 +423,7 @@ class ParticlesDataModule(pl.LightningDataModule):
         self.ctf_correction = ctf_correction
         self.image_size_factor_for_crop = image_size_factor_for_crop
         self.augmenter = augmenter
+        self.train_validaton_split_seed = train_validaton_split_seed
         self.train_validation_split = train_validation_split
         self.batch_size = batch_size
         self.num_data_workers = num_data_workers
@@ -444,7 +446,9 @@ class ParticlesDataModule(pl.LightningDataModule):
         if partitionName in ["train", "val"]:
             assert self.train_validation_split is not None, "Error, self.train_validation_split required"
             dataset.augmenter = self.augmenter if partitionName == "train" else None
-            train_dataset, val_dataset = torch.utils.data.random_split(dataset, self.train_validation_split)
+            generator = torch.Generator().manual_seed(self.train_validaton_split_seed) #This is new
+            train_dataset, val_dataset = torch.utils.data.random_split(dataset, self.train_validation_split,
+                                                                       generator=generator)
             if partitionName == "train":
                 dataset = train_dataset
                 print(f"Train dataset {len(train_dataset)}")

@@ -6,7 +6,7 @@ from hashlib import md5
 import requests
 from tqdm import tqdm
 
-from cesped.zenodo.bechmarkUrls import ROOT_URL_PATTERN
+from cesped.zenodo.bechmarkUrls import ROOT_URL_PATTERN, NAME_TO_MASK_URL
 
 
 def getDoneFname(destination_dir, record_id):
@@ -121,11 +121,11 @@ def download_record(record_id, destination_dir, root_url=ROOT_URL_PATTERN):
         f.write("%s\n"%current_size)
     print()
 
-def download_mask(mask_url, mask_fname):
+def download_mask(targetName, mask_fname):
 
     if os.path.exists(mask_fname):
         return
-
+    mask_url = NAME_TO_MASK_URL[targetName]
     response = requests.get(mask_url, stream=True)
     assert response.status_code == 200, (f"Error downloading mask {mask_url}. If you cannot download it, place a "
                                          f"mask named {os.path.basename(mask_fname)} "
