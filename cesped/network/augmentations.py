@@ -8,7 +8,6 @@ import torch
 import torch.nn.functional as F
 from omegaconf import OmegaConf
 from scipy.spatial.transform import Rotation
-from torchvision.datasets import CIFAR100
 from torchvision.transforms import ToTensor
 from torchvision.transforms.v2 import RandomErasing
 import torchvision.transforms.functional as transformF
@@ -18,7 +17,9 @@ from cesped.constants import default_configs_dir
 # TODO: Implement augmentations in a better way, defining custom torchvision operations so that they can be used in batch mode seamingly.
 
 class Augmenter:
-    def __init__(self, operations: Optional[Dict[str, any]] = None,
+    def __init__(self,
+                 # configFname:Optional[str] = None,
+                 operations: Optional[Dict[str, any]] = None,
                  min_n_augm_per_img: Optional[int] = None,
                  max_n_augm_per_img: Optional[int] = None):
 
@@ -40,39 +41,6 @@ class Augmenter:
     @classmethod
     def read_default_config(cls):
         return OmegaConf.load(osp.join(default_configs_dir, "defaultDataAugmentation.yaml"))
-
-    # def _generate_scheduler(self, schedulerInfo):
-    #     if schedulerInfo is None:
-    #         def _identity(x, current_step):
-    #             return x
-    #         return _identity
-    #     else:
-    #         schedulerName = schedulerInfo["type"]
-    #         schedulerKwargs = schedulerInfo["kwargs"]
-    #         if schedulerName == "linear_up":
-    #             maxProb = schedulerKwargs.get("max_prob")
-    #             scheduler_steps = schedulerKwargs.get("scheduler_steps")
-    #
-    #             def linear_up(p, current_step):
-    #                 # Linearly increase from 0 to p over scheduler_steps
-    #                 increment = (maxProb - p) / scheduler_steps
-    #                 new_p = min(p + increment * current_step, maxProb)
-    #                 return new_p
-    #
-    #             return linear_up
-    #         elif schedulerName == "linear_down":
-    #             scheduler_steps = schedulerKwargs.get("scheduler_steps")
-    #             minProb = schedulerKwargs.get("min_prob")
-    #
-    #             def linear_down(p, current_step):
-    #                 # Linearly decrease from p to min_prob over scheduler_steps
-    #                 decrement = (p - minProb) / scheduler_steps
-    #                 new_p = max(p - decrement * current_step, minProb)
-    #                 return new_p
-    #
-    #             return linear_down
-    #         else:
-    #             raise NotImplementedError(f"False {schedulerName} is not valid")
 
     @functools.lru_cache(1)
     def _getRandomEraser(self, **kwargs):
@@ -107,6 +75,16 @@ class Augmenter:
             return self._applyAugmentation(imgs, degEulerList, shiftFractionList)
 
     def _applyAugmentation(self, img, degEuler, shiftFraction):
+        """
+
+        Args:
+            img: A tensor of shape 1XLxL
+            degEuler:
+            shiftFraction:
+
+        Returns:
+
+        """
         img = img.clone()
         applied_transforms = []
         n_rounds = self._get_nrounds()
@@ -304,6 +282,7 @@ if __name__ == "__main__":
     from cesped.particlesDataset import ParticlesDataset
 
     # dataset = ParticlesDataset("TEST", 0)
+    from torchvision.datasets import CIFAR100
 
     dataset = CIFAR100(root="/tmp/cifcar", transform=ToTensor(), download=True)
 

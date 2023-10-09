@@ -8,7 +8,8 @@ data:
     - 0.7
     - 0.3
   batch_size: 128
-  image_size_factor_for_crop: 0.25
+  image_size_factor_for_crop: 0.15
+  num_augmented_copies_per_batch: 2
   ctf_correction: phase_flip
   num_data_workers: 0
   augmenter:

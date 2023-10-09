@@ -1,6 +1,7 @@
 argParseFromDoc
 e3nn
 healpy
+joblib
 mrcfile
 numpy
 omegaconf

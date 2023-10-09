@@ -1,5 +1,10 @@
 #Modified from https://colab.research.google.com/github/dmklee/image2sphere/blob/main/model_walkthrough.ipynb
+import os.path
+
+import tempfile
+
 import functools
+import joblib
 import warnings
 
 import numpy as np
@@ -159,14 +164,23 @@ class S2Conv(nn.Module):
       "w", torch.nn.Parameter(torch.randn(f_in, f_out, kernel_grid.shape[1]))
     )  # [f_in, f_out, n_s2_pts]
 
+    s2Cache = joblib.Memory(location=os.path.join(tempfile.gettempdir(), "S2_cache.joblib"), verbose=0)
+    def _compute_parameters(lmax, kernel_grid):
+        spherical_harmonics = o3.spherical_harmonics_alpha_beta(range(lmax + 1),
+                                        *kernel_grid, normalization="component") # [n_s2_pts, (2*lmax+1)**2]
+        s2_ir =  s2_irreps(lmax)
+        so3_ir = so3_irreps(lmax)
+        return spherical_harmonics, s2_ir, so3_ir
+    compute_parameters = s2Cache.cache(_compute_parameters)
+    spherical_harmonics, s2_ir, so3_ir = compute_parameters(lmax, kernel_grid)
+
     # linear projection to convert filter weights to fourier domain
     self.register_buffer(
-      "Y", o3.spherical_harmonics_alpha_beta(range(lmax + 1), *kernel_grid, normalization="component")
-    )  # [n_s2_pts, (2*lmax+1)**2]
+      "Y", spherical_harmonics)  # [n_s2_pts, (2*lmax+1)**2]
 
     # defines group convolution using appropriate irreps
     # note, we set internal_weights to False since we defined our own filter above
-    self.lin = o3.Linear(s2_irreps(lmax), so3_irreps(lmax),
+    self.lin = o3.Linear(s2_ir, so3_ir,
                          f_in=f_in, f_out=f_out, internal_weights=False)
 
   def forward(self, x):
@@ -200,10 +214,17 @@ class SO3Conv(nn.Module):
     )  # [f_in, f_out, n_so3_pts]
 
     # wigner D matrices used to project spatial signal to irreps of SO(3)
-    self.register_buffer("D", flat_wigner(lmax, *kernel_grid))  # [n_so3_pts, sum_l^L (2*l+1)**2]
+    so3Cache = joblib.Memory(location=os.path.join(tempfile.gettempdir(), "SO3_cache.joblib"), verbose=0)
+    def _compute_parameters(lmax, kernel_grid):
+        f_wigner =  flat_wigner(lmax, *kernel_grid)  # [n_so3_pts, sum_l^L (2*l+1)**2]
+        so3_ir = so3_irreps(lmax)
+        return f_wigner, so3_ir
+    compute_parameters = so3Cache.cache(_compute_parameters)
+    f_wigner, so3_ir = compute_parameters(lmax, kernel_grid)
+    self.register_buffer("D", f_wigner)
 
     # defines group convolution using appropriate irreps
-    self.lin = o3.Linear(so3_irreps(lmax), so3_irreps(lmax),
+    self.lin = o3.Linear(so3_ir, so3_ir,
                          f_in=f_in, f_out=f_out, internal_weights=False)
 
   def forward(self, x):
@@ -346,8 +367,19 @@ class I2S(nn.Module):
 
         output_eulerRad_yxy = so3_healpix_grid(hp_order=self.hp_order)
         self.register_buffer("output_eulerRad_yxy", output_eulerRad_yxy)
+
+        i2sCache = joblib.Memory(location=os.path.join(tempfile.gettempdir(), "I2S_cache.joblib"), verbose=0)
+        def _compute_parameters(lmax, output_eulerRad_yxy):
+            output_wigners = flat_wigner(lmax, *output_eulerRad_yxy).transpose(0, 1)
+            output_rotmats = o3.angles_to_matrix(*output_eulerRad_yxy)
+            return output_wigners, output_rotmats
+
+        compute_parameters = i2sCache.cache(_compute_parameters)
+        output_wigners, output_rotmats = compute_parameters(lmax, output_eulerRad_yxy)
+
+
         self.register_buffer(
-            "output_wigners", flat_wigner(lmax, *output_eulerRad_yxy).transpose(0, 1)
+            "output_wigners", output_wigners
         )
         output_rotmats = o3.angles_to_matrix(*output_eulerRad_yxy)
         self.register_buffer(
@@ -445,7 +477,7 @@ class I2S(nn.Module):
                 error_rads = rotation_error_rads(gt_rot, pred_rotmats)
 
         if per_img_weight is not None:
-            loss = loss * per_img_weight.squeeze(-1) #I may be using (per_img_weight**2) in the original code
+            loss = loss * per_img_weight.squeeze(-1)
         loss = loss.mean()
 
         return loss, error_rads, pred_rotmats, maxprob, probs
@@ -551,7 +583,7 @@ def _test():
     b,c,l = 4,3,224
     imgs = torch.rand(b,c,l,l)
 
-    model = I2S(model, model(imgs).shape[1:], lmax=6, s2_fdim=512, so3_fdim=16, hp_order_so3=2)
+    model = I2S(model, model(imgs).shape[1:], symmetry="C1", lmax=6, s2_fdim=512, so3_fdim=16, hp_order_so3=2)
 
 
     from scipy.spatial.transform import Rotation

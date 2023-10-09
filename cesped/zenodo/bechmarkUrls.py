@@ -1,10 +1,3 @@
-# ROOT_URL_PATTERN="https://sandbox.zenodo.org/api/records/"
-#
-# NAME_PARTITION_TO_RECORID ={
-#     ("TEST", 0): "1240803",
-#     ("TEST", 1): "1240804",
-# }
-
 
 ROOT_URL_PATTERN="https://zenodo.org/api/records/"
 
@@ -23,6 +16,16 @@ NAME_PARTITION_TO_RECORID ={
 
     ("10280", 0): "8353722",
     ("10280", 1): "8353737",
+
+    ("10647", 0): "8387534",
+    ("10647", 1): "8390711",
+
+    ("10374", 0): "8386774",
+    ("10374", 1): "8386881",
+
+    ("10409", 0): "8386582",
+    ("10409", 1): "8386660",
+
 
 }
 

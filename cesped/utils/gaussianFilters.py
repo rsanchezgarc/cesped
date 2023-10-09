@@ -11,7 +11,7 @@ class GaussianFilterBank(nn.Module):
     """
     A bank of gaussianl filters implemented in Pytorch
     """
-    def __init__(self, in_channels, kernel_sizes, sigma_values):
+    def __init__(self, in_channels, kernel_sizes, sigma_values, out_dim=None):
         super(GaussianFilterBank, self).__init__()
         max_kernel_size = max(kernel_sizes)
 
@@ -50,6 +50,11 @@ class GaussianFilterBank(nn.Module):
         # Register as a buffer so PyTorch can recognize it as a model parameter
         self.register_buffer('all_kernels', all_kernels)
 
+        if out_dim and out_dim != self.all_kernels.shape[0]:
+            self.lastLayer = nn.Conv2d(in_channels=self.all_kernels.shape[0], out_channels=out_dim,
+                                       kernel_size=max(kernel_sizes), padding="same")
+        else:
+            self.lastLayer = nn.Identity()
     @staticmethod
     def gaussian_kernel(size, sigma):
         coords = torch.arange(size).float()
@@ -60,7 +65,8 @@ class GaussianFilterBank(nn.Module):
 
     def forward(self, x):
         # Perform depthwise convolution
-        return F.conv2d(x, self.all_kernels, groups=self.in_channels)
+        x = F.conv2d(x, self.all_kernels, groups=self.in_channels, padding="same")
+        return self.lastLayer(x)
 
 def _visual_test():
     # Create a synthetic "realistic" image using gradients and random noise

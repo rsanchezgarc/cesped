@@ -1,11 +1,17 @@
+import sys
+
+import tempfile
+
 import os
+import os.path as osp
+from omegaconf import OmegaConf
 from typing import Dict, Any, List
 
 import torch
 from lightning import Callback, Trainer
 from lightning.pytorch.cli import LightningCLI
 
-
+_ckpt_path_argname = "ckpt_path"
 class MyLightningCLI(LightningCLI):
     def add_arguments_to_parser(self, parser):
 
@@ -13,8 +19,10 @@ class MyLightningCLI(LightningCLI):
 
         parser.link_arguments("data.image_size", "model.image_size")
 
-        # parser.link_arguments("data.symmetry", "model.true_symmetry", apply_on="instantiate")
         parser.link_arguments("data.symmetry", "model.symmetry", apply_on="instantiate")
+
+        parser.add_argument(f"--{_ckpt_path_argname}", type=str, help="The model checkpoint to load")
+
 
     # def before_instantiate_classes(self) -> None:
     #     self.config["model"]["image_size"] = self.config["data"]["image_size"]
@@ -37,3 +45,49 @@ class MyLightningCLI(LightningCLI):
 
     def before_instantiate_classes(self):
         torch.set_num_threads(self.config["n_threads_torch"])
+
+    @property
+    def ckpt_path(self):
+        return self.config.get(_ckpt_path_argname)
+
+class CheckpointLoader():
+    def __init__(self, config_fnames):
+
+        self._config_fnames = config_fnames
+        self.conf = {}
+        for confFname in self._config_fnames:
+            self.conf.update(OmegaConf.load(confFname))
+
+        self.ckpt_path = None
+        self._tmpdir = None
+        self._new_config_fname = None
+
+    def __enter__(self):
+        self._tmpdir = tempfile.TemporaryDirectory()
+        tmpdir_path = self._tmpdir.name
+
+        if f"--{_ckpt_path_argname}" in sys.argv:
+            checkpointName = sys.argv[sys.argv.index(f"--{_ckpt_path_argname}") + 1]
+            self.ckpt_path = osp.abspath(osp.expanduser(checkpointName))
+            model_config_fname = osp.join(osp.dirname(osp.dirname(self.ckpt_path)), "config.yaml")
+
+            if not osp.isfile(model_config_fname):
+                raise RuntimeError(f"Error, {model_config_fname} does not exist")
+
+            self.conf.update(dict(model=OmegaConf.load(model_config_fname)["model"]))
+
+            self._new_config_fname = osp.join(tmpdir_path, "final_config.yaml")
+            with open(self._new_config_fname, "w") as f:
+                OmegaConf.save(self.conf, f)
+            self.ckpt_found = True
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self._tmpdir.cleanup()
+
+    @property
+    def config_fnames(self):
+        if self._new_config_fname is None:
+            return self._config_fnames
+        else:
+            return [self._new_config_fname]

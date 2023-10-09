@@ -4,11 +4,14 @@ import shutil
 import sys
 
 import psutil
+from omegaconf import OmegaConf
 
 from cesped.constants import default_configs_dir
-from cesped.utils.cliBuilder import MyLightningCLI
+from cesped.utils.cliBuilder import MyLightningCLI, CheckpointLoader
 from cesped.network.plModule import PlModel
-from cesped.particlesDataset import ParticlesDataModule
+
+# from cesped.datamanager.dataManager import ParticlesDataModule
+from cesped.datamanager.plDataset import ParticlesDataModule
 
 def _copyCodeForReproducibility(logdir):
     """
@@ -49,7 +52,6 @@ def _copyCodeForReproducibility(logdir):
 
 if __name__ == "__main__":
 
-    # os.environ["PL_CONFIG"] let's you to set config files using env variables
 
     #The order matters in config_fnames Load first Data, then Model and lastly trainer.
     config_fnames = [osp.join(default_configs_dir, "defaultDataConfig.yaml"),
@@ -58,15 +60,19 @@ if __name__ == "__main__":
                      osp.join(default_configs_dir, "defaultOptimizerConfig.yaml"),
                      ]
 
-    cli = MyLightningCLI(model_class=PlModel, datamodule_class=ParticlesDataModule,
-                         parser_kwargs={"default_env": True, "parser_mode":"omegaconf",
-                                        "default_config_files": config_fnames},
-                         run=False)
-    trainer = cli.trainer
-    logdir = cli.trainer.log_dir
-    if trainer.is_global_zero:
-        _copyCodeForReproducibility(logdir)
-    trainer.fit(cli.model, cli.datamodule)
+    with CheckpointLoader(config_fnames) as cpk:
+
+        cli = MyLightningCLI(model_class=PlModel,
+                             datamodule_class=ParticlesDataModule,
+                             parser_kwargs={"default_env": True, "parser_mode":"omegaconf",
+                                            "default_config_files": cpk.config_fnames},
+                             run=False)
+        trainer = cli.trainer
+        logdir = cli.trainer.log_dir
+        if trainer.is_global_zero:
+            _copyCodeForReproducibility(logdir)
+
+        trainer.fit(cli.model, cli.datamodule, ckpt_path=cpk.ckpt_path)
 
 """
 -c ../configs/defaultTrainerConfig.yaml -c ../configs/defaultDataConfig.yaml -c ./configs/defaultModelConfig.yaml \ 

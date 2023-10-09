@@ -1,10 +1,12 @@
+from itertools import chain
+
 import functools
 import json
 import os.path
 import warnings
 from os import PathLike
 import os.path as osp
-from typing import Union, Literal, Optional, List, Tuple
+from typing import Union, Literal, Optional, List, Tuple, Any, Dict
 
 warnings.filterwarnings("ignore", "Gimbal lock detected. Setting third angle to zero since it "
                                   "is not possible to uniquely determine all angles.")
@@ -14,17 +16,15 @@ warnings.filterwarnings("ignore", message="The torchvision.datapoints and torchv
 
 import numpy as np
 import torch
-from lightning import pytorch as pl
 from scipy.spatial.transform import Rotation as R
 from starstack.particlesStar import ParticlesStarSet
-from torch.utils.data import Dataset, DataLoader
-from torchvision.transforms.v2 import CenterCrop, Resize, Compose
+from torch.utils.data import Dataset, default_collate
 
 from cesped.constants import RELION_EULER_CONVENTION, RELION_ANGLES_NAMES, RELION_SHIFTS_NAMES, \
     RELION_ORI_POSE_CONFIDENCE_NAME, RELION_PRED_POSE_CONFIDENCE_NAME, default_configs_dir, defaultBenchmarkDir
-from cesped.utils.angles import euler_angles_to_matrix
-from cesped.utils.augmentations import Augmenter
-from cesped.zenodo.bechmarkUrls import ROOT_URL_PATTERN, NAME_PARTITION_TO_RECORID
+
+from cesped.network.augmentations import Augmenter
+from cesped.zenodo.bechmarkUrls import NAME_PARTITION_TO_RECORID
 from cesped.utils.ctf import apply_ctf
 from cesped.utils.tensors import data_to_numpy
 from cesped.zenodo.downloadFromZenodo import download_record, getDoneFname
@@ -50,6 +50,9 @@ class ParticlesDataset(Dataset):
     ```
     <br>
     """
+
+    NORMALIZE_NOISE = False
+    NORMALIZE_WITH_MEDIAN_INSTEAD_MEAN = False
 
     def __init__(self, targetName: Union[PathLike, str],
                  halfset: Literal[0, 1],
@@ -88,16 +91,12 @@ class ParticlesDataset(Dataset):
 
         self._particles = None
         self._symmetry = None
+        self._lock = torch.multiprocessing.RLock()
         self._augmenter = None
 
         assert 0 <= image_size_factor_for_crop <= 0.5
-        _preprocessing = []
-        if image_size_factor_for_crop > 0:
-            imgShape = [int(s * (1 - image_size_factor_for_crop)) for s in self.particles.particle_shape]
-            _preprocessing += [CenterCrop(size=imgShape)]
-        if image_size is not None:
-            _preprocessing += [Resize(image_size, antialias=True)]
-        self._preprocessing = Compose(_preprocessing)
+        self.image_size_factor_for_crop = image_size_factor_for_crop
+
 
     @property
     def image_size(self):
@@ -266,48 +265,102 @@ class ParticlesDataset(Dataset):
         return _normalizationMask
 
     def _normalize(self, img):
+        """
+
+        Args:
+            img: 1XSxS tensor
+
+        Returns:
+
+        """
         backgroundMask = self._getParticleNormalizationMask(img.shape[-1])
-        noiseRegion = img[backgroundMask]
+        noiseRegion = img[:, backgroundMask]
         meanImg = noiseRegion.mean()
         stdImg = noiseRegion.std()
         return (img - meanImg) / stdImg
 
-    def __getitem__(self, item):
-        img, metadata = self.particles[item]
-        iid = metadata["rlnImageName"]
-        img = torch.from_numpy(img)
+    def getIdx(self, item: int) -> Tuple[np.ndarray, Dict[str, Any]]:
+        """
+
+        Args:
+            item: a particle index
+
+        Returns:
+            Tuple[torch.Tensor, Dict[str, Any]]. The raw image before any pre-processing \
+             as an LxL np.array and the metadata as dictionary
+        """
+        with self._lock:
+            try:
+                return self.particles[item]
+            except ValueError:
+                print(f"Error retrieving item {item}")
+                raise
+
+    def resizeImage(self, img):
+
+        ori_pixelSize = float(self.particles.optics_md["rlnImagePixelSize"].item())
+        particle_size_after_crop = int(self.particles.optics_md["rlnImageSize"].item() * (1 - self.image_size_factor_for_crop))
+
+        desired_sampling_rate = float(self.particles.optics_md["rlnImagePixelSize"].item() * particle_size_after_crop / self.image_size
+                                      )
+
+        img, pad_info, crop_info = resize_and_padCrop_tensorBatch(img.unsqueeze(0),
+                                                                  ori_pixelSize,
+                                                                  desired_sampling_rate, self.image_size,
+                                                                  padding_mode="constant")
+        img = img.squeeze(0)
+        return img
+    def __getitem(self, item):
+        img, md_row = self.getIdx(item)
+        iid = md_row["rlnImageName"]
+
+        img = torch.FloatTensor(img).unsqueeze(0)
+
         if self.apply_perImg_normalization:
             img = self._normalize(img)
 
-        degEuler = torch.FloatTensor([metadata[name] for name in RELION_ANGLES_NAMES])
-        xyShiftAngs = torch.FloatTensor([metadata[name] for name in RELION_SHIFTS_NAMES])
-        confidence = torch.FloatTensor([metadata[RELION_ORI_POSE_CONFIDENCE_NAME]])
-
-        img = img.unsqueeze(0) # TO BE 1xSxS
-
-        if self.augmenter is not None:
-            img, degEuler, shift, _ = self.augmenter(img, degEuler, shiftFraction=xyShiftAngs/self.image_size)
-            xyShiftAngs = shift * self.image_size
-
-        rotMat = euler_angles_to_matrix(torch.deg2rad(degEuler), RELION_EULER_CONVENTION)
-
         if self.ctf_correction != "none":
-            #apply_ctf expects img to be SxS
-            ctf, wimg = apply_ctf(img.squeeze(0), self.sampling_rate,
-                                  #TODO: Hide here the complexity of extracting the required metadata
-                                  dfu=metadata["rlnDefocusU"],
-                                  dfv=metadata["rlnDefocusV"],
-                                  dfang=metadata["rlnDefocusAngle"],
+            ctf, wimg = apply_ctf(img, float(self.particles.optics_md["rlnImagePixelSize"].item()),
+                                  dfu=md_row["rlnDefocusU"], dfv=md_row["rlnDefocusV"],
+                                  dfang=md_row["rlnDefocusAngle"],
                                   volt=float(self.particles.optics_md["rlnVoltage"][0]),
                                   cs=float(self.particles.optics_md["rlnSphericalAberration"][0]),
                                   w=float(self.particles.optics_md["rlnAmplitudeContrast"][0]),
                                   mode=self.ctf_correction)
             wimg = torch.clamp(wimg, img.min(), img.max())
             wimg = torch.nan_to_num(wimg, nan=img.mean())
+            # img = torch.concat([img, wimg], dim=0)
             img = wimg
-            img = img.unsqueeze(0) #Go back to 1xSxS
-        img = self._preprocessing(img)
-        return iid, img, (rotMat, xyShiftAngs, confidence), metadata.to_dict()
+
+        if img.isnan().any():
+            raise RuntimeError(f"Error, img with idx {item} is NAN")
+
+        img = self.resizeImage(img)
+
+        degEuler = torch.FloatTensor([md_row[name] for name in RELION_ANGLES_NAMES])
+        xyShiftAngs = torch.FloatTensor([md_row[name] for name in RELION_SHIFTS_NAMES])
+
+        if self.augmenter is not None:
+            img, degEuler, shift, _ = self.augmenter(img, #1xSxS image expected
+                                                     degEuler,
+                                                     shiftFraction=xyShiftAngs / (self.image_size * self.sampling_rate))
+            xyShiftAngs = shift * (self.image_size*self.sampling_rate)
+
+        r = R.from_euler(RELION_EULER_CONVENTION, degEuler, degrees=True)
+        if self.symmetry.upper() != "C1":
+            r = r.reduce(R.create_group(self.symmetry.upper()))
+        rotMat = r.as_matrix()
+        rotMat = torch.FloatTensor(rotMat)
+        confidence = torch.FloatTensor([md_row.get(RELION_ORI_POSE_CONFIDENCE_NAME, 1)])
+
+        return iid, img, (rotMat, xyShiftAngs, confidence), md_row.to_dict()
+
+    def __getitem__(self, item):
+        return self.__getitem(item)
+
+    @classmethod
+    def collate_fn(cls, batch):
+        return default_collate(list(chain.from_iterable(batch)))
 
     def __len__(self):
         return len(self.particles)
@@ -377,103 +430,63 @@ class ParticlesDataset(Dataset):
 
         """
         assert fname.endswith(".star"), "Error, metadata files will be saved as star files. Change extension to .star"
-        self.particles.save(starFname=fname, overwrite=True)
+        self.particles.save(starFname=fname, overwrite=overwrite)
 
 
-class ParticlesDataModule(pl.LightningDataModule):
-    """
-    ParticlesDataModule: A LightningDataModule that wraps a ParticlesDataset
-    """
+def resize_and_padCrop_tensorBatch(array, current_sampling_rate, new_sampling_rate, new_n_pixels=None, padding_mode='reflect'):
 
-    def __init__(self, targetName: Union[PathLike, str], halfset: Literal[0, 1], image_size: int,
-                 benchmarkDir: str = defaultBenchmarkDir, apply_perImg_normalization: bool = True,
-                 ctf_correction: Literal["none", "phase_flip"] = "phase_flip", image_size_factor_for_crop: float = 0.25,
-                 augmenter: Optional[Augmenter] = None, train_validaton_split_seed: int = 113,
-                 train_validation_split: Tuple[float, float] = (0.7, 0.3), batch_size: int = 8,
-                 num_data_workers: int = 0):
-        """
-        ##Builder
+    ndims = array.ndim - 2
+    if isinstance(array, np.ndarray):
+        wasNumpy = True
+        array = torch.from_numpy(array)
 
-        Args:
-            targetName (Union[PathLike, str]): The name of the target to use. It is also the basename of \
-            the directory where the data is.
-            halfset (Literal[0, 1]): The second parameter.
-            image_size (bool): The final size of the image (after cropping).
-            benchmarkDir (str): The root directory where the datasets are downloaded.
-            apply_perImg_normalization (bool): Apply cryo-EM per-image normalization. I = (I-noiseMean)/noiseStd.
-            ctf_correction (Literal[none, phase_flip]): phase_flip will correct amplitude inversion due to defocus
-            image_size_factor_for_crop (float): Fraction of the image size to be cropped. Final size of the image \
-            is origSize*(1-image_size_factor_for_crop). It is important because particles in cryo-EM tend to \
-            be only 50% to 25% of the total area of the image.
-            augmenter (Augmenter): A data augmentator object to be applied to the training dataloader. If none, data won't be augmented
-            train_validaton_split_seed (int): The train/validation seed used for random split
-            train_validation_split (Tuple[float]): The fraction of the dateset that should be split for train and for validation
-            batch_size (int): The batch size
-            num_data_workers (int): The number of workers for data loading. Set it to 0 to use the same thread as the model
+    else:
+        wasNumpy = False
 
-        """
+    if isinstance(current_sampling_rate, tuple):
+        current_sampling_rate = torch.tensor(current_sampling_rate)
+    if isinstance(new_sampling_rate, tuple):
+        new_sampling_rate = torch.tensor(new_sampling_rate)
 
-        super().__init__()
-        # self.save_hyperparameters()  #Not needed since we are using CLI
-        self.targetName = targetName
-        self.halfset = halfset
-        self.benchmarkDir = os.path.expanduser(benchmarkDir)
-        self.image_size = image_size
-        self.apply_perImg_normalization = apply_perImg_normalization
-        self.ctf_correction = ctf_correction
-        self.image_size_factor_for_crop = image_size_factor_for_crop
-        self.augmenter = augmenter
-        self.train_validaton_split_seed = train_validaton_split_seed
-        self.train_validation_split = train_validation_split
-        self.batch_size = batch_size
-        self.num_data_workers = num_data_workers
+    scaleFactor = current_sampling_rate / new_sampling_rate
+    if isinstance(scaleFactor, (int,float)):
+        scaleFactor = (scaleFactor,) * ndims
+    else:
+        scaleFactor = tuple(scaleFactor)
+    # Resize the array
+    if ndims == 2:
+        mode = 'bilinear'
+    elif ndims == 3:
+        mode = 'trilinear'
+    else:
+        raise ValueError(f"Option not valid. ndims={ndims}")
+    resampled_array = torch.nn.functional.interpolate(array, scale_factor=scaleFactor, mode=mode, antialias=False)
+    pad_width = []
+    crop_positions = []
+    if new_n_pixels is not None:
+        if isinstance(new_n_pixels, int):
+            new_n_pixels = [new_n_pixels] * ndims
+        for i in range(ndims):
+            new_n_pix = new_n_pixels[i]
+            old_n_pix = resampled_array.shape[i+2]
+            if new_n_pix < old_n_pix:
+                # Crop the tensor
+                crop_start = (old_n_pix - new_n_pix) // 2
+                resampled_array = resampled_array.narrow(i+2, crop_start, new_n_pix)
+                crop_positions.append((crop_start, crop_start+new_n_pix))
+            elif new_n_pix > old_n_pix:
+                # Pad the tensor
+                pad_before = (new_n_pix - old_n_pix) // 2
+                pad_after = new_n_pix - old_n_pix - pad_before
+                pad_width.extend((pad_before, pad_after))
 
-        self._symmetry = None
+        if len(pad_width) > 0:
+            resampled_array = torch.nn.functional.pad(resampled_array, pad_width, mode=padding_mode)
 
-    @property
-    def symmetry(self):
-        """The point symmetry of the dataset"""
-        if self._symmetry is None:
-            dataset = self.createDataset()
-            self._symmetry = dataset.symmetry
-        return self._symmetry
 
-    def createDataset(self):
-        return ParticlesDataset(self.targetName, halfset=self.halfset, benchmarkDir=self.benchmarkDir,
-                                image_size=self.image_size)
-    def _create_dataloader(self, partitionName: Optional[str]):
-        dataset = self.createDataset()
-        if partitionName in ["train", "val"]:
-            assert self.train_validation_split is not None, "Error, self.train_validation_split required"
-            dataset.augmenter = self.augmenter if partitionName == "train" else None
-            generator = torch.Generator().manual_seed(self.train_validaton_split_seed) #This is new
-            train_dataset, val_dataset = torch.utils.data.random_split(dataset, self.train_validation_split,
-                                                                       generator=generator)
-            if partitionName == "train":
-                dataset = train_dataset
-                print(f"Train dataset {len(train_dataset)}")
-            else:
-                dataset = val_dataset
-                print(f"Validation dataset {len(val_dataset)}")
-        dl = DataLoader(
-            dataset, batch_size=self.batch_size,
-            shuffle=True if partitionName == "train" else False,
-            num_workers=self.num_data_workers,
-            persistent_workers=True if self.num_data_workers > 0 else False)
-
-        return dl
-
-    def train_dataloader(self):
-        return self._create_dataloader(partitionName="train")
-
-    def val_dataloader(self):
-        return self._create_dataloader(partitionName="val")
-
-    def test_dataloader(self):
-        return self._create_dataloader(partitionName="test")
-
-    def predict_dataloader(self):
-        return self._create_dataloader(partitionName=None)
+    if wasNumpy:
+        resampled_array = resampled_array.numpy()
+    return resampled_array, pad_width, crop_positions
 
 
 if __name__ == "__main__":
@@ -501,7 +514,7 @@ if __name__ == "__main__":
                                   nargs="+")
 
     # Create parser for 'add_entry' mode
-    add_entry_parser = subparsers.add_parser("add_entry", help="Run addNewEntryLocally")
+    add_entry_parser = subparsers.add_parser("add_entry", help="Run add new entry locally")
     add_entry_parser.add_argument("--newTargetName", help="The name of the new target to use", type=str,
                                   required=True)
     add_entry_parser.add_argument("-p", "--halfset", help="The halfset to use", choices=["0", "1"],
@@ -567,3 +580,9 @@ if __name__ == "__main__":
             print("Locally available entries:", local_entries)
     else:
         raise ValueError("Error, option is not valid")
+
+    """
+    Reunning example
+    
+    particlesDataset visualize --targetName TEST --halfset 0
+    """

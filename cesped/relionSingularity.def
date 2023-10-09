@@ -1,0 +1,47 @@
+Bootstrap: docker
+From: ubuntu:22.04
+
+%post
+
+    # Update and install dependencies
+    apt-get update && apt-get install -y \
+        wget \
+        build-essential \
+        libpng-dev \
+        cmake \
+        libfftw3-dev \
+        libtiff5-dev
+
+    # Download and extract the specific version of OpenMPI
+    wget https://download.open-mpi.org/release/open-mpi/v4.1/openmpi-4.1.1.tar.gz
+    tar -xzf openmpi-4.1.1.tar.gz
+    cd openmpi-4.1.1
+
+    # Configure and build OpenMPI
+    ./configure --prefix=/opt/openmpi
+    make -j 16 all
+    make install
+    echo "btl = ^openib" >> /opt/openmpi/etc/openmpi-mca-params.conf
+    echo "plm_rsh_agent = /bin/false" >> /opt/openmpi/etc/openmpi-mca-params.conf
+    export PATH=/opt/openmpi/bin:$PATH
+    export LD_LIBRARY_PATH=/opt/openmpi/lib:$LD_LIBRARY_PATH
+
+    # Download RELION source code
+    wget -O relion.tar.gz https://github.com/3dem/relion/archive/refs/tags/4.0.0.tar.gz
+    tar -xzvf relion.tar.gz
+    cd relion-4.0.0
+
+    # Compile and install
+    mkdir build
+    cd build
+    cmake -DCMAKE_INSTALL_PREFIX=/usr/local/relion-4.0 -DGUI=OFF -DCUDA=OFF ..
+    make -j4
+    make install
+
+%environment
+    export PATH=$PATH:/usr/local/relion-4.0/bin
+    export PATH=/opt/openmpi/bin:$PATH
+%runscript
+    #!/bin/bash
+    mpirun -np $1 /usr/local/relion-4.0/bin/relion_reconstruct_mpi "${@:2}"
+

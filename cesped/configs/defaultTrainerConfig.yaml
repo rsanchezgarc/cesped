@@ -6,6 +6,7 @@ trainer:
   devices: auto
   num_nodes: 1
   default_root_dir: /tmp/supervised/
+#  ckpt_path: /path/to/checkpoint
   callbacks:
     - class_path: lightning.pytorch.callbacks.EarlyStopping
       init_args:

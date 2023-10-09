@@ -85,3 +85,16 @@ python -m cesped.inferEntry --data.halfset <HALFSET> --data.targetName <TARGETNA
 For API documentation run
 pdoc --http : .
 
+
+
+
+## Relion Singularity
+```
+singularity build relionSingulary.sif relionSingulary.def 
+```
+
+
+```
+singularity exec relionSingulary.sif mpirun -np 4 relion_reconstruct_mpi --ctf --pad 2 --i input_particles.star --o output_map.mrc
+./relionSingulary.sif  2 --ctf --pad 2 --i input_particles.star --o output_map.mrc #This uses 2 mpis
+```

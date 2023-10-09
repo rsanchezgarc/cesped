@@ -50,10 +50,14 @@ def compute_stats(gtVolOrFname, predVolOrFname, maskOrFname=None, samplingRate=N
     return (corr, m_corr), fscResolution
 
 
-# TODO: REMOVE THIS BAD TEST
+# TODO: REMOVE THIS HARDCODED TEST
 if __name__ == "__main__":
-    gtVolFname = "/tmp/chimera/half0/relion_reconstruct_half1.mrc"
-    predVolFname = "/tmp/chimera/half1/relion_reconstruct_half1.mrc"
-    maskFname = "/tmp/chimera/half0/mask.mrc"
+    # gtVolFname = "/tmp/chimera/half0/relion_reconstruct_half1.mrc"
+    # predVolFname = "/tmp/chimera/half1/relion_reconstruct_half1.mrc"
+    # maskFname = "/tmp/chimera/half0/mask.mrc"
+    gtVolFname = "/home/sanchezg/cryo/data/preAlignedParticles/NEURIPS_RESULTS/reconstructions/10374/gt.mrc"
+    predVolFname = "/home/sanchezg/cryo/data/preAlignedParticles/NEURIPS_RESULTS/reconstructions/10374/locally_refined.mrc"
+    maskFname = "/home/sanchezg/cryo/data/preAlignedParticles/NEURIPS_RESULTS/reconstructions/10374/10374_mask.mrc"
+
     out = compute_stats(gtVolFname, predVolFname, maskFname)
     print(out)

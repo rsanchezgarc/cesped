@@ -34,7 +34,7 @@ class PlModel(pl.LightningModule):
 
         self.symmetry = symmetry
 
-        example = torch.rand(1, 1, image_size, image_size)
+        example = torch.rand(1, feature_extractor.in_channels, image_size, image_size)
         imageEncoderOutputShape = feature_extractor(example).shape[1:]
 
         self.model = I2S(imageEncoder=feature_extractor, imageEncoderOutputShape=imageEncoderOutputShape,
@@ -46,7 +46,8 @@ class PlModel(pl.LightningModule):
                          rand_fraction_points_to_project=rand_fraction_points_to_project)
 
     def _step(self, batch, batch_idx):
-        idd, imgs, (rotMats, shifts, conf), *_ = batch
+
+        idd, imgs, (rotMats, shifts, conf), metadata = self.resolve_batch(batch)
         loss, error_rads, pred_rotmats, maxprob, probs = self.model.forward_and_loss(imgs, rotMats, conf)
         return loss, error_rads, pred_rotmats, maxprob, probs
 
@@ -68,6 +69,21 @@ class PlModel(pl.LightningModule):
         return loss
 
     def predict_step(self, batch, batch_idx: int, dataloader_idx: int = 0):
-        idd, imgs, (rotMats, shifts, conf), metadata = batch
+
+        idd, imgs, (rotMats, shifts, conf), metadata = self.resolve_batch(batch)
         grid_signal, pred_rotmats, maxprob, probs = self.model(imgs)
         return idd, (pred_rotmats, maxprob), metadata
+
+
+    def resolve_batch(self, batch):
+
+        idd, imgs, (rotMats, shifts, conf), metadata = batch
+
+        # # #Modified for the old datamanager
+        # imgs = batch.particle
+        # idd = str(batch.itemIdx)
+        # rotMats = batch.poseRepresentation
+        # shifts = batch.shiftsFraction * 1.5 #1.5 is the sampling rate, only for debug here #TODO: Remove this
+        # conf = batch.poseProbability
+
+        return idd, imgs, (rotMats, shifts, conf), metadata
