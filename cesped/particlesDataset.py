@@ -6,6 +6,8 @@ import os.path
 import warnings
 from os import PathLike
 import os.path as osp
+
+from tqdm import tqdm
 from typing import Union, Literal, Optional, List, Tuple, Any, Dict
 
 warnings.filterwarnings("ignore", "Gimbal lock detected. Setting third angle to zero since it "
@@ -99,8 +101,6 @@ class ParticlesDataset(Dataset):
     def image_size(self):
         """The image size in pixels"""
         if self._image_size is None:
-            if not self._is_avaible():
-                self._download()
             return self.particles.particle_shape[-1]
         else:
             return self._image_size
@@ -142,8 +142,6 @@ class ParticlesDataset(Dataset):
     @property
     def sampling_rate(self):
         """The particle image sampling rate in A/pixels"""
-        if not self._is_avaible():
-            self._download()
         return self.particles.sampling_rate
 
     @property
@@ -231,12 +229,13 @@ class ParticlesDataset(Dataset):
                         destination_dir=self.datadir)
         #Validation
         pset = ParticlesStarSet(starFname=self.starFname, particlesDir=self.datadir)
-        for i in range(len(pset)):
+        for i in tqdm(range(len(pset)), desc="Checking downloaded dataset"):
             img, md = pset[i]
             assert len(img.shape) == 2, f"Error, there were problems downloading the target {self.targetName}"
 
     def _is_avaible(self):
-        return osp.isfile(getDoneFname(self.datadir, self.halfset))
+        return osp.isfile(getDoneFname(self.datadir,
+                                       NAME_PARTITION_TO_RECORID.get((self.targetName, self.halfset), self.halfset)))
 
     @functools.lru_cache(1)
     def _getParticleNormalizationMask(self, particleNumPixels: int,
