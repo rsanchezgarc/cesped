@@ -6,7 +6,6 @@ from scipy.spatial.transform import Rotation as R
 
 from cesped.constants import RELION_EULER_CONVENTION
 from cesped.network.image2sphere import compute_trace, compute_symmetry_group_matrices, rotation_error_rads
-from cesped.particlesDataset import ParticlesDataset
 
 
 def closest_symmetric_rotation(rot_pred, rot_true, symmetry):
@@ -16,7 +15,7 @@ def closest_symmetric_rotation(rot_pred, rot_true, symmetry):
     returns the closest symmetric rotation matrices to rot_true, tensor of shape (B,3,3)
     '''
     assert rot_pred.shape[0] == rot_true.shape[0], "Error, different batch size for rot_pred and rot_true"
-    assert symmetry.lower() != "c1", "Error c1 is not supported"
+    assert symmetry.upper() != "C1", "Error c1 is not supported"
     symmetry_group = compute_symmetry_group_matrices(symmetry)
 
     B = rot_true.shape[0]  # Batch size
@@ -62,7 +61,7 @@ def computeAngularError(predEulers, trueEulers, confidence=None, symmetry="c1") 
 
     predRotM = torch.from_numpy(predRotM.astype(np.float32))
     trueRotM = torch.from_numpy(trueRotM.astype(np.float32))
-    if symmetry.lower() != "c1":
+    if symmetry.upper() != "C1":
         predRotM = closest_symmetric_rotation(predRotM, trueRotM, symmetry=symmetry)
     error = rotation_error_rads(predRotM, trueRotM)
     error = torch.rad2deg(error)

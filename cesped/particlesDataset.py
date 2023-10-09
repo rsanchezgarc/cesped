@@ -51,9 +51,6 @@ class ParticlesDataset(Dataset):
     <br>
     """
 
-    NORMALIZE_NOISE = False
-    NORMALIZE_WITH_MEDIAN_INSTEAD_MEAN = False
-
     def __init__(self, targetName: Union[PathLike, str],
                  halfset: Literal[0, 1],
                  benchmarkDir: str = defaultBenchmarkDir,
@@ -102,6 +99,8 @@ class ParticlesDataset(Dataset):
     def image_size(self):
         """The image size in pixels"""
         if self._image_size is None:
+            if not self._is_avaible():
+                self._download()
             return self.particles.particle_shape[-1]
         else:
             return self._image_size
@@ -143,6 +142,8 @@ class ParticlesDataset(Dataset):
     @property
     def sampling_rate(self):
         """The particle image sampling rate in A/pixels"""
+        if not self._is_avaible():
+            self._download()
         return self.particles.sampling_rate
 
     @property
@@ -303,8 +304,7 @@ class ParticlesDataset(Dataset):
         ori_pixelSize = float(self.particles.optics_md["rlnImagePixelSize"].item())
         particle_size_after_crop = int(self.particles.optics_md["rlnImageSize"].item() * (1 - self.image_size_factor_for_crop))
 
-        desired_sampling_rate = float(self.particles.optics_md["rlnImagePixelSize"].item() * particle_size_after_crop / self.image_size
-                                      )
+        desired_sampling_rate = float(self.particles.optics_md["rlnImagePixelSize"].item() * particle_size_after_crop / self.image_size)
 
         img, pad_info, crop_info = resize_and_padCrop_tensorBatch(img.unsqueeze(0),
                                                                   ori_pixelSize,
@@ -360,9 +360,6 @@ class ParticlesDataset(Dataset):
     def __getitem__(self, item):
         return self.__getitem(item)
 
-    @classmethod
-    def collate_fn(cls, batch):
-        return default_collate(list(chain.from_iterable(batch)))
 
     def __len__(self):
         return len(self.particles)

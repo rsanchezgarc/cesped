@@ -14,7 +14,7 @@ class TestParticlesDataset(TestCase):
         print(len(ds))
         iid, img, (rotMat, xyShiftAngs, confidence), metadata = ds[0]
         print([x.shape for x in [img, rotMat, xyShiftAngs]])
-        self.assertEqual(img.shape, (1, 312,312))
+        self.assertEqual(img.shape, (1, 284,284))
 
     def test_addNewEntry(self):
         ds = ParticlesDataset(testTargetName, 0, benchmarkDir=benchmarkDir)
@@ -24,7 +24,8 @@ class TestParticlesDataset(TestCase):
         if os.path.exists(newTargetDir):
             shutil.rmtree(newTargetDir)
         ParticlesDataset.addNewEntryLocally(starFname, particlesRootDir=os.path.split(starFname)[0],
-                                            newTargetName=newTargetName, halfset=0, benchmarkDir=benchmarkDir)
+                                            newTargetName=newTargetName, halfset=0, symmetry=ds.symmetry,
+                                            benchmarkDir=benchmarkDir)
         ds = ParticlesDataset(newTargetName, 0, benchmarkDir=benchmarkDir)
         print(len(ds))
         print(ParticlesDataset.getLocallyAvailableEntries(benchmarkDir))

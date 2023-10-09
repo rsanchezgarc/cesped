@@ -13,7 +13,7 @@ class Test(TestCase):
         error, w_error, totalConf = computeAngularError(predEulers, trueEulers)
 
         self.assertAlmostEqual(error.item(), 0.0, places=4)
-        self.assertEqual(np.isnan(w_error), True)
+        self.assertEqual(np.isnan(w_error).any(), True)
 
     def test_symmetry_c2(self):
         # Add a test case for different symmetry groups
@@ -54,8 +54,7 @@ class Test(TestCase):
         predEulers = np.array([[0, 0, 0], [90, 0, 0]], dtype=np.float32)
         trueEulers = np.array([[0, 0, 0], [270, 0, 0]], dtype=np.float32)
         error, w_error, totalConf = computeAngularError(predEulers, trueEulers, symmetry="c4")
-        self.assertAlmostEqual(error[0], 0.0, places=4)
-        self.assertAlmostEqual(error[1], 0.0, places=4)
+        self.assertAlmostEqual(error.item(), 0.0, places=4)
 
     def test_exact_non_zero_error_with_c2_symmetry(self):
         # Test for a non-zero exact error with c2 symmetry
@@ -63,4 +62,4 @@ class Test(TestCase):
         trueEulers = np.array([[275, 0, 0]], dtype=np.float32)
         error, w_error, totalConf = computeAngularError(predEulers, trueEulers, symmetry="c2")
 
-        self.assertAlmostEqual(error.item(), 5./3, places=4)
+        self.assertAlmostEqual(error.item(), 5., places=4)
