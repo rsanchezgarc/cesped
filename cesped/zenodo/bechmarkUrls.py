@@ -26,7 +26,6 @@ NAME_PARTITION_TO_RECORID ={
     ("10409", 0): "8386582",
     ("10409", 1): "8386660",
 
-
 }
 
 _masks_base_url = "https://sandbox.zenodo.org/records/10000159/files/"

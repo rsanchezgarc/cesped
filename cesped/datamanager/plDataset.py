@@ -10,7 +10,7 @@ from lightning import pytorch as pl
 from cesped.constants import defaultBenchmarkDir
 from cesped.particlesDataset import ParticlesDataset
 
-from cesped.network.augmentations import Augmenter
+from cesped.datamanager.augmentations import Augmenter
 
 class ParticlesDataModule(pl.LightningDataModule):
     """

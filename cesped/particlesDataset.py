@@ -23,9 +23,9 @@ from torch.utils.data import Dataset, default_collate
 from cesped.constants import RELION_EULER_CONVENTION, RELION_ANGLES_NAMES, RELION_SHIFTS_NAMES, \
     RELION_ORI_POSE_CONFIDENCE_NAME, RELION_PRED_POSE_CONFIDENCE_NAME, default_configs_dir, defaultBenchmarkDir
 
-from cesped.network.augmentations import Augmenter
+from cesped.datamanager.augmentations import Augmenter
 from cesped.zenodo.bechmarkUrls import NAME_PARTITION_TO_RECORID
-from cesped.utils.ctf import apply_ctf
+from cesped.datamanager.ctf import apply_ctf
 from cesped.utils.tensors import data_to_numpy
 from cesped.zenodo.downloadFromZenodo import download_record, getDoneFname
 
@@ -133,6 +133,8 @@ class ParticlesDataset(Dataset):
     @property
     def symmetry(self):
         """The point symmetry of the dataset"""
+        if not self._is_avaible():
+            self._download()
         if self._symmetry is None:
             with open(osp.join(self.datadir, f"info_{self.halfset}.json")) as f:
                 self._symmetry = json.load(f)["symmetry"].upper()

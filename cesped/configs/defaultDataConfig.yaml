@@ -13,7 +13,7 @@ data:
   ctf_correction: phase_flip
   num_data_workers: 0
   augmenter:
-    class_path: cesped.utils.augmentations.Augmenter
+    class_path: cesped.datamanager.augmentations.Augmenter
     init_args:
       min_n_augm_per_img: 1
       max_n_augm_per_img: 1

@@ -18,19 +18,17 @@ from cesped.constants import default_configs_dir
 
 class Augmenter:
     def __init__(self,
-                 # configFname:Optional[str] = None,
-                 operations: Optional[Dict[str, any]] = None,
+                 configFname:Optional[str] = None,
                  min_n_augm_per_img: Optional[int] = None,
                  max_n_augm_per_img: Optional[int] = None):
 
-        defaultConfig = self.read_default_config()
-        self._augmentationTypes = defaultConfig.operations if (operations is None) \
-            else operations
+        augmentConfig = self.read_config(configFname)
+        self._augmentationTypes = augmentConfig.operations
         self.augmentationTypes = self._augmentationTypes.copy()  # We have self._augmentationTypes in case we want to reset probs
 
-        self.min_n_augm_per_img = defaultConfig.min_n_augm_per_img if (
+        self.min_n_augm_per_img = augmentConfig.min_n_augm_per_img if (
                     min_n_augm_per_img is None) else min_n_augm_per_img
-        self.max_n_augm_per_img = defaultConfig.max_n_augm_per_img if (
+        self.max_n_augm_per_img = augmentConfig.max_n_augm_per_img if (
                     max_n_augm_per_img is None) else max_n_augm_per_img
 
         self.probSchedulers = {name: Scheduler(vals.get("probScheduler")).generate() for name, vals in
@@ -39,8 +37,11 @@ class Augmenter:
         self.augmentation_count = 0
 
     @classmethod
-    def read_default_config(cls):
-        return OmegaConf.load(osp.join(default_configs_dir, "defaultDataAugmentation.yaml"))
+    def read_config(cls, fname=None):
+        if fname is None:
+            return OmegaConf.load(osp.join(default_configs_dir, "defaultDataAugmentation.yaml"))
+        else:
+            return OmegaConf.load(osp.join(fname))
 
     @functools.lru_cache(1)
     def _getRandomEraser(self, **kwargs):
@@ -146,6 +147,7 @@ class Augmenter:
 
     def __call__(self, img, eulersDeg, shiftFraction):
         return self.applyAugmentation(img, eulersDeg, shiftFraction)
+
 
 
 def rotTransImage(image, degrees, translationFract, scaling=1., padding_mode='reflection',
@@ -273,7 +275,7 @@ class Scheduler:
                 raise NotImplementedError(f"{schedulerName} is not valid")
 
 if __name__ == "__main__":
-    augmentKwargs = Augmenter.read_default_config()
+    augmentKwargs = Augmenter.read_config()
     print(augmentKwargs)
     # augmentKwargs["operations"] = {'randomGaussNoise': {'kwargs': {'scale': 0.5}, 'p': 1.}}
     # augmentKwargs["operations"] = {'randomUnifNoise': {'kwargs': {'scale': 2}, 'p': 1.}}
