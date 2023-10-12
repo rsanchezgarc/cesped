@@ -28,7 +28,7 @@ NAME_PARTITION_TO_RECORID ={
 
 }
 
-_masks_base_url = "https://sandbox.zenodo.org/records/10000159/files/"
+_masks_base_url = "https://zenodo.org/record/8392782/files/"
 NAME_TO_MASK_URL={
     "TEST":  f"{_masks_base_url}/10166_mask.mrc",
     "10166": f"{_masks_base_url}/10166_mask.mrc", #OK
