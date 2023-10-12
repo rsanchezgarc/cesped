@@ -399,8 +399,8 @@ class ParticlesDataset(Dataset):
 
             col2val.update({ #RELION_ANGLES_NAMES
                 RELION_ANGLES_NAMES[0]: rots,
-                RELION_ANGLES_NAMES[0]: tilts,
-                RELION_ANGLES_NAMES[0]: psis
+                RELION_ANGLES_NAMES[1]: tilts,
+                RELION_ANGLES_NAMES[2]: psis
             })
 
         if shifts is not None:
@@ -415,7 +415,6 @@ class ParticlesDataset(Dataset):
             col2val.update({
                 RELION_PRED_POSE_CONFIDENCE_NAME: confidence,
             })
-
         assert col2val, "Error, no editing values were provided"
         self.particles.updateMd(ids=ids, colname2change=col2val)
 

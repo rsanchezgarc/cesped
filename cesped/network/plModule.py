@@ -72,6 +72,10 @@ class PlModel(pl.LightningModule):
 
         idd, imgs, (rotMats, shifts, conf), metadata = self.resolve_batch(batch)
         grid_signal, pred_rotmats, maxprob, probs = self.model(imgs)
+        if rotMats is not None:
+            errors = self.model.rotation_error_rads(rotMats, pred_rotmats)
+            errors = torch.rad2deg(errors)
+            metadata["pred_degs_error"] = errors.detach().cpu().numpy()
         return idd, (pred_rotmats, maxprob), metadata
 
 
