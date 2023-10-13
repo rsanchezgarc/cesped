@@ -8,5 +8,3 @@ trainer:
   num_nodes: 1
   default_root_dir: null
   logger: False
-#  callbacks:
-#    - class_path: cesped.inferEntry.CustomPredWriter
