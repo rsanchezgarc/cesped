@@ -18,7 +18,7 @@ def download_record(record_id, destination_dir, root_url=ROOT_URL_PATTERN):
         return
     root_url = f"{root_url}/{record_id}"
     r = requests.get(root_url)
-    assert r.status_code == 200
+    assert r.status_code == 200, f"Error, bad request response {r}"
     # print(r.json())
     os.makedirs(destination_dir, exist_ok=True)
 
@@ -34,6 +34,8 @@ def download_record(record_id, destination_dir, root_url=ROOT_URL_PATTERN):
         print(f"Downloading {url}")
         response = requests.get(url, stream=True)
         partial_content = b""
+        if response.status_code != 200:
+            raise RuntimeError(f"Error, it was not possible to download {url}. Try later. {response}")
 
         for chunk in response.iter_content(chunk_size=100*1024*2): #100MB chunks
             if chunk:
@@ -68,7 +70,7 @@ def download_record(record_id, destination_dir, root_url=ROOT_URL_PATTERN):
                         continue
                     success, new_position = download_file(url, checksum, pbar, output_file, current_size)
                     if not success:
-                        raise RuntimeError(f"Aborting process due to checksum mismatch for {url}.")
+                        raise RuntimeError(f"Aborting process due to checksum mismatch for {url}")
                     current_size = new_position
         return current_size
 
@@ -76,11 +78,16 @@ def download_record(record_id, destination_dir, root_url=ROOT_URL_PATTERN):
     mrcsFnames = []
     jsonFname = None
     files_info_dict = {}
-
     for fileRecord in r.json()["files"]:
         # print(fileRecord["key"], fileRecord["links"]["self"], fileRecord['checksum'], fileRecord['size'])
-        files_info_dict[fileRecord["key"]] = (fileRecord["links"]["self"], fileRecord['size'], fileRecord['checksum'])
-        fname = fileRecord["key"]
+        try:
+            fname = fileRecord.get("key",fileRecord["filename"]) #It used to work with key, now it seems it is called filename
+            link = f"https://zenodo.org/records/{record_id}/files/{fname}"  #fileRecord["links"]["self"]
+            size = fileRecord.get("size", fileRecord["filesize"]) #It used to work with size, now it seems it is called filesize
+            files_info_dict[fname] = (link, size, fileRecord['checksum'])
+        except KeyError:
+            print(fileRecord)
+            raise
         if fname.endswith(".star"):
             starFname = fname
         elif ".mrcs" in fname:
