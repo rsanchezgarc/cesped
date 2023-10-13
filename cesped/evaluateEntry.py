@@ -14,7 +14,7 @@ import numpy as np
 import starfile
 
 from cesped.constants import RELION_ANGLES_NAMES, RELION_SHIFTS_NAMES, RELION_PRED_POSE_CONFIDENCE_NAME, \
-    RELION_ORI_POSE_CONFIDENCE_NAME, defaultBenchmarkDir, relionBinDir, mpirunCmd, RELION_IMAGE_FNAME
+    RELION_ORI_POSE_CONFIDENCE_NAME, defaultBenchmarkDir, relionBinDir, mpirunCmd, relionSingularity, RELION_IMAGE_FNAME
 from cesped.particlesDataset import ParticlesDataset
 from cesped.utils.anglesStats import computeAngularError
 from cesped.utils.volumeStats import compute_stats
@@ -24,8 +24,10 @@ from cesped.zenodo.downloadFromZenodo import download_mask
 class Evaluator():
 
     def __init__(self, predictionType: Literal["S2", "SO3", "SO3xR2"], usePredConfidence: bool = True,
-                 benchmarkDir: Union[str, os.PathLike] = defaultBenchmarkDir, relionBinDir=relionBinDir,
-                 mpirun=mpirunCmd, n_cpus=1, wdir=None, verbose=True, use_gt_mask=True):
+                 benchmarkDir: Union[str, os.PathLike] = defaultBenchmarkDir,
+                 relionBinDir:Optional[str]=relionBinDir, mpirun:Optional[str]=mpirunCmd,
+                 relionSingularity:Optional[str]=relionSingularity,
+                 n_cpus=1, wdir=None, verbose=True, use_gt_mask=True):
         """
 
         Args:
@@ -36,6 +38,7 @@ class Evaluator():
             benchmarkDir (str): The root directory where the datasets are downloaded.
             relionBinDir (Optional[str]): The Relion bin directory. If not provided, it is read from configs/defaultRelionConfig.yaml
             mpirun (Optional[str]): The mpriun command. Required inf n_cpus >1. If not provided, it is read from configs/defaultRelionConfig.yaml
+            relionSingularity (Optional[str]): A built singularity image from relionSingularity.def that let you install and run relion easily
             n_cpus (int): The number of cpus used in the calculations
             wdir (str): The directory where intermediate results will be saved. It acts as a cache as well
             verbose (bool): Print to stdout? Set it to true if using via command line
@@ -46,8 +49,9 @@ class Evaluator():
         self.benchmarkDir = benchmarkDir
         self.predictionType = predictionType
         self.usePredConfidence = usePredConfidence
-        self.relionBinDir = relionBinDir if relionBinDir else ""
+        self.relionBinDir = os.path.abspath(os.path.expanduser(relionBinDir)) if relionBinDir else ""
         self.mpirun = mpirun
+        self.relionSingularity = os.path.abspath(os.path.expanduser(relionSingularity)) if relionSingularity else None
         self.n_cpus = n_cpus
         self.wdir = wdir
         self.verbose = verbose
@@ -66,34 +70,45 @@ class Evaluator():
         Returns:
             Tuple[np.ndarray, float]:
         """
-        exists = osp.isfile(outname)
-        if exists and cleanExisting:
-            os.unlink(outname)
-            exists = False
-        if not exists:
-            cmd = []
-            if self.n_cpus > 1:
-                cmd += self.mpirun.split() + ["-np", str(self.n_cpus),
-                                              osp.join(self.relionBinDir, "relion_reconstruct_mpi")]
-            else:
-                cmd += [osp.join(self.relionBinDir, "relion_reconstruct")]
-            with tempfile.NamedTemporaryFile(suffix=".mrc") as f:
-                cmd += ["--i", starFname, "--o", f.name, "--ctf", "--sym", symmetry.lower(), "--pad", "2.0"]
-                if self.usePredConfidence:
-                    data = starfile.read(starFname)
-                    if RELION_PRED_POSE_CONFIDENCE_NAME in data["particles"]:
-                        cmd += ["--fom_weighting"]
+        with tempfile.TemporaryDirectory() as tmpdir:
+            exists = osp.isfile(outname)
+            if exists and cleanExisting:
+                os.unlink(outname)
+                exists = False
+            if not exists:
+                cmd = []
                 wdir = particlesDir if particlesDir else osp.dirname(starFname)
-                if self.verbose:
-                    print(" ".join(cmd))
-                subprocess.run(cmd, cwd=wdir, check=True, capture_output=not self.verbose)
-                f.seek(0)
-                shutil.copyfile(f.name, outname)
-        else:
-            print(f"Reusing file {outname}")
-        with mrcfile.open(outname) as f:
-            data = f.data.copy()
-            sampling_rate = float(f.voxel_size.x)
+                if self.relionSingularity:
+                    cmd += [self.relionSingularity, str(self.n_cpus)]
+                    destination = osp.join(tmpdir, osp.basename(wdir))
+                    shutil.copytree(wdir, destination)
+                    baseStar = osp.basename(starFname)
+                    shutil.copy(starFname, destination)
+                    starFname = osp.join(destination, baseStar)
+                    wdir = destination
+                else:
+                    if self.n_cpus > 1:
+                        cmd += self.mpirun.split() + ["-np", str(self.n_cpus),
+                                                      osp.join(self.relionBinDir, "relion_reconstruct_mpi")]
+                    else:
+                        cmd += [osp.join(self.relionBinDir, "relion_reconstruct")]
+
+                with tempfile.NamedTemporaryFile(suffix=".mrc") as f:
+                    cmd += ["--i", starFname, "--o", f.name, "--ctf", "--sym", symmetry.lower(), "--pad", "2.0"]
+                    if self.usePredConfidence:
+                        data = starfile.read(starFname)
+                        if RELION_PRED_POSE_CONFIDENCE_NAME in data["particles"]:
+                            cmd += ["--fom_weighting"]
+                    if self.verbose:
+                        print(" ".join(cmd))
+                    subprocess.run(cmd, cwd=wdir, check=True, capture_output=not self.verbose)
+                    f.seek(0)
+                    shutil.copyfile(f.name, outname)
+            else:
+                print(f"Reusing file {outname}")
+            with mrcfile.open(outname) as f:
+                data = f.data.copy()
+                sampling_rate = float(f.voxel_size.x)
         return data, sampling_rate
 
     def computeMask(self, volFname: str, maskFname: str, lowpass_res: float = 15.0, volThr: float = 0.015,
@@ -280,14 +295,11 @@ class Evaluator():
                                                                           samplingRate=gt_sampling,
                                                                           resolution_threshold=0.5,
                                                                           maskOrFname=mask_fname)
-            cor_diff = (gt_cor - mapVsGT_cor) / gt_cor
+            cor_diff = (gt_cor - mapVsGT_cor) #/ gt_cor
 
-            # res_diff05 = (mapVsGT_resolt05 - gt_resolt05) / gt_resolt05
-            res_diff05 = mapVsGT_resolt05 - gt_resolt05 #(1/mapVsGT_resolt05 - 1/gt_resolt05) / (0.5/gt_sampling)
+            res_diff05 = mapVsGT_resolt05 - gt_resolt05
             res_diff = mapVsGT_resolt - gt_resolt0143
 
-            res_percent_diff05 = (1/gt_resolt05 - 1/mapVsGT_resolt05) / (0.5/gt_sampling)
-            res_percent_diff =   (1/gt_resolt0143 - 1/mapVsGT_resolt) / (0.5/gt_sampling)
 
             metrics = dict(meanAngularError=meanAngularError, wMeanAngularError=wMeanAngularError,
                            shiftsRMSE=shiftsRMSE,
@@ -319,8 +331,6 @@ mapVsGT_resolution (Å) (th=0.143, 0.5)    {mapVsGT_resolt}  {mapVsGT_resolt05}
 #Reconstruction differences
 cor_diff (%) (masked, unmasked):          {"  ".join(reversed([str(x * 100) for x in cor_diff]))}
 res_diff (Å) th=0.143, 0.5):              {res_diff}  {res_diff05}
-res_diff (%) (th=0.143, 0.5):             {res_percent_diff * 100} {res_percent_diff05 * 100}
-
             """
 
             if self.verbose:
@@ -331,7 +341,8 @@ res_diff (%) (th=0.143, 0.5):             {res_percent_diff * 100} {res_percent_
 def evaluate(targetName: str, half0PredsFname: str, half1PredsFname: str,
              predictionType: Literal["S2", "SO3", "SO3xR2"], usePredConfidence: bool = True,
              benchmarkDir: str = defaultBenchmarkDir, relionBinDir: Optional[str] = relionBinDir,
-             mpirun: Optional[str] = mpirunCmd, rm_prev_reconstructions: bool = True,
+             mpirun: Optional[str] = mpirunCmd, relionSingularity: Optional[str] = relionSingularity,
+             rm_prev_reconstructions: bool = True,
              ignore_symmetry: bool = False, use_gt_mask:bool=True,
              n_cpus: int = 1, outdir: Optional[str] = None):
     """
@@ -349,6 +360,7 @@ def evaluate(targetName: str, half0PredsFname: str, half1PredsFname: str,
         benchmarkDir (str): The root directory where the datasets are downloaded.
         relionBinDir (Optional[str]): The Relion bin directory. If not provided, it is read from configs/defaultRelionConfig.yaml
         mpirun (Optional[str]): The mpriun command. Required inf n_cpus >1. If not provided, it is read from configs/defaultRelionConfig.yaml
+        relionSingularity (Optional[str]): A built singularity image from relionSingularity.def that let you install and run relion easily
         rm_prev_reconstructions (bool): If True, the reconstructions from predicted angles stored in outdir will \
         be recomputed
         ignore_symmetry (bool): If True, reconstruct ignoring symmetry
@@ -372,7 +384,9 @@ def evaluate(targetName: str, half0PredsFname: str, half1PredsFname: str,
         if outdir is None:
             outdir = tmpdir
         evaluator = Evaluator(predictionType, usePredConfidence=usePredConfidence, benchmarkDir=benchmarkDir,
-                              relionBinDir=relionBinDir, mpirun=mpirun, n_cpus=n_cpus, wdir=outdir)
+                              relionBinDir=relionBinDir, mpirun=mpirun, relionSingularity=relionSingularity,
+                              n_cpus=n_cpus, wdir=outdir,
+                              use_gt_mask=use_gt_mask)
         return evaluator.runEvaluate(targetName, half0PredsFname, half1PredsFname,
                                      rm_prev_reconstructions, ignore_symmetry)
 
@@ -389,7 +403,6 @@ def _test():
 if __name__ == "__main__":
     # _test()
     from argParseFromDoc import parse_function_and_call
-
     parse_function_and_call(evaluate)
 
 """

@@ -112,7 +112,6 @@ if __name__ == "__main__":
 
 
         cli.trainer.predict(cli.model, cli.datamodule, ckpt_path=cli.ckpt_path, return_predictions=False)
-        # preds = cli.trainer.predict(cli.model, cli.datamodule, ckpt_path=cli.ckpt_path)
 
         particlesDataset = cli.datamodule.createDataset()
 
@@ -120,7 +119,6 @@ if __name__ == "__main__":
         cli.trainer.strategy.barrier()
         if cli.trainer.is_global_zero:
             for ids, (pred_rotmats, maxprob), metadata in cli.resultsWriter.iter_results():
-            # for ids, (pred_rotmats, maxprob), metadata in preds:
                 particlesDataset.updateMd(ids=ids, angles=pred_rotmats,
                                           shifts=torch.zeros(pred_rotmats.shape[0],2, device=pred_rotmats.device),
                                           confidence=maxprob,

@@ -31,13 +31,16 @@ NAME_PARTITION_TO_RECORID ={
 _masks_base_url = "https://zenodo.org/record/8392782/files/"
 NAME_TO_MASK_URL={
     "TEST":  f"{_masks_base_url}/10166_mask.mrc",
-    "10166": f"{_masks_base_url}/10166_mask.mrc", #OK
-    "10647": f"{_masks_base_url}/10647_mask.mrc", #OK
-    "astex-5534": f"{_masks_base_url}/10647_mask.mrc",  # OK
-    "10280": f"{_masks_base_url}/10280_mask.mrc", #OK
-    "10786": f"{_masks_base_url}/10786_mask.mrc", #OK
-    "10409": f"{_masks_base_url}/10409_mask.mrc",  # OK
+    "10166": f"{_masks_base_url}/10166_mask.mrc",
 
-    "11120": f"{_masks_base_url}/11120_mask.mrc", #WRONG
+    "10647": f"{_masks_base_url}/10647_mask.mrc",
+    "astex-5534": f"{_masks_base_url}/10647_mask.mrc",
+
+    "10280": f"{_masks_base_url}/10280_mask.mrc",
+    "10786": f"{_masks_base_url}/10786_mask.mrc",
+    "10409": f"{_masks_base_url}/10409_mask.mrc",
+    "11120": f"{_masks_base_url}/11120_mask.mrc",
+
+    "10374": f"{_masks_base_url}/10374_mask.mrc",
 
 }

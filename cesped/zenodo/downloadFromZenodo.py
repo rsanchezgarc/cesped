@@ -134,7 +134,8 @@ def download_mask(targetName, mask_fname):
         return
     mask_url = NAME_TO_MASK_URL[targetName]
     response = requests.get(mask_url, stream=True)
-    assert response.status_code == 200, (f"Error downloading mask {mask_url}. If you cannot download it, place a "
+    assert response.status_code == 200, (f"Error downloading mask {mask_url}. {response} If you cannot download it "
+                                         f"after retrying, place a "
                                          f"mask named {os.path.basename(mask_fname)} "
                                          f"on {os.path.split(mask_fname)[0]}")
     with tempfile.NamedTemporaryFile() as tmpf:

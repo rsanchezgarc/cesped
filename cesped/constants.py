@@ -30,8 +30,14 @@ defaultBenchmarkDir = osp.expanduser(_defaultDataConf["data"]["benchmarkDir"])
 """The deafult benchmark directory, where entries will be saved"""
 
 _defaultRelionConf = OmegaConf.load(osp.join(default_configs_dir, "defaultRelionConfig.yaml"))
-relionBinDir = osp.expanduser(_defaultRelionConf["Relion"]["relionBinDir"])
+relionBinDir = osp.expanduser(_defaultRelionConf["Relion"]["relionBinDir"]) if _defaultRelionConf["Relion"]["relionBinDir"] else None
 """The Relion bin directory used to compute reconstruction in evaluation"""
 
-mpirunCmd = osp.expanduser(_defaultRelionConf["Relion"]["mpirun"])
+mpirunCmd = osp.expanduser(_defaultRelionConf["Relion"]["mpirun"]) if _defaultRelionConf["Relion"]["mpirun"] else None
 """The mpirun command to execute relion with several workers"""
+
+relionSingularity = osp.expanduser(_defaultRelionConf["Relion"]["relionSingularity"]) if _defaultRelionConf["Relion"]["relionSingularity"] else None
+"""The singularity image to run Relion"""
+
+assert relionSingularity is not None or (relionBinDir is not None and mpirunCmd is not None), ("Error, either relionSingularity or "
+                                                                                                "relionBinDir and mpirunCmd should be provided")

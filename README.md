@@ -29,11 +29,11 @@ For a rapid test, use `targetName="TEST` and `halfset=0`
 
 3. Use it as a regular dataset
 ```
-dl = Dataloader(datatset, ds)
+dl = Dataloader(datatset, ds, batch_size=32)
 for batch in dl:
   iid, img, (rotMat, xyShiftAngs, confidence), metadata = batch
   
-  #iid is the id of the particle (an string)
+  #iid is the list of ids of the particles (string)
   #img is a batch of Bx1xNxN images
   #rotMat is a batch of rotation matrices Bx3x3
   #xyShiftAngs is a batch of image shifts in Angstroms Bx2
@@ -42,6 +42,44 @@ for batch in dl:
   
   #YOUR PYTORCH CODE HERE
   
+```
+
+4. Once your model is trained, you can update the metadata of the ParticlesDataset and save it so that it can be used in cryo-EM software
+```
+for iid, pred_rotmats, maxprob in predictions:
+    #iid is the list of ids of the particles (string)
+    #pred_rotmats is a batch of predicted rotation matrices Bx3x3
+    #maxprob is a batch of numbers, between 0 and 1, Bx1, that indicates the confidence on the prediction (e.g. softmax values)
+
+    particlesDataset.updateMd(ids=iid, angles=pred_rotmats,
+                              shifts=torch.zeros(pred_rotmats.shape[0],2, device=pred_rotmats.device), #Or actual predictions if you have them
+                              confidence=maxprob,
+                              angles_format="rotmat")
+particlesDataset.saveMd(outFname) #Save the metadata as an starfile, a commond cryo-EM format
+
+  
+```
+5. Finally, evaluation can be computed if the predictions for the halfset 0 and halfset 1 were saved using the evaluateEntry script.
+```
+python -m cesped.evaluateEntry  --predictionType SO3--targetName 11120  \
+--half0PredsFname particles_preds_0.star  --half1PredsFname particles_preds_1.star \
+--n_cpus 12 --outdir evaluation/
+```
+evaluateEntry uses [Relion](https://relion.readthedocs.io/) for reconstruction, so you will need to install it and 
+edit the config file [defaultRelionConfig.yaml](cesped%2Fconfigs%2FdefaultRelionConfig.yaml) or provide via command 
+line arguments, where Relion is installed
+```
+--mpirun /path/to/mpirun  --relionBinDir /path/to/relion/bin
+```
+
+Alternatively, you can build a [singularity](https://docs.sylabs.io/guides/3.0/user-guide/index.html) image, using the
+definition file we provide [relionSingularity.def](cesped%2FrelionSingularity.def)
+```commandline
+singularity build relionSingularity.sif relionSingularity.def
+```
+And edit the config file to point where the singularity image file is located or use the command line argument
+```
+--singularityImgFile /path/to/relionSingularity.sif
 ```
 
 ## Image2Sphere experiments
@@ -72,13 +110,22 @@ yaml file(s). Use `-h` to see the list of configurable parameters. Some of the m
 - trainer.default_root_dir. Directory where the checkpoints and the logs will be saved, 
 from [defaultTrainerConfig.yaml](cesped%2Fconfigs%2FdefaultTrainerConfig.yaml)
 - optimizer.lr. The learning rate, from [defaultOptimizerConfig.yaml](cesped%2Fconfigs%2FdefaultOptimizerConfig.yaml)
-- data.benchmarkDir. Directory where the benchmark entries are saved, from [defaultModelConfig.yaml](cesped%2Fconfigs%2FdefaultModelConfig.yaml)
-- data.num_data_workers. Number of workers for data loading, from [defaultModelConfig.yaml](cesped%2Fconfigs%2FdefaultModelConfig.yaml)
+- data.benchmarkDir. Directory where the benchmark entries are saved, from [defaultDataConfig.yaml](cesped%2Fconfigs%2FdefaultDataConfig.yaml)
+- data.num_data_workers. Number of workers for data loading, from [defaultDataConfig.yaml](cesped%2Fconfigs%2FdefaultDataConfig.yaml)
+- data.batch_size. from [defaultDataConfig.yaml](cesped%2Fconfigs%2FdefaultDataConfig.yaml)
 
 ### Inference
 In order to predict the poses on one target, you run
 ```
-python -m cesped.inferEntry --data.halfset <HALFSET> --data.targetName <TARGETNAME> --ckpt_path <PATH_TO_CHECKPOINT>
+python -m cesped.inferEntry --data.halfset <HALFSET> --data.targetName <TARGETNAME> --ckpt_path <PATH_TO_CHECKPOINT> \
+--outFname /path/to/output/starfile.star
+```
+### Evaluation
+5. As before, evaluation can be computed if the predictions for the halfset 0 and halfset 1 were saved using the evaluateEntry script.
+```
+python -m cesped.evaluateEntry  --predictionType SO3--targetName 11120  \
+--half0PredsFname particles_preds_0.star  --half1PredsFname particles_preds_1.star \
+--n_cpus 12 --outdir evaluation/
 ```
 
 ##API

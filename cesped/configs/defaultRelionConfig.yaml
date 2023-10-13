@@ -2,4 +2,5 @@
 Relion:
   relionBinDir: "~/app/scipion/software/em/relion/bin"
   mpirun: "mpirun"
+  relionSingularity: null #if relionSingularity provided, relionBinDir and mpirun are not required
 
