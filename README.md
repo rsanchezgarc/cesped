@@ -61,12 +61,12 @@ particlesDataset.saveMd(outFname) #Save the metadata as an starfile, a commond c
 ```
 5. Finally, evaluation can be computed if the predictions for the halfset 0 and halfset 1 were saved using the evaluateEntry script.
 ```
-python -m cesped.evaluateEntry  --predictionType SO3--targetName 11120  \
+python -m cesped.evaluateEntry  --predictionType SO3 --targetName 11120  \
 --half0PredsFname particles_preds_0.star  --half1PredsFname particles_preds_1.star \
 --n_cpus 12 --outdir evaluation/
 ```
 evaluateEntry uses [Relion](https://relion.readthedocs.io/) for reconstruction, so you will need to install it and 
-edit the config file [defaultRelionConfig.yaml](cesped%2Fconfigs%2FdefaultRelionConfig.yaml) or provide via command 
+edit the config file [defaultRelionConfig.yaml](cesped%2Fconfigs%2FdefaultRelionConfig.yaml) or provide, via command 
 line arguments, where Relion is installed
 ```
 --mpirun /path/to/mpirun  --relionBinDir /path/to/relion/bin
@@ -77,13 +77,13 @@ definition file we provide [relionSingularity.def](cesped%2FrelionSingularity.de
 ```commandline
 singularity build relionSingularity.sif relionSingularity.def
 ```
-And edit the config file to point where the singularity image file is located or use the command line argument
+And edit the config file to point where the singularity image file is located, or use the command line argument
 ```
 --singularityImgFile /path/to/relionSingularity.sif
 ```
 
 ## Image2Sphere experiments
-The experiments have been implemented using lightning and lightingCLI. You can find the configuration files 
+The experiments have been implemented using [lightning](https://lightning.ai/) and lightingCLI. You can find the configuration files 
 located at :
 ```
 YOUR_DIR/cesped/configs/
@@ -96,26 +96,32 @@ cesped.default_configs_dir
 ### Train
 In order to train the model on one target, you run
 ```
-python -m cesped.trainEntry --data.halfset <HALFSET> --data.targetName <TARGETNAME>
+python -m cesped.trainEntry --data.halfset <HALFSET> --data.targetName <TARGETNAME> --trainer.default_root_dir <OUTDIR>
 ```
 with `<HALFSET>` 0 or 1 and `<TARGETNAME>` one of the list that can be found using `ParticlesDataset.getCESPEDEntries()`
 Some available targets include
 - TEST. A small subset of EMPIAR-10166
 - 10166. The EMPIAR-10166
 - 11120. The EMPIAR-11120
+- 10280. The EMPIAR-10280
+- 10409. The EMPIAR-10409
 
 Do not forget to change the configuration files or to provide different values via command line or environmental 
-variables. In addition, `[--config CONFIG_NAME.yaml]` also allows to overwrite the default values using (a/some) custom
+variables. In addition, `[--config CONFIG_NAME.yaml]` also allows to overwrite the default values using (a/several) custom
 yaml file(s). Use `-h` to see the list of configurable parameters. Some of the most important ones are.
 - trainer.default_root_dir. Directory where the checkpoints and the logs will be saved, 
 from [defaultTrainerConfig.yaml](cesped%2Fconfigs%2FdefaultTrainerConfig.yaml)
 - optimizer.lr. The learning rate, from [defaultOptimizerConfig.yaml](cesped%2Fconfigs%2FdefaultOptimizerConfig.yaml)
-- data.benchmarkDir. Directory where the benchmark entries are saved, from [defaultDataConfig.yaml](cesped%2Fconfigs%2FdefaultDataConfig.yaml)
+- data.benchmarkDir. Directory where the benchmark entries are saved, from [defaultDataConfig.yaml](cesped%2Fconfigs%2FdefaultDataConfig.yaml). It is recommended
+to change this in the config file.
 - data.num_data_workers. Number of workers for data loading, from [defaultDataConfig.yaml](cesped%2Fconfigs%2FdefaultDataConfig.yaml)
 - data.batch_size. from [defaultDataConfig.yaml](cesped%2Fconfigs%2FdefaultDataConfig.yaml)
 
 ### Inference
-In order to predict the poses on one target, you run
+By default, when using `python -m cesped.trainEntry`, inference on the complementary halfset is done on a single GPU
+after training finishes, and the starfile with the predictions can be found at 
+`<OUTDIR>/lightning_logs/version_<\d>/predictions_[0,1].star`. In order to manually run the pose prediction 
+code (and to make use of all GPUs) you can run
 ```
 python -m cesped.inferEntry --data.halfset <HALFSET> --data.targetName <TARGETNAME> --ckpt_path <PATH_TO_CHECKPOINT> \
 --outFname /path/to/output/starfile.star
