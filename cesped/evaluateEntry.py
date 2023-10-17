@@ -217,12 +217,13 @@ class Evaluator():
         referData["particles"] = referData["particles"].sort_values(by=RELION_IMAGE_FNAME).reset_index(drop=True)
         predData["particles"] = predData["particles"].sort_values(by=RELION_IMAGE_FNAME).reset_index(drop=True)
         assert referData["particles"][RELION_IMAGE_FNAME].equals(predData["particles"][RELION_IMAGE_FNAME]), \
-            "Error, there is a mismatch between the ids of the predicted data and the benchmark data"
+            (f"Error, there is a mismatch between the ids of the predicted {predStarFname} data and the benchmark"
+             f" data {referStarFname}")
 
         predAngles = predData["particles"][RELION_ANGLES_NAMES].values
         gtAngles = referData["particles"][RELION_ANGLES_NAMES].values
         assert predAngles.shape[0] == gtAngles.shape[0], ("Error, mismatch in the number of predicted particles and gt"
-                                                          "particles")
+                                                          f"particles for {referStarFname} {predStarFname}")
         meanAngularError, wMeanAngularError, totalConf = computeAngularError(
             predAngles, gtAngles,
             confidence=referData["particles"][RELION_ORI_POSE_CONFIDENCE_NAME].values,

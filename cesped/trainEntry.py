@@ -58,6 +58,8 @@ def _copyCodeForReproducibility(logdir):
     fname = osp.join(logdir, "command.txt")
     with open(fname, "w") as f:
         f.write(" ".join(sys.argv))
+
+
 if __name__ == "__main__":
 
 
@@ -92,6 +94,7 @@ if __name__ == "__main__":
                 "--data.halfset", str(otherHalf),
                 "--data.num_data_workers", str(cli.config["data"]["num_data_workers"]),
                 "--data.batch_size", str(cli.config["data"]["batch_size"]),
+                "--trainer.devices", "1", #Multiple devices will cause issues with ports.
                 "--outFname", osp.join(logdir, f"predictions_{otherHalf}.star"),
                 "--ckpt_path", getattr(cli.trainer.checkpoint_callback, "best_model_path", "best")]
             print(" ".join(cmd))

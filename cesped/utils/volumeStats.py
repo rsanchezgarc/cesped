@@ -30,10 +30,10 @@ def compute_stats(gtVolOrFname, predVolOrFname, maskOrFname=None, samplingRate=N
     sr = [gtSr, predSr, maskSr]
     if any(sr):
         sr_set = set([round(x,3) for x in sr if x is not None])
-        assert len(sr_set) == 1, "Error, different sampling rates"
+        assert len(sr_set) == 1, f"Error, different sampling rates {sr}"
         sr_ = sr_set.pop()
         if samplingRate is not None:
-            assert round(sr_, 3) == round(samplingRate, 3), "Error, different sampling rates"
+            assert round(sr_, 3) == round(samplingRate, 3), f"Error, different sampling rates {sr_} vs {samplingRate}"
         else:
             samplingRate = sr_
     else:
