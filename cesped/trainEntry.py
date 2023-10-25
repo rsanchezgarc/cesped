@@ -34,7 +34,7 @@ def _copyCodeForReproducibility(logdir):
     """
     copycodedir = osp.join(logdir, "code")
     os.makedirs(copycodedir, exist_ok=True)
-    copycodedir = osp.join(copycodedir, "cryoSolver")
+    copycodedir = osp.join(copycodedir, "cesped")
 
     modulePath = os.path.abspath(sys.modules[__name__].__file__)
     rootPath = osp.dirname(osp.dirname(modulePath))
@@ -48,7 +48,7 @@ def _copyCodeForReproducibility(logdir):
             os.makedirs(target_folder, exist_ok=True)
         # Iterate through all Python files
         for file in files:
-            if file.endswith(".py"):
+            if file.endswith(".py") or file.endswith(".yaml"):
                 # Copy the Python file to the corresponding directory in the target path
                 source_file = os.path.join(root, file)
                 target_file = source_file.replace(rootPath, copycodedir)
