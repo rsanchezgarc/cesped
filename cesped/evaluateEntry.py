@@ -7,7 +7,7 @@ import shutil
 import subprocess
 import os.path as osp
 import tempfile
-from typing import Literal, Optional, Tuple, Union
+from typing import Literal, Optional, Tuple, Union, Dict
 
 import mrcfile
 import numpy as np
@@ -144,7 +144,7 @@ class Evaluator():
         Reconstruct each of the half-datasets starFname0 and starFname0 and averages the reconstruction to
         obtain the final average map
         Args:
-            starFname0 (str):
+            starFname0 (str): The filename with the predicted poses for the first half of the dataset
             starFname1 (str):
             particlesDir (str):
             outbasename (str):
@@ -345,7 +345,7 @@ def evaluate(targetName: str, half0PredsFname: str, half1PredsFname: str,
              mpirun: Optional[str] = mpirunCmd, relionSingularity: Optional[str] = relionSingularity,
              rm_prev_reconstructions: bool = True,
              ignore_symmetry: bool = False, use_gt_mask:bool=True,
-             n_cpus: int = 1, outdir: Optional[str] = None):
+             n_cpus: int = 1, outdir: Optional[str] = None) -> Dict[str, float]:
     """
 
     Args:

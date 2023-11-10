@@ -1,9 +1,5 @@
 # CESPED: Utilities for the Cryo-EM Supervised Pose Estimation Dataset
 
-#TODO: Write this readme.
-#TODO: Refactor
-
-
 ## Installation
 cesped has been tested on python 3.11. Installation should be automatic using the requirements.txt file
 ```
@@ -41,6 +37,11 @@ for batch in dl:
   #metata is a dictionary of names:values for all the information about the particle
   
   #YOUR PYTORCH CODE HERE
+  predRot = model(img)
+  loss = loss_function(rotMat, predRot)
+  loss.backward()
+  optimizer.step()
+  optimizer.zero_grad()
   
 ```
 
@@ -71,13 +72,12 @@ line arguments, where Relion is installed
 ```
 --mpirun /path/to/mpirun  --relionBinDir /path/to/relion/bin
 ```
-
 Alternatively, you can build a [singularity](https://docs.sylabs.io/guides/3.0/user-guide/index.html) image, using the
 definition file we provide [relionSingularity.def](cesped%2FrelionSingularity.def)
 ```commandline
 singularity build relionSingularity.sif relionSingularity.def
 ```
-And edit the config file to point where the singularity image file is located, or use the command line argument
+and edit the config file to point where the singularity image file is located, or use the command line argument
 ```
 --singularityImgFile /path/to/relionSingularity.sif
 ```
@@ -142,12 +142,13 @@ pdoc --http : .
 
 
 ## Relion Singularity
+
+A singularity container for relion_reconstruct with MPI support can be built with the following command. 
 ```
 singularity build relionSingulary.sif relionSingulary.def 
 ```
-
-
+Then, relion reconstruction can be computed with the following command W
 ```
 singularity exec relionSingulary.sif mpirun -np 4 relion_reconstruct_mpi --ctf --pad 2 --i input_particles.star --o output_map.mrc
-./relionSingulary.sif  2 --ctf --pad 2 --i input_particles.star --o output_map.mrc #This uses 2 mpis
+./relionSingulary.sif  2 --ctf --pad 2 --i input_particles.star --o output_map.mrc #This uses 4 mpis
 ```

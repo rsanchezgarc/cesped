@@ -126,24 +126,38 @@ def flat_wigner(lmax, alpha, beta, gamma):
     (2 * l + 1) ** 0.5 * o3.wigner_D(l, alpha, beta, gamma).flatten(-2) for l in range(lmax + 1)
   ], dim=-1)
 
-def so3_near_identity_grid(max_beta=np.pi / 8, max_gamma=2 * np.pi, n_alpha=8, n_beta=3, n_gamma=None):
-  """Spatial grid over SO3 used to parametrize localized filter
 
-  :return: rings of rotations around the identity, all points (rotations) in
-           a ring are at the same distance from the identity
-           size of the kernel = n_alpha * n_beta * n_gamma
-  """
-  if n_gamma is None:
-      n_gamma = n_alpha
-  beta = torch.arange(1, n_beta + 1) * max_beta / n_beta
-  alpha = torch.linspace(0, 2 * np.pi, n_alpha)[:-1]
-  pre_gamma = torch.linspace(-max_gamma, max_gamma, n_gamma)
-  A, B, preC = torch.meshgrid(alpha, beta, pre_gamma, indexing="ij")
-  C = preC - A
-  A = A.flatten()
-  B = B.flatten()
-  C = C.flatten()
-  return torch.stack((A, B, C))
+# # ORIGINAL IMPLEMENTATION
+# def so3_near_identity_grid(max_beta=np.pi / 8, max_gamma=2 * np.pi, n_alpha=8, n_beta=3, n_gamma=None):
+#   """Spatial grid over SO3 used to parametrize localized filter
+#
+#   :return: rings of rotations around the identity, all points (rotations) in
+#            a ring are at the same distance from the identity
+#            size of the kernel = n_alpha * n_beta * n_gamma
+#   """
+#   if n_gamma is None:
+#       n_gamma = n_alpha
+#   beta = torch.arange(1, n_beta + 1) * max_beta / n_beta
+#   alpha = torch.linspace(0, 2 * np.pi, n_alpha)[:-1]
+#   pre_gamma = torch.linspace(-max_gamma, max_gamma, n_gamma)
+#   A, B, preC = torch.meshgrid(alpha, beta, pre_gamma, indexing="ij")
+#   C = preC - A
+#   A = A.flatten()
+#   B = B.flatten()
+#   C = C.flatten()
+#   return torch.stack((A, B, C))
+
+
+def so3_near_identity_grid(max_rads=np.pi / 12, n_angles=8):
+    """Spatial grid over SO3 used to parametrize localized filter
+
+    :return: a local grid of SO(3) points
+           size of the kernel = n_alpha**3
+    """
+
+    angles_range = torch.linspace(-max_rads, max_rads, n_angles)
+    grid = torch.cartesian_prod(angles_range, angles_range, angles_range)
+    return grid.T
 
 class S2Conv(nn.Module):
   '''S2 group convolution which outputs signal over SO(3) irreps
