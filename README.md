@@ -21,7 +21,7 @@ targetName, halfset = listOfEntries[0] #We will work with the first entry only
 
 dataset = ParticlesDataset(targetName, halfset)
 ```
-For a rapid test, use `targetName="TEST` and `halfset=0`
+For a rapid test, use `targetName="TEST"` and `halfset=0`
 
 3. Use it as a regular dataset
 ```

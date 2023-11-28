@@ -66,7 +66,6 @@ def download_record(record_id, destination_dir, root_url=ROOT_URL_PATTERN):
                     cum_size += size
                     if current_size >= cum_size:
                         print(f"Skipping already downloaded {url}")
-                        # current_size -= size
                         continue
                     success, new_position = download_file(url, checksum, pbar, output_file, current_size)
                     if not success:
@@ -81,10 +80,10 @@ def download_record(record_id, destination_dir, root_url=ROOT_URL_PATTERN):
     for fileRecord in r.json()["files"]:
         # print(fileRecord["key"], fileRecord["links"]["self"], fileRecord['checksum'], fileRecord['size'])
         try:
-            fname = fileRecord.get("key",fileRecord["filename"]) #It used to work with key, now it seems it is called filename
-            link = f"https://zenodo.org/records/{record_id}/files/{fname}"  #fileRecord["links"]["self"]
-            size = fileRecord.get("size", fileRecord["filesize"]) #It used to work with size, now it seems it is called filesize
-            files_info_dict[fname] = (link, size, fileRecord['checksum'])
+            fname = fileRecord.get("key",fileRecord.get("filename")) #It used to work with key, now it seems it is called filename
+            link = f"https://zenodo.org/records/{record_id}/files/{fname}"
+            size = fileRecord.get("size", fileRecord.get("filesize")) #It used to work with size, now it seems it is called filesize
+            files_info_dict[fname] = (link, size, fileRecord.get('checksum'))
         except KeyError:
             print(fileRecord)
             raise
