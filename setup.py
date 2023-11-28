@@ -33,7 +33,7 @@ setup(
     version=version,
     description='Code utilities for the CESPED (Cryo-EM Supervised Pose Estimation Dataset) benchmark',
     long_description=long_description,  # Optional
-    url='https://github.com/Anonymous/cesped',  # Optional
+    url='https://github.com/rsanchezgarc/cesped',  # Optional
     author='Anonymous',  # Optional
     author_email='Anonymous',  # Optional
     keywords='deep learning cryoem pose estimation',  # Optional
