@@ -25,7 +25,7 @@ For a rapid test, use `targetName="TEST"` and `halfset=0`
 
 3. Use it as a regular dataset
 ```
-dl = Dataloader(datatset, ds, batch_size=32)
+dl = Dataloader(datatset, batch_size=32)
 for batch in dl:
   iid, img, (rotMat, xyShiftAngs, confidence), metadata = batch
   
