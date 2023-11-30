@@ -150,5 +150,7 @@ singularity build relionSingulary.sif relionSingulary.def
 Then, Relion reconstruction can be computed with the following command:
 ```
 singularity exec relionSingulary.sif mpirun -np 4 relion_reconstruct_mpi --ctf --pad 2 --i input_particles.star --o output_map.mrc
-./relionSingulary.sif  2 --ctf --pad 2 --i input_particles.star --o output_map.mrc #This uses 4 mpis
+#Or the following command
+./relionSingulary.sif  4 --ctf --pad 2 --i input_particles.star --o output_map.mrc #This uses 4 mpis
 ```
+However, typical users will not need to execute the container manually. Everything happens transparently within the evaluateEntry.py script
