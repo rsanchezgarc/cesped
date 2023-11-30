@@ -1,8 +1,11 @@
 # CESPED: Utilities for the Cryo-EM Supervised Pose Estimation Dataset
 
+CESPED, is a new dataset specifically designed for Supervised Pose Estimation in Cryo-EM. You can check of manuscript at https://arxiv.org/abs/2311.06194.
+
 ## Installation
 cesped has been tested on python 3.11. Installation should be automatic using the requirements.txt file
 ```
+git clone https://github.com/rsanchezgarc/cesped
 cd cesped
 pip install .
 ```
