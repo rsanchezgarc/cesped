@@ -50,13 +50,13 @@ for batch in dl:
 for iid, pred_rotmats, maxprob in predictions:
     #iid is the list of ids of the particles (string)
     #pred_rotmats is a batch of predicted rotation matrices Bx3x3
-    #maxprob is a batch of numbers, between 0 and 1, Bx1, that indicates the confidence on the prediction (e.g. softmax values)
+    #maxprob is a batch of numbers, between 0 and 1, Bx1, that indicates the confidence in the prediction (e.g. softmax values)
 
     particlesDataset.updateMd(ids=iid, angles=pred_rotmats,
                               shifts=torch.zeros(pred_rotmats.shape[0],2, device=pred_rotmats.device), #Or actual predictions if you have them
                               confidence=maxprob,
                               angles_format="rotmat")
-particlesDataset.saveMd(outFname) #Save the metadata as an starfile, a commond cryo-EM format
+particlesDataset.saveMd(outFname) #Save the metadata as an starfile, a common cryo-EM format
 
   
 ```
@@ -106,8 +106,8 @@ Some available targets include
 - 10280. The EMPIAR-10280
 - 10409. The EMPIAR-10409
 
-Do not forget to change the configuration files or to provide different values via command line or environmental 
-variables. In addition, `[--config CONFIG_NAME.yaml]` also allows to overwrite the default values using (a/several) custom
+Do not forget to change the configuration files or to provide different values via the command line or environmental 
+variables. In addition, `[--config CONFIG_NAME.yaml]` also allows overwriting the default values using (a/several) custom
 yaml file(s). Use `-h` to see the list of configurable parameters. Some of the most important ones are.
 - trainer.default_root_dir. Directory where the checkpoints and the logs will be saved, 
 from [defaultTrainerConfig.yaml](cesped%2Fconfigs%2FdefaultTrainerConfig.yaml)
@@ -129,7 +129,7 @@ python -m cesped.inferEntry --data.halfset <HALFSET> --data.targetName <TARGETNA
 ### Evaluation
 5. As before, evaluation can be computed if the predictions for the halfset 0 and halfset 1 were saved using the evaluateEntry script.
 ```
-python -m cesped.evaluateEntry  --predictionType SO3--targetName 11120  \
+python -m cesped.evaluateEntry  --predictionType SO3 --targetName 11120  \
 --half0PredsFname particles_preds_0.star  --half1PredsFname particles_preds_1.star \
 --n_cpus 12 --outdir evaluation/
 ```
@@ -147,7 +147,7 @@ A singularity container for relion_reconstruct with MPI support can be built wit
 ```
 singularity build relionSingulary.sif relionSingulary.def 
 ```
-Then, relion reconstruction can be computed with the following command W
+Then, Relion reconstruction can be computed with the following command:
 ```
 singularity exec relionSingulary.sif mpirun -np 4 relion_reconstruct_mpi --ctf --pad 2 --i input_particles.star --o output_map.mrc
 ./relionSingulary.sif  2 --ctf --pad 2 --i input_particles.star --o output_map.mrc #This uses 4 mpis
