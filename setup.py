@@ -34,10 +34,11 @@ setup(
     description='Code utilities for the CESPED (Cryo-EM Supervised Pose Estimation Dataset) benchmark',
     long_description=long_description,  # Optional
     url='https://github.com/rsanchezgarc/cesped',  # Optional
-    author='Anonymous',  # Optional
-    author_email='Anonymous',  # Optional
+    author='Ruben Sanchez-Garcia',  # Optional
+    author_email='ruben.sanchez-garcia@stats.ox.ac.uk',  # Optional
     keywords='deep learning cryoem pose estimation',  # Optional
     packages=find_packages(),
     install_requires=[requirements],
     include_package_data=True,  # This line is important to read MANIFEST.in
+    long_description_content_type="text/markdown",
 )

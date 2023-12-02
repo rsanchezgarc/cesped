@@ -20,7 +20,7 @@ import numpy as np
 import torch
 from scipy.spatial.transform import Rotation as R
 from starstack.particlesStar import ParticlesStarSet
-from torch.utils.data import Dataset, default_collate
+from torch.utils.data import Dataset
 
 from cesped.constants import RELION_EULER_CONVENTION, RELION_ANGLES_NAMES, RELION_SHIFTS_NAMES, \
     RELION_ORI_POSE_CONFIDENCE_NAME, RELION_PRED_POSE_CONFIDENCE_NAME, default_configs_dir, defaultBenchmarkDir

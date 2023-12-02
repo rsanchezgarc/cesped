@@ -3,7 +3,14 @@
 CESPED, is a new dataset specifically designed for Supervised Pose Estimation in Cryo-EM. You can check of manuscript at https://arxiv.org/abs/2311.06194.
 
 ## Installation
-cesped has been tested on python 3.11. Installation should be automatic using the requirements.txt file
+cesped has been tested on python 3.11. Installation should be automatic using pip
+```
+pip install cesped
+#Or directy from the master branch
+pip install git+https://github.com/rsanchezgarc/cesped
+```
+
+or cloning the repository
 ```
 git clone https://github.com/rsanchezgarc/cesped
 cd cesped
@@ -12,6 +19,9 @@ pip install .
 
 
 ## Basic usage
+
+### ParticlesDataset class
+It is used to load the images and poses.
 
 1. Get the list of downloadable entries
 ```
@@ -28,7 +38,7 @@ For a rapid test, use `targetName="TEST"` and `halfset=0`
 
 3. Use it as a regular dataset
 ```
-dl = Dataloader(datatset, batch_size=32)
+dl = DataLoader(dataset, batch_size=32)
 for batch in dl:
   iid, img, (rotMat, xyShiftAngs, confidence), metadata = batch
   
@@ -41,7 +51,7 @@ for batch in dl:
   
   #YOUR PYTORCH CODE HERE
   predRot = model(img)
-  loss = loss_function(rotMat, predRot)
+  loss = loss_function(predRot, rotMat)
   loss.backward()
   optimizer.step()
   optimizer.zero_grad()
