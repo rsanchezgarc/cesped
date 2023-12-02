@@ -1,4 +1,3 @@
-torch
 argParseFromDoc
 e3nn
 healpy
