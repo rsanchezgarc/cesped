@@ -3,5 +3,5 @@ Utilities to train and evaluate deep learning models for Cryo-EM Supervised Part
 
 """
 
-__version__ = "23.11.2"
+__version__ = "24.01.1"
 
