@@ -1,6 +1,6 @@
 # CESPED: Utilities for the Cryo-EM Supervised Pose Estimation Dataset
 
-CESPED, is a new dataset specifically designed for Supervised Pose Estimation in Cryo-EM. You can check of manuscript at https://arxiv.org/abs/2311.06194.
+CESPED, is a new dataset specifically designed for Supervised Pose Estimation in Cryo-EM. You can check our manuscript at https://arxiv.org/abs/2311.06194.
 
 ## Installation
 cesped has been tested on python 3.11. Installation should be automatic using pip
@@ -112,9 +112,16 @@ python -m cesped.particlesDataset preprocess_entry --t 10166 --halfset 0--o /tmp
 ```
 use `-h` to display the list of available preprocessing operations.
 
-The raw data can be easily accessed using the python package [starstack](https://pypi.org/project/starstack/), that relies on the [mrcfile](https://pypi.org/project/mrcfile/) 
-and [starfile](https://pypi.org/project/starfile/) packages.
+The raw data can be easily accessed using the Python package [starstack](https://pypi.org/project/starstack/), which relies on the [mrcfile](https://pypi.org/project/mrcfile/) and [starfile](https://pypi.org/project/starfile/) packages. Predictions should be written as a star file with the newly
+predicted Euler angles.
 
+Evaluation can be computed once the predictions for the half-set 0 and half-set 1 are saved
+
+```
+python -m cesped.evaluateEntry  --predictionType SO3 --targetName 11120  \
+--half0PredsFname particles_preds_0.star  --half1PredsFname particles_preds_1.star \
+--n_cpus 12 --outdir evaluation/
+```
 
 ## Image2Sphere experiments
 The experiments have been implemented using [lightning](https://lightning.ai/) and lightingCLI. You can find the configuration files 
@@ -134,11 +141,11 @@ python -m cesped.trainEntry --data.halfset <HALFSET> --data.targetName <TARGETNA
 ```
 with `<HALFSET>` 0 or 1 and `<TARGETNAME>` one of the list that can be found using `ParticlesDataset.getCESPEDEntries()`
 Some available targets include
-- TEST. A small subset of EMPIAR-10166
-- 10166. The EMPIAR-10166
-- 11120. The EMPIAR-11120
-- 10280. The EMPIAR-10280
-- 10409. The EMPIAR-10409
+- TEST. A small subset of EMPIAR-11120
+- EMPIAR-10166.
+- EMPIAR-11120
+- EMPIAR-10280
+- EMPIAR-10409
 
 Do not forget to change the configuration files or to provide different values via the command line or environmental 
 variables. In addition, `[--config CONFIG_NAME.yaml]` also allows overwriting the default values using (a/several) custom
