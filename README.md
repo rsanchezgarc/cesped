@@ -34,7 +34,8 @@ targetName, halfset = listOfEntries[0] #We will work with the first entry only
 
 dataset = ParticlesDataset(targetName, halfset)
 ```
-For a rapid test, use `targetName="TEST"` and `halfset=0`
+For a rapid test, use `targetName="TEST"` and `halfset=0`. If the dataset is not yet available in the benchmarkDir (defined in [defaultDataConfig.yaml](cesped%2Fconfigs%2FdefaultDataConfig.yaml),
+it will be automatically downloaded. Metadta (Euler angles, CTf,...) are stored using Relion starfile format, and images are stored as .mrcs stacks.
 
 3. Use it as a regular dataset
 ```
@@ -94,6 +95,26 @@ and edit the config file to point where the singularity image file is located, o
 ```
 --singularityImgFile /path/to/relionSingularity.sif
 ```
+
+### Cross-plataform usage.
+
+Users of other deep learning frameworks can download CESPED entries using the following command
+
+```
+python -m cesped.particlesDataset download_entry -t 10166 --halfset 0
+```
+This will download the associated starfile and mrcs file to the default benchmark directory (defined in [defaultDataConfig.yaml](cesped%2Fconfigs%2FdefaultDataConfig.yaml).
+Use `--benchmarkDir` to specify another directory<br/>
+
+In order to list the entries available for download and the ones already downloaded, you can use
+```
+python -m cesped.particlesDataset preprocess_entry --t 10166 --halfset 0--o /tmp/dumpedData/ --ctf_correction "phase_flip"
+```
+use `-h` to display the list of available preprocessing operations.
+
+The raw data can be easily accessed using the python package [starstack](https://pypi.org/project/starstack/), that relies on the [mrcfile](https://pypi.org/project/mrcfile/) 
+and [starfile](https://pypi.org/project/starfile/) packages.
+
 
 ## Image2Sphere experiments
 The experiments have been implemented using [lightning](https://lightning.ai/) and lightingCLI. You can find the configuration files 

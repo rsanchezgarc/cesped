@@ -201,6 +201,7 @@ class ParticlesDataset(Dataset):
 
         """
         return list(NAME_PARTITION_TO_RECORID.keys())
+        
     @classmethod
     def getLocallyAvailableEntries(cls, benchmarkDir: Union[str, PathLike] = defaultBenchmarkDir) -> List[Tuple[str, int]]:
         """
@@ -311,6 +312,7 @@ class ParticlesDataset(Dataset):
                                                                   padding_mode="constant")
         img = img.squeeze(0)
         return img
+        
     def __getitem(self, item):
         img, md_row = self.getIdx(item)
         iid = md_row["rlnImageName"]
@@ -518,18 +520,32 @@ if __name__ == "__main__":
                                   required=True)
     add_entry_parser.add_argument("-b", "--benchmarkDir", help="The benchmark's directory", type=str,
                                   default=defaultBenchmarkDir)
+                                  
     add_entry_parser.add_argument("--starFname",
-                                  help="The star filename with the particles to be added to the local benchmark",
-                                  type=str, required=True)
-    add_entry_parser.add_argument("--particlesRootDir", help="The root directory referred to in the starFname",
-                                  type=str, required=True)
+                                  help="The star filename with the particles to be added to the local benchmark", type=str, required=True)
+    add_entry_parser.add_argument("--particlesRootDir", help="The root directory referred to in the starFname", type=str, required=True)
     add_entry_parser.add_argument("--symmetry", help="The point symmetry of the dataset", type=str, required=True)
+
 
 
     list_entries_parser = subparsers.add_parser("list_entries", help="List available entries")
     list_entries_parser.add_argument("-b", "--benchmarkDir", help="The benchmark's directory", type=str, default=defaultBenchmarkDir)
-    list_entries_parser.add_argument("--remote", help="List remote entries instead of local", action="store_true")
 
+
+    donwload_entry_parser = subparsers.add_parser("download_entry", help="Download an entry")
+    donwload_entry_parser.add_argument("-b", "--benchmarkDir", help="The benchmark's directory", type=str, default=defaultBenchmarkDir)
+    donwload_entry_parser.add_argument("-p", "--halfset", help="The halfset to use", choices=["0", "1"], required=True)
+    donwload_entry_parser.add_argument("-t", "--targetName", help="The target to use", type=str, required=True)
+    
+    preprocess_entry_parser = subparsers.add_parser("preprocess_entry", help="Preprocess an entry")
+    preprocess_entry_parser.add_argument("-b", "--benchmarkDir", help="The benchmark's directory", type=str, default=defaultBenchmarkDir)
+    preprocess_entry_parser.add_argument("-p", "--halfset", help="The halfset to use", choices=["0", "1"], required=True)
+    preprocess_entry_parser.add_argument("-t", "--targetName", help="The target to use", type=str, required=True)
+    preprocess_entry_parser.add_argument("-o", "--outDir", help="The output directory", type=str, required=True)
+    
+    preprocess_entry_parser.add_argument("-s", "--image_size", help="The final size of the image in pixels, obtained by resizing. Default: Original image size", type=int, required=False, default=None)
+    preprocess_entry_parser.add_argument("-f", "--ctf_correction", help="The ctf correction mode. Default: %(default)s", choices=['none', 'phase_flip'], default="none")
+    preprocess_entry_parser.add_argument("-c", "--image_size_factor_for_crop", help="The fraction of the original image to be cropped. Default: ", type=float, required=False, default=0.2)
 
     args = parser.parse_args()
 
@@ -568,13 +584,44 @@ if __name__ == "__main__":
             f"directory {args.benchmarkDir}.")
 
     elif args.mode == "list_entries":
-        # List available entries
-        if args.remote:
-            remote_entries = ParticlesDataset.getCESPEDEntries()
-            print("Available for donwload entries:", remote_entries)
-        else:
-            local_entries = ParticlesDataset.getLocallyAvailableEntries(benchmarkDir=args.benchmarkDir)
-            print("Locally available entries:", local_entries)
+        remote_entries = ParticlesDataset.getCESPEDEntries()
+        print("Available for donwload entries:", remote_entries)
+        local_entries = ParticlesDataset.getLocallyAvailableEntries(benchmarkDir=args.benchmarkDir)
+        print("Locally available entries:", local_entries)
+        
+    elif args.mode == "download_entry":
+
+        ps = ParticlesDataset(targetName=args.targetName,
+                              halfset=int(args.halfset),
+                              benchmarkDir=args.benchmarkDir,
+                              image_size=None,
+                              ctf_correction="none",
+                              image_size_factor_for_crop=0.,
+                              )
+        ps[0]
+        print("Data was downloaded to:")
+        print(ps.starFname)
+        print(ps.stackFname)
+    
+    elif args.mode == "preprocess_entry":
+        ps = ParticlesDataset(targetName=args.targetName,
+                              halfset=int(args.halfset),
+                              benchmarkDir=args.benchmarkDir,
+                              image_size=args.image_size,
+                              ctf_correction=args.ctf_correction,
+                              image_size_factor_for_crop=args.image_size_factor_for_crop
+                              )
+                              
+        stack = ParticlesStarSet(starFname=ps.starFname)
+        assert isinstance(stack[len(stack) - 1][0], np.ndarray), "Error, there is some problem reading your data"
+        
+        outDir = os.path.expanduser(args.outDir)
+        os.makedirs(outDir, exist_ok=True)
+        newStarFname = os.path.join(outDir, f"particles_{args.halfset}.star")
+        
+        stack.createFromPdNp(newStarFname, stack.optics_md,  stack.particles_md, npImages=(row[1] for row in ps), overwrite=True)
+
+    
     else:
         raise ValueError("Error, option is not valid")
 
