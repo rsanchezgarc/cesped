@@ -158,7 +158,7 @@ class Evaluator():
         data0, sr0 = self.reconstruct(starFname0, name0, particlesDir, symmetry=symmetry, cleanExisting=cleanExisting)
 
         name1 = osp.join(self.wdir, outbasename + "_1.mrc")
-        data1, sr1 = self.reconstruct(starFname1, name1, particlesDir, cleanExisting=cleanExisting)
+        data1, sr1 = self.reconstruct(starFname1, name1, particlesDir, symmetry=symmetry, cleanExisting=cleanExisting)
         assert sr0 == sr1, "Error, the sampling rate of the two datasets is different"
 
         (corr, m_corr), resolt = compute_stats(name0, name1, maskOrFname=mask, samplingRate=sr0,
@@ -345,7 +345,7 @@ def evaluate(targetName: str, half0PredsFname: str, half1PredsFname: str,
              mpirun: Optional[str] = mpirunCmd, relionSingularity: Optional[str] = relionSingularity,
              rm_prev_reconstructions: bool = True,
              ignore_symmetry: bool = False, use_gt_mask:bool=True,
-             n_cpus: int = 1, outdir: Optional[str] = None) -> Dict[str, float]:
+             n_cpus: int = 2, outdir: Optional[str] = None) -> Dict[str, float]:
     """
 
     Args:

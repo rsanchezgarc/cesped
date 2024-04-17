@@ -74,7 +74,8 @@ class ParticlesDataModule(pl.LightningDataModule):
 
     def createDataset(self):
         return ParticlesDataset(self.targetName, halfset=self.halfset, benchmarkDir=self.benchmarkDir,
-                                image_size=self.image_size)
+                                image_size=self.image_size, apply_perImg_normalization=self.apply_perImg_normalization)
+                                
     def _create_dataloader(self, partitionName: Optional[str]):
 
         dataset = self.createDataset()
