@@ -138,9 +138,12 @@ def getMaskCorrectedFSC(array1, array2, mask, samplingRate,
 
 def determine_fsc_resolution(inv_resolution, fsc_values, threshold=0.143):
 
-    index = np.where(fsc_values < threshold)[0][0]  #TODO: add try except for IndexError, probably caused by too tight mask
-    inv_res_at_threshold = inv_resolution[index - 1] + (inv_resolution[index] - inv_resolution[index - 1]) * (
+    try:
+        index = np.where(fsc_values < threshold)[0][0]
+        inv_res_at_threshold = inv_resolution[index - 1] + (inv_resolution[index] - inv_resolution[index - 1]) * (
                 threshold - fsc_values[index - 1]) / (fsc_values[index] - fsc_values[index - 1])
+    except IndexError:
+        inv_res_at_threshold = inv_resolution[-1]
     res_at_threshold = 1 / inv_res_at_threshold
     return inv_res_at_threshold, res_at_threshold
 
