@@ -2,8 +2,8 @@
 ROOT_URL_PATTERN="https://zenodo.org/api/records/"
 
 NAME_PARTITION_TO_RECORID ={
-    ("TEST", 0): "8363635",
-    ("TEST", 1): "8363677",
+    ("TEST", 0): "10998049",
+    ("TEST", 1): "10998591",
 
     ("10786", 0): "8352275",
     ("10786", 1): "8352281",
@@ -30,7 +30,7 @@ NAME_PARTITION_TO_RECORID ={
 
 _masks_base_url = "https://zenodo.org/record/8392782/files/"
 NAME_TO_MASK_URL={
-    "TEST":  f"{_masks_base_url}/10166_mask.mrc",
+    "TEST":  f"{_masks_base_url}/11120_mask.mrc",
     "10166": f"{_masks_base_url}/10166_mask.mrc",
 
     "10647": f"{_masks_base_url}/10647_mask.mrc",

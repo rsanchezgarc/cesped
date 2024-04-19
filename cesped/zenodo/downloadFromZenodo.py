@@ -11,14 +11,21 @@ from cesped.zenodo.bechmarkUrls import ROOT_URL_PATTERN, NAME_TO_MASK_URL
 
 def getDoneFname(destination_dir, record_id):
     return os.path.join(destination_dir, f"SUCCESSFUL_DOWNLOAD_{record_id}.txt")
-def download_record(record_id, destination_dir, root_url=ROOT_URL_PATTERN):
+def download_record(record_id:str, destination_dir:str, root_url:str=ROOT_URL_PATTERN):
+    """
+
+    @param record_id:
+    @param destination_dir:
+    @param root_url:
+
+    """
 
     donefname = getDoneFname(destination_dir, record_id)
     if os.path.isfile(donefname):
         return
     root_url = f"{root_url}/{record_id}"
     r = requests.get(root_url)
-    assert r.status_code == 200, f"Error, bad request response {r}"
+    assert r.status_code == 200, f"Error, bad request response {r} for {root_url}"
     # print(r.json())
     os.makedirs(destination_dir, exist_ok=True)
 
@@ -141,3 +148,7 @@ def download_mask(targetName, mask_fname):
         for chunk in response.iter_content(chunk_size=100 * 1024 * 2):  # 100MB chunks
             tmpf.write(chunk)
         shutil.copyfile(tmpf.name, mask_fname)
+
+if __name__ == "__main__":
+    from argParseFromDoc import parse_function_and_call
+    parse_function_and_call(download_record)
