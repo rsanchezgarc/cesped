@@ -14,7 +14,7 @@ class TestParticlesDataset(TestCase):
         print(len(ds))
         iid, img, (rotMat, xyShiftAngs, confidence), metadata = ds[0]
         print([x.shape for x in [img, rotMat, xyShiftAngs]])
-        self.assertEqual(img.shape, (1, 284,284))
+        self.assertEqual(img.shape, (1, 232,232))
 
     def test_addNewEntry(self):
         ds = ParticlesDataset(testTargetName, 0, benchmarkDir=benchmarkDir)
