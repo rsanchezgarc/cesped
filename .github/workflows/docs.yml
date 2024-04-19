@@ -26,7 +26,7 @@ jobs:
 
       - run: pip install -e .
       - run: pip install pdoc
-      - run: pdoc --html cesped
+      - run: pdoc --html cesped -o docs/
 
       - uses: actions/upload-pages-artifact@v3
         with:
