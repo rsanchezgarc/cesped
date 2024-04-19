@@ -35,7 +35,7 @@ targetName, halfset = listOfEntries[0] #We will work with the first entry only
 dataset = ParticlesDataset(targetName, halfset)
 ```
 For a rapid test, use `targetName="TEST"` and `halfset=0`. If the dataset is not yet available in the benchmarkDir (defined in [defaultDataConfig.yaml](cesped%2Fconfigs%2FdefaultDataConfig.yaml),
-it will be automatically downloaded. Metadta (Euler angles, CTf,...) are stored using Relion starfile format, and images are stored as .mrcs stacks.
+it will be automatically downloaded. Metadta (Euler angles, CTF,...) are stored using Relion starfile format, and images are stored as .mrcs stacks.
 
 3. Use it as a regular dataset
 ```
@@ -139,13 +139,25 @@ In order to train the model on one target, you run
 ```
 python -m cesped.trainEntry --data.halfset <HALFSET> --data.targetName <TARGETNAME> --trainer.default_root_dir <OUTDIR>
 ```
-with `<HALFSET>` 0 or 1 and `<TARGETNAME>` one of the list that can be found using `ParticlesDataset.getCESPEDEntries()`
-Some available targets include
-- TEST. A small subset of EMPIAR-11120
-- EMPIAR-10166.
-- EMPIAR-11120
-- EMPIAR-10280
-- EMPIAR-10409
+with `<HALFSET>` 0 or 1 and `<TARGETNAME>` one of the list that can be found using `ParticlesDataset.getCESPEDEntries()` 
+<br><br>
+The included targets are:
+
+
+| EMPIAR ID | Composition | Symmetry | Image Pixels | FSCR<sub>0.143</sub> (Å) | Masked FSCR<sub>0.143</sub> (Å) | # Particles |
+|-----------|-------------|----------|--------------|-------------------------|---------------------------------|-------------|
+| 10166     | Human 26S proteasome bound to the chemotherapeutic Oprozomib | C1 | 284 | 5.0 | 3.9 | 238631 |
+| 10786     | Substance P-Neurokinin Receptor G protein complexes (SP-NK1R-miniGs399) | C1 | 184 | 3.3 | 3.0* | 288659 |
+| 10280     | Calcium-bound TMEM16F in nanodisc with supplement of PIP2 | C2 | 182 | 3.6 | 3.0* | 459504 |
+| 11120     | M22 bound TSHR Gs 7TM G protein | C1 | 232 | 3.4 | 3.0* | 244973 |
+| 10647     | PKM2 in complex with L-threonine | D2 | 222 | 3.7 | 3.3 | 234956 |
+| 10409     | Replicating SARS-CoV-2 polymerase (Map 1) | C1 | 240 | 3.3 | 3.0* | 406001 |
+| 10374     | Human ABCG2 transporter with inhibitor MZ29 and 5D3-Fab | C2 | 216 | 3.7 | 3.0* | 323681 |
+
+`*` Nyquist Frequency at 1.5 Å/pixel; Resolution is estimated at the usual threshold 0.143.  
+Reported FSCR<sub>0.143</sub> values were obtained directly from the relion_refine logs while Masked FSCR<sub>0.143</sub> values were collected from the relion_postprocess logs.
+
+In addition, the entry TEST is a small subset of EMPIAR-11120
 
 Do not forget to change the configuration files or to provide different values via the command line or environmental 
 variables. In addition, `[--config CONFIG_NAME.yaml]` also allows overwriting the default values using (a/several) custom
@@ -175,11 +187,9 @@ python -m cesped.evaluateEntry  --predictionType SO3 --targetName 11120  \
 --n_cpus 12 --outdir evaluation/
 ```
 
-##API
-For API documentation run
-pdoc --http : .
+## API
 
-
+For API documentation check the [docs folder](docs%2)
 
 
 ## Relion Singularity
