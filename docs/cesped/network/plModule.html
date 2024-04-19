@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>cesped.network.plModule API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>cesped.network.plModule</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from typing import Union
+
+import torch
+import lightning.pytorch as pl
+
+from cesped.network.featureExtractors import ResNetImageEncoder
+from cesped.network.image2sphere import I2S
+
+
+class PlModel(pl.LightningModule):
+    def __init__(self, image_size: int, feature_extractor: Union[ResNetImageEncoder],
+                 symmetry: str,
+                 lmax: int = 6, s2_fdim: int = 512, so3_fdim: int = 16,
+                 hp_order_projector: int = 2,
+                 hp_order_s2: int = 2,
+                 hp_order_so3: int = 3,
+                 rand_fraction_points_to_project: float = .5):
+        &#34;&#34;&#34;
+
+        Args:
+            image_size: The size of the image, e.g. 256 pixels
+            feature_extractor: A vision model that takes an image of shape 1 x image_size x image_size and returns an \
+                image os shape C x K x K, with K&lt; image_size
+            symmetry (str): The symmetry to be applied during training
+            lmax (int): The frequency of the signal
+            s2_fdim (int): The number of filters for the S2 convolution
+            so3_fdim (int): The number of filters for the SO(3) convolution
+            hp_order_so3 (int): The grid size for the probability calculation
+            rand_fraction_points_to_project (float): The fraction of points in the HEALPIX grid to be used in the \
+             hemisphere. Works similarly to dropout. Smaller numbers should reduce overfitting.
+        &#34;&#34;&#34;
+        super().__init__()
+        # self.save_hyperparameters(ignore=[&#39;feature_extractor&#39;]) #Not needed since we are using CLI
+
+        self.symmetry = symmetry
+
+        example = torch.rand(1, feature_extractor.in_channels, image_size, image_size)
+        imageEncoderOutputShape = feature_extractor(example).shape[1:]
+
+        self.model = I2S(imageEncoder=feature_extractor, imageEncoderOutputShape=imageEncoderOutputShape,
+                         symmetry=self.symmetry, lmax=lmax,
+                         s2_fdim=s2_fdim, so3_fdim=so3_fdim,
+                         hp_order_projector=hp_order_projector,
+                         hp_order_s2=hp_order_s2,
+                         hp_order_so3=hp_order_so3,
+                         rand_fraction_points_to_project=rand_fraction_points_to_project)
+
+    def _step(self, batch, batch_idx):
+
+        idd, imgs, (rotMats, shifts, conf), metadata = self.resolve_batch(batch)
+        loss, error_rads, pred_rotmats, maxprob, probs = self.model.forward_and_loss(imgs, rotMats, conf)
+        return loss, error_rads, pred_rotmats, maxprob, probs
+
+    def training_step(self, batch, batch_idx):
+        loss, ang_error, pred_rotmats, maxprob, probs = self._step(batch, batch_idx)
+        loss = loss.mean()
+        self.log(&#34;loss&#34;, loss, prog_bar=True, batch_size=pred_rotmats.shape[0])
+        self.log(&#34;error_degs&#34;, torch.rad2deg(ang_error.mean()), prog_bar=True, on_step=False, on_epoch=True,
+                 batch_size=pred_rotmats.shape[0], sync_dist=True)
+        return loss
+
+    def validation_step(self, batch, batch_idx):
+        loss, ang_error, pred_rotmats, maxprob, probs = self._step(batch, batch_idx)
+        loss = loss.mean()
+        self.log(&#34;val_loss&#34;, loss, prog_bar=True, on_epoch=True,
+                 batch_size=pred_rotmats.shape[0], sync_dist=True)
+        self.log(&#34;val_error_degs&#34;, torch.rad2deg(ang_error.mean()), prog_bar=True, on_step=False, on_epoch=True,
+                 batch_size=pred_rotmats.shape[0], sync_dist=True)
+        return loss
+
+    def predict_step(self, batch, batch_idx: int, dataloader_idx: int = 0):
+
+        idd, imgs, (rotMats, shifts, conf), metadata = self.resolve_batch(batch)
+        grid_signal, pred_rotmats, maxprob, probs = self.model(imgs)
+        if rotMats is not None:
+            errors = self.model.rotation_error_rads(rotMats, pred_rotmats)
+            errors = torch.rad2deg(errors)
+            metadata[&#34;pred_degs_error&#34;] = errors.detach().cpu().numpy()
+        return idd, (pred_rotmats, maxprob), metadata
+
+
+    def resolve_batch(self, batch):
+
+        idd, imgs, (rotMats, shifts, conf), metadata = batch
+
+        # # #Modified for the old datamanager
+        # imgs = batch.particle
+        # idd = str(batch.itemIdx)
+        # rotMats = batch.poseRepresentation
+        # shifts = batch.shiftsFraction * 1.5 #1.5 is the sampling rate, only for debug here #TODO: Remove this
+        # conf = batch.poseProbability
+
+        return idd, imgs, (rotMats, shifts, conf), metadata</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="cesped.network.plModule.PlModel"><code class="flex name class">
+<span>class <span class="ident">PlModel</span></span>
+<span>(</span><span>image_size: int, feature_extractor: <a title="cesped.network.featureExtractors.ResNetImageEncoder" href="featureExtractors.html#cesped.network.featureExtractors.ResNetImageEncoder">ResNetImageEncoder</a>, symmetry: str, lmax: int = 6, s2_fdim: int = 512, so3_fdim: int = 16, hp_order_projector: int = 2, hp_order_s2: int = 2, hp_order_so3: int = 3, rand_fraction_points_to_project: float = 0.5)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Hooks to be used in LightningModule.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>image_size</code></strong></dt>
+<dd>The size of the image, e.g. 256 pixels</dd>
+<dt><strong><code>feature_extractor</code></strong></dt>
+<dd>A vision model that takes an image of shape 1 x image_size x image_size and returns an
+image os shape C x K x K, with K&lt; image_size</dd>
+<dt><strong><code>symmetry</code></strong> :&ensp;<code>str</code></dt>
+<dd>The symmetry to be applied during training</dd>
+<dt><strong><code>lmax</code></strong> :&ensp;<code>int</code></dt>
+<dd>The frequency of the signal</dd>
+<dt><strong><code>s2_fdim</code></strong> :&ensp;<code>int</code></dt>
+<dd>The number of filters for the S2 convolution</dd>
+<dt><strong><code>so3_fdim</code></strong> :&ensp;<code>int</code></dt>
+<dd>The number of filters for the SO(3) convolution</dd>
+<dt><strong><code>hp_order_so3</code></strong> :&ensp;<code>int</code></dt>
+<dd>The grid size for the probability calculation</dd>
+<dt><strong><code>rand_fraction_points_to_project</code></strong> :&ensp;<code>float</code></dt>
+<dd>The fraction of points in the HEALPIX grid to be used in the
+hemisphere. Works similarly to dropout. Smaller numbers should reduce overfitting.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class PlModel(pl.LightningModule):
+    def __init__(self, image_size: int, feature_extractor: Union[ResNetImageEncoder],
+                 symmetry: str,
+                 lmax: int = 6, s2_fdim: int = 512, so3_fdim: int = 16,
+                 hp_order_projector: int = 2,
+                 hp_order_s2: int = 2,
+                 hp_order_so3: int = 3,
+                 rand_fraction_points_to_project: float = .5):
+        &#34;&#34;&#34;
+
+        Args:
+            image_size: The size of the image, e.g. 256 pixels
+            feature_extractor: A vision model that takes an image of shape 1 x image_size x image_size and returns an \
+                image os shape C x K x K, with K&lt; image_size
+            symmetry (str): The symmetry to be applied during training
+            lmax (int): The frequency of the signal
+            s2_fdim (int): The number of filters for the S2 convolution
+            so3_fdim (int): The number of filters for the SO(3) convolution
+            hp_order_so3 (int): The grid size for the probability calculation
+            rand_fraction_points_to_project (float): The fraction of points in the HEALPIX grid to be used in the \
+             hemisphere. Works similarly to dropout. Smaller numbers should reduce overfitting.
+        &#34;&#34;&#34;
+        super().__init__()
+        # self.save_hyperparameters(ignore=[&#39;feature_extractor&#39;]) #Not needed since we are using CLI
+
+        self.symmetry = symmetry
+
+        example = torch.rand(1, feature_extractor.in_channels, image_size, image_size)
+        imageEncoderOutputShape = feature_extractor(example).shape[1:]
+
+        self.model = I2S(imageEncoder=feature_extractor, imageEncoderOutputShape=imageEncoderOutputShape,
+                         symmetry=self.symmetry, lmax=lmax,
+                         s2_fdim=s2_fdim, so3_fdim=so3_fdim,
+                         hp_order_projector=hp_order_projector,
+                         hp_order_s2=hp_order_s2,
+                         hp_order_so3=hp_order_so3,
+                         rand_fraction_points_to_project=rand_fraction_points_to_project)
+
+    def _step(self, batch, batch_idx):
+
+        idd, imgs, (rotMats, shifts, conf), metadata = self.resolve_batch(batch)
+        loss, error_rads, pred_rotmats, maxprob, probs = self.model.forward_and_loss(imgs, rotMats, conf)
+        return loss, error_rads, pred_rotmats, maxprob, probs
+
+    def training_step(self, batch, batch_idx):
+        loss, ang_error, pred_rotmats, maxprob, probs = self._step(batch, batch_idx)
+        loss = loss.mean()
+        self.log(&#34;loss&#34;, loss, prog_bar=True, batch_size=pred_rotmats.shape[0])
+        self.log(&#34;error_degs&#34;, torch.rad2deg(ang_error.mean()), prog_bar=True, on_step=False, on_epoch=True,
+                 batch_size=pred_rotmats.shape[0], sync_dist=True)
+        return loss
+
+    def validation_step(self, batch, batch_idx):
+        loss, ang_error, pred_rotmats, maxprob, probs = self._step(batch, batch_idx)
+        loss = loss.mean()
+        self.log(&#34;val_loss&#34;, loss, prog_bar=True, on_epoch=True,
+                 batch_size=pred_rotmats.shape[0], sync_dist=True)
+        self.log(&#34;val_error_degs&#34;, torch.rad2deg(ang_error.mean()), prog_bar=True, on_step=False, on_epoch=True,
+                 batch_size=pred_rotmats.shape[0], sync_dist=True)
+        return loss
+
+    def predict_step(self, batch, batch_idx: int, dataloader_idx: int = 0):
+
+        idd, imgs, (rotMats, shifts, conf), metadata = self.resolve_batch(batch)
+        grid_signal, pred_rotmats, maxprob, probs = self.model(imgs)
+        if rotMats is not None:
+            errors = self.model.rotation_error_rads(rotMats, pred_rotmats)
+            errors = torch.rad2deg(errors)
+            metadata[&#34;pred_degs_error&#34;] = errors.detach().cpu().numpy()
+        return idd, (pred_rotmats, maxprob), metadata
+
+
+    def resolve_batch(self, batch):
+
+        idd, imgs, (rotMats, shifts, conf), metadata = batch
+
+        # # #Modified for the old datamanager
+        # imgs = batch.particle
+        # idd = str(batch.itemIdx)
+        # rotMats = batch.poseRepresentation
+        # shifts = batch.shiftsFraction * 1.5 #1.5 is the sampling rate, only for debug here #TODO: Remove this
+        # conf = batch.poseProbability
+
+        return idd, imgs, (rotMats, shifts, conf), metadata</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>lightning.pytorch.core.module.LightningModule</li>
+<li>lightning.fabric.utilities.device_dtype_mixin._DeviceDtypeModuleMixin</li>
+<li>lightning.pytorch.core.mixins.hparams_mixin.HyperparametersMixin</li>
+<li>lightning.pytorch.core.hooks.ModelHooks</li>
+<li>lightning.pytorch.core.hooks.DataHooks</li>
+<li>lightning.pytorch.core.hooks.CheckpointHooks</li>
+<li>torch.nn.modules.module.Module</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="cesped.network.plModule.PlModel.predict_step"><code class="name flex">
+<span>def <span class="ident">predict_step</span></span>(<span>self, batch, batch_idx: int, dataloader_idx: int = 0)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Step function called during :meth:<code>~lightning.pytorch.trainer.trainer.Trainer.predict</code>. By default, it
+calls :meth:<code>~lightning.pytorch.core.module.LightningModule.forward</code>. Override to add any processing logic.</p>
+<p>The :meth:<code>~lightning.pytorch.core.module.LightningModule.predict_step</code> is used
+to scale inference on multi-devices.</p>
+<p>To prevent an OOM error, it is possible to use :class:<code>~lightning.pytorch.callbacks.BasePredictionWriter</code>
+callback to write the predictions to disk or database after each batch or on epoch end.</p>
+<p>The :class:<code>~lightning.pytorch.callbacks.BasePredictionWriter</code> should be used while using a spawn
+based accelerator. This happens for <code>Trainer(strategy="ddp_spawn")</code>
+or training on 8 TPU cores with <code>Trainer(accelerator="tpu", devices=8)</code> as predictions won't be returned.</p>
+<p>Example ::</p>
+<pre><code>class MyModel(LightningModule):
+
+    def predict_step(self, batch, batch_idx, dataloader_idx=0):
+        return self(batch)
+
+dm = ...
+model = MyModel()
+trainer = Trainer(accelerator="gpu", devices=2)
+predictions = trainer.predict(model, dm)
+</code></pre>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>batch</code></strong></dt>
+<dd>Current batch.</dd>
+<dt><strong><code>batch_idx</code></strong></dt>
+<dd>Index of current batch.</dd>
+<dt><strong><code>dataloader_idx</code></strong></dt>
+<dd>Index of the current dataloader.</dd>
+</dl>
+<h2 id="return">Return</h2>
+<p>Predicted output</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def predict_step(self, batch, batch_idx: int, dataloader_idx: int = 0):
+
+    idd, imgs, (rotMats, shifts, conf), metadata = self.resolve_batch(batch)
+    grid_signal, pred_rotmats, maxprob, probs = self.model(imgs)
+    if rotMats is not None:
+        errors = self.model.rotation_error_rads(rotMats, pred_rotmats)
+        errors = torch.rad2deg(errors)
+        metadata[&#34;pred_degs_error&#34;] = errors.detach().cpu().numpy()
+    return idd, (pred_rotmats, maxprob), metadata</code></pre>
+</details>
+</dd>
+<dt id="cesped.network.plModule.PlModel.resolve_batch"><code class="name flex">
+<span>def <span class="ident">resolve_batch</span></span>(<span>self, batch)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def resolve_batch(self, batch):
+
+    idd, imgs, (rotMats, shifts, conf), metadata = batch
+
+    # # #Modified for the old datamanager
+    # imgs = batch.particle
+    # idd = str(batch.itemIdx)
+    # rotMats = batch.poseRepresentation
+    # shifts = batch.shiftsFraction * 1.5 #1.5 is the sampling rate, only for debug here #TODO: Remove this
+    # conf = batch.poseProbability
+
+    return idd, imgs, (rotMats, shifts, conf), metadata</code></pre>
+</details>
+</dd>
+<dt id="cesped.network.plModule.PlModel.training_step"><code class="name flex">
+<span>def <span class="ident">training_step</span></span>(<span>self, batch, batch_idx)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Here you compute and return the training loss and some additional metrics for e.g. the progress bar or
+logger.</p>
+<h2 id="args">Args</h2>
+<p>batch (:class:<code>~torch.Tensor</code> | (:class:<code>~torch.Tensor</code>, &hellip;) | [:class:<code>~torch.Tensor</code>, &hellip;]):
+The output of your :class:<code>~torch.utils.data.DataLoader</code>. A tensor, tuple or list.
+batch_idx (<code>int</code>): Integer displaying index of this batch</p>
+<h2 id="return">Return</h2>
+<p>Any of.</p>
+<ul>
+<li>:class:<code>~torch.Tensor</code> - The loss tensor</li>
+<li><code>dict</code> - A dictionary. Can include any keys, but must include the key <code>'loss'</code></li>
+<li><code>None</code> - Training will skip to the next batch. This is only for automatic optimization.
+This is not supported for multi-GPU, TPU, IPU, or DeepSpeed.</li>
+</ul>
+<p>In this step you'd normally do the forward pass and calculate the loss for a batch.
+You can also do fancier things like multiple forward passes or something model specific.</p>
+<p>Example::</p>
+<pre><code>def training_step(self, batch, batch_idx):
+    x, y, z = batch
+    out = self.encoder(x)
+    loss = self.loss(out, x)
+    return loss
+</code></pre>
+<p>To use multiple optimizers, you can switch to 'manual optimization' and control their stepping:</p>
+<p>.. code-block:: python</p>
+<pre><code>def __init__(self):
+    super().__init__()
+    self.automatic_optimization = False
+
+
+# Multiple optimizers (e.g.: GANs)
+def training_step(self, batch, batch_idx):
+    opt1, opt2 = self.optimizers()
+
+    # do training_step with encoder
+    ...
+    opt1.step()
+    # do training_step with decoder
+    ...
+    opt2.step()
+</code></pre>
+<h2 id="note">Note</h2>
+<p>When <code>accumulate_grad_batches</code> &gt; 1, the loss returned here will be automatically
+normalized by <code>accumulate_grad_batches</code> internally.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def training_step(self, batch, batch_idx):
+    loss, ang_error, pred_rotmats, maxprob, probs = self._step(batch, batch_idx)
+    loss = loss.mean()
+    self.log(&#34;loss&#34;, loss, prog_bar=True, batch_size=pred_rotmats.shape[0])
+    self.log(&#34;error_degs&#34;, torch.rad2deg(ang_error.mean()), prog_bar=True, on_step=False, on_epoch=True,
+             batch_size=pred_rotmats.shape[0], sync_dist=True)
+    return loss</code></pre>
+</details>
+</dd>
+<dt id="cesped.network.plModule.PlModel.validation_step"><code class="name flex">
+<span>def <span class="ident">validation_step</span></span>(<span>self, batch, batch_idx)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Operates on a single batch of data from the validation set. In this step you'd might generate examples or
+calculate anything of interest like accuracy.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>batch</code></strong></dt>
+<dd>The output of your :class:<code>~torch.utils.data.DataLoader</code>.</dd>
+<dt><strong><code>batch_idx</code></strong></dt>
+<dd>The index of this batch.</dd>
+<dt><strong><code>dataloader_idx</code></strong></dt>
+<dd>The index of the dataloader that produced this batch.
+(only if multiple val dataloaders used)</dd>
+</dl>
+<h2 id="return">Return</h2>
+<ul>
+<li>Any object or value</li>
+<li><code>None</code> - Validation will skip to the next batch</li>
+</ul>
+<p>.. code-block:: python</p>
+<pre><code># if you have one val dataloader:
+def validation_step(self, batch, batch_idx):
+    ...
+
+
+# if you have multiple val dataloaders:
+def validation_step(self, batch, batch_idx, dataloader_idx=0):
+    ...
+</code></pre>
+<p>Examples::</p>
+<pre><code># CASE 1: A single validation dataset
+def validation_step(self, batch, batch_idx):
+    x, y = batch
+
+    # implement your own
+    out = self(x)
+    loss = self.loss(out, y)
+
+    # log 6 example images
+    # or generated text... or whatever
+    sample_imgs = x[:6]
+    grid = torchvision.utils.make_grid(sample_imgs)
+    self.logger.experiment.add_image('example_images', grid, 0)
+
+    # calculate acc
+    labels_hat = torch.argmax(out, dim=1)
+    val_acc = torch.sum(y == labels_hat).item() / (len(y) * 1.0)
+
+    # log the outputs!
+    self.log_dict({'val_loss': loss, 'val_acc': val_acc})
+</code></pre>
+<p>If you pass in multiple val dataloaders, :meth:<code>validation_step</code> will have an additional argument. We recommend
+setting the default value of 0 so that you can quickly switch between single and multiple dataloaders.</p>
+<p>.. code-block:: python</p>
+<pre><code># CASE 2: multiple validation dataloaders
+def validation_step(self, batch, batch_idx, dataloader_idx=0):
+    # dataloader_idx tells you which dataset this is.
+    ...
+</code></pre>
+<h2 id="note">Note</h2>
+<p>If you don't need to validate you don't need to implement this method.</p>
+<h2 id="note_1">Note</h2>
+<p>When the :meth:<code>validation_step</code> is called, the model has been put in eval mode
+and PyTorch gradients have been disabled. At the end of validation,
+the model goes back to training mode and gradients are enabled.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def validation_step(self, batch, batch_idx):
+    loss, ang_error, pred_rotmats, maxprob, probs = self._step(batch, batch_idx)
+    loss = loss.mean()
+    self.log(&#34;val_loss&#34;, loss, prog_bar=True, on_epoch=True,
+             batch_size=pred_rotmats.shape[0], sync_dist=True)
+    self.log(&#34;val_error_degs&#34;, torch.rad2deg(ang_error.mean()), prog_bar=True, on_step=False, on_epoch=True,
+             batch_size=pred_rotmats.shape[0], sync_dist=True)
+    return loss</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="cesped.network" href="index.html">cesped.network</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="cesped.network.plModule.PlModel" href="#cesped.network.plModule.PlModel">PlModel</a></code></h4>
+<ul class="">
+<li><code><a title="cesped.network.plModule.PlModel.predict_step" href="#cesped.network.plModule.PlModel.predict_step">predict_step</a></code></li>
+<li><code><a title="cesped.network.plModule.PlModel.resolve_batch" href="#cesped.network.plModule.PlModel.resolve_batch">resolve_batch</a></code></li>
+<li><code><a title="cesped.network.plModule.PlModel.training_step" href="#cesped.network.plModule.PlModel.training_step">training_step</a></code></li>
+<li><code><a title="cesped.network.plModule.PlModel.validation_step" href="#cesped.network.plModule.PlModel.validation_step">validation_step</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>

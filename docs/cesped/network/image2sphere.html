@@ -1,0 +1,1768 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>cesped.network.image2sphere API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>cesped.network.image2sphere</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">#Modified from https://colab.research.google.com/github/dmklee/image2sphere/blob/main/model_walkthrough.ipynb
+import os.path
+
+import tempfile
+
+import functools
+import joblib
+import warnings
+
+import numpy as np
+import torch
+import torch.nn as nn
+import torchvision
+warnings.filterwarnings(&#34;ignore&#34;, module=&#34;e3nn&#34;, category=UserWarning)
+warnings.filterwarnings(&#34;ignore&#34;, message=&#34;Grad strides do not match bucket view strides&#34;,  module=&#34;torch&#34;, category=UserWarning)
+
+import e3nn
+from e3nn import o3
+import healpy as hp
+import matplotlib.pyplot as plt
+from scipy.spatial.transform import Rotation as R
+
+def s2_healpix_grid(hp_order, max_beta):
+    &#34;&#34;&#34;Returns healpix grid up to a max_beta
+    &#34;&#34;&#34;
+    n_side = 2**hp_order
+    # npix = hp.nside2npix(n_side)
+    m = hp.query_disc(nside=n_side, vec=(0,0,1), radius=max_beta)
+    beta, alpha = hp.pix2ang(n_side, m)
+    alpha = torch.from_numpy(alpha)
+    beta = torch.from_numpy(beta)
+    return torch.stack((alpha, beta)).float()
+
+
+class Image2SphereProjector(nn.Module):
+  &#39;&#39;&#39;Define orthographic projection from image space to half of sphere, returning
+  coefficients of spherical harmonics
+
+  :fmap_shape: shape of incoming feature map (channels, height, width)
+  :fdim_sphere: dimensionality of featuremap projected to sphere
+  :lmax: maximum degree of harmonics
+  :coverage: fraction of feature map that is projected onto sphere
+  :sigma: stdev of gaussians used to sample points in image space
+  :max_beta: maximum azimuth angle projected onto sphere (np.pi/2 corresponds to half sphere)
+  :taper_beta: if less than max_beta, taper magnitude of projected features beyond this angle
+  :hp_order: recursion level of healpy grid where points are projected
+  :rand_fraction_points_to_project: number of grid points used to perform projection, acts like dropout regularizer
+  &#39;&#39;&#39;
+  def __init__(self,
+               fmap_shape,
+               sphere_fdim: int,
+               lmax: int,
+               coverage: float = 0.9,
+               sigma: float = 0.2,
+               max_beta: float = np.radians(90),
+               taper_beta: float = np.radians(75),
+               hp_order: int = 2,
+               rand_fraction_points_to_project: float = 0.2,
+              ):
+    super().__init__()
+    self.lmax = lmax
+
+    # point-wise linear operation to convert to proper dimensionality if needed
+    if fmap_shape[0] != sphere_fdim:
+      self.conv1x1 = nn.Conv2d(fmap_shape[0], sphere_fdim, 1)
+    else:
+      self.conv1x1 = nn.Identity()
+
+    # determine sampling locations for orthographic projection
+    self.kernel_grid = s2_healpix_grid(max_beta=max_beta, hp_order=hp_order)
+    self.xyz = o3.angles_to_xyz(*self.kernel_grid)
+
+    # orthographic projection
+    max_radius = torch.linalg.norm(self.xyz[:,[0,2]], dim=1).max()
+    sample_x = coverage * self.xyz[:,2] / max_radius # range -1 to 1
+    sample_y = coverage * self.xyz[:,0] / max_radius
+
+    gridx, gridy = torch.meshgrid(2*[torch.linspace(-1, 1, fmap_shape[1])], indexing=&#39;ij&#39;)
+    scale = 1 / np.sqrt(2 * np.pi * sigma**2)
+    data = scale * torch.exp(-((gridx.unsqueeze(-1) - sample_x).pow(2) \
+                                +(gridy.unsqueeze(-1) - sample_y).pow(2)) / (2*sigma**2) )
+    data = data / data.sum((0,1), keepdims=True)
+
+    # apply mask to taper magnitude near border if desired
+    betas = self.kernel_grid[1]
+    if taper_beta &lt; max_beta:
+        mask = ((betas - max_beta)/(taper_beta - max_beta)).clamp(max=1).view(1, 1, -1)
+    else:
+        mask = torch.ones_like(data)
+
+    data = (mask * data).unsqueeze(0).unsqueeze(0).to(torch.float32)
+    self.weight = nn.Parameter(data= data, requires_grad=True)
+
+    self.n_pts = self.weight.shape[-1]
+    self.ind = torch.arange(self.n_pts)
+    self.n_subset = int(rand_fraction_points_to_project * self.n_pts) + 1
+
+    self.register_buffer(
+        &#34;Y&#34;, o3.spherical_harmonics_alpha_beta(range(lmax+1), *self.kernel_grid, normalization=&#39;component&#39;)
+    )
+
+  def forward(self, x):
+    &#39;&#39;&#39;
+    :x: float tensor of shape (B, C, H, W)
+    :return: feature vector of shape (B,P,C) where P is number of points on S2
+    &#39;&#39;&#39;
+    x = self.conv1x1(x)
+
+    if self.n_subset is not None:
+        self.ind = torch.randperm(self.n_pts)[:self.n_subset]
+
+    x = (x.unsqueeze(-1) * self.weight[..., self.ind]).sum((2,3))
+    x = torch.relu(x)
+    x = torch.einsum(&#39;ni,xyn-&gt;xyi&#39;, self.Y[self.ind], x) / self.ind.shape[0]**0.5
+    return x
+
+
+def s2_irreps(lmax):
+  return o3.Irreps([(1, (l, 1)) for l in range(lmax + 1)])
+
+def so3_irreps(lmax):
+  return o3.Irreps([(2 * l + 1, (l, 1)) for l in range(lmax + 1)])
+
+def flat_wigner(lmax, alpha, beta, gamma):
+  return torch.cat([
+    (2 * l + 1) ** 0.5 * o3.wigner_D(l, alpha, beta, gamma).flatten(-2) for l in range(lmax + 1)
+  ], dim=-1)
+
+
+# # ORIGINAL IMPLEMENTATION
+# def so3_near_identity_grid(max_beta=np.pi / 8, max_gamma=2 * np.pi, n_alpha=8, n_beta=3, n_gamma=None):
+#   &#34;&#34;&#34;Spatial grid over SO3 used to parametrize localized filter
+#
+#   :return: rings of rotations around the identity, all points (rotations) in
+#            a ring are at the same distance from the identity
+#            size of the kernel = n_alpha * n_beta * n_gamma
+#   &#34;&#34;&#34;
+#   if n_gamma is None:
+#       n_gamma = n_alpha
+#   beta = torch.arange(1, n_beta + 1) * max_beta / n_beta
+#   alpha = torch.linspace(0, 2 * np.pi, n_alpha)[:-1]
+#   pre_gamma = torch.linspace(-max_gamma, max_gamma, n_gamma)
+#   A, B, preC = torch.meshgrid(alpha, beta, pre_gamma, indexing=&#34;ij&#34;)
+#   C = preC - A
+#   A = A.flatten()
+#   B = B.flatten()
+#   C = C.flatten()
+#   return torch.stack((A, B, C))
+
+
+def so3_near_identity_grid(max_rads=np.pi / 12, n_angles=8):
+    &#34;&#34;&#34;Spatial grid over SO3 used to parametrize localized filter
+
+    :return: a local grid of SO(3) points
+           size of the kernel = n_alpha**3
+    &#34;&#34;&#34;
+
+    angles_range = torch.linspace(-max_rads, max_rads, n_angles)
+    grid = torch.cartesian_prod(angles_range, angles_range, angles_range)
+    return grid.T
+
+class S2Conv(nn.Module):
+  &#39;&#39;&#39;S2 group convolution which outputs signal over SO(3) irreps
+
+  :f_in: feature dimensionality of input signal
+  :f_out: feature dimensionality of output signal
+  :lmax: maximum degree of harmonics used to represent input and output signals
+         technically, you can have different degrees for input and output, but
+         we do not explore that in our work
+  :kernel_grid: spatial locations over which the filter is defined (alphas, betas)
+                we find that it is better to parametrize filter in spatial domain
+                and project to harmonics at every forward pass.
+  &#39;&#39;&#39;
+  def __init__(self, f_in: int, f_out: int, lmax: int, kernel_grid: tuple):
+    super().__init__()
+    # filter weight parametrized over spatial grid on S2
+    self.register_parameter(
+      &#34;w&#34;, torch.nn.Parameter(torch.randn(f_in, f_out, kernel_grid.shape[1]))
+    )  # [f_in, f_out, n_s2_pts]
+
+    s2Cache = joblib.Memory(location=os.path.join(tempfile.gettempdir(), &#34;S2_cache.joblib&#34;), verbose=0)
+    def _compute_parameters(lmax, kernel_grid):
+        spherical_harmonics = o3.spherical_harmonics_alpha_beta(range(lmax + 1),
+                                        *kernel_grid, normalization=&#34;component&#34;) # [n_s2_pts, (2*lmax+1)**2]
+        s2_ir =  s2_irreps(lmax)
+        so3_ir = so3_irreps(lmax)
+        return spherical_harmonics, s2_ir, so3_ir
+    compute_parameters = s2Cache.cache(_compute_parameters)
+    spherical_harmonics, s2_ir, so3_ir = compute_parameters(lmax, kernel_grid)
+
+    # linear projection to convert filter weights to fourier domain
+    self.register_buffer(
+      &#34;Y&#34;, spherical_harmonics)  # [n_s2_pts, (2*lmax+1)**2]
+
+    # defines group convolution using appropriate irreps
+    # note, we set internal_weights to False since we defined our own filter above
+    self.lin = o3.Linear(s2_ir, so3_ir,
+                         f_in=f_in, f_out=f_out, internal_weights=False)
+
+  def forward(self, x):
+    &#39;&#39;&#39;Perform S2 group convolution to produce signal over irreps of SO(3).
+    First project filter into fourier domain then perform convolution
+
+    :x: tensor of shape (B, f_in, (2*lmax+1)**2), signal over S2 irreps
+    :return: tensor of shape (B, f_out, sum_l^L (2*l+1)**2)
+    &#39;&#39;&#39;
+    psi = torch.einsum(&#34;ni,xyn-&gt;xyi&#34;, self.Y, self.w) / self.Y.shape[0] ** 0.5
+    return self.lin(x, weight=psi)
+
+class SO3Conv(nn.Module):
+  &#39;&#39;&#39;SO3 group convolution
+
+  :f_in: feature dimensionality of input signal
+  :f_out: feature dimensionality of output signal
+  :lmax: maximum degree of harmonics used to represent input and output signals
+         technically, you can have different degrees for input and output, but
+         we do not explore that in our work
+  :kernel_grid: spatial locations over which the filter is defined (alphas, betas, gammas)
+                we find that it is better to parametrize filter in spatial domain
+                and project to harmonics at every forward pass
+  &#39;&#39;&#39;
+  def __init__(self, f_in: int, f_out: int, lmax: int, kernel_grid: tuple):
+    super().__init__()
+
+    # filter weight parametrized over spatial grid on SO3
+    self.register_parameter(
+      &#34;w&#34;, torch.nn.Parameter(torch.randn(f_in, f_out, kernel_grid.shape[1]))
+    )  # [f_in, f_out, n_so3_pts]
+
+    # wigner D matrices used to project spatial signal to irreps of SO(3)
+    so3Cache = joblib.Memory(location=os.path.join(tempfile.gettempdir(), &#34;SO3_cache.joblib&#34;), verbose=0)
+    def _compute_parameters(lmax, kernel_grid):
+        f_wigner =  flat_wigner(lmax, *kernel_grid)  # [n_so3_pts, sum_l^L (2*l+1)**2]
+        so3_ir = so3_irreps(lmax)
+        return f_wigner, so3_ir
+    compute_parameters = so3Cache.cache(_compute_parameters)
+    f_wigner, so3_ir = compute_parameters(lmax, kernel_grid)
+    self.register_buffer(&#34;D&#34;, f_wigner)
+
+    # defines group convolution using appropriate irreps
+    self.lin = o3.Linear(so3_ir, so3_ir,
+                         f_in=f_in, f_out=f_out, internal_weights=False)
+
+  def forward(self, x):
+    &#39;&#39;&#39;Perform SO3 group convolution to produce signal over irreps of SO(3).
+    First project filter into fourier domain then perform convolution
+
+    :x: tensor of shape (B, f_in, sum_l^L (2*l+1)**2), signal over SO3 irreps
+    :return: tensor of shape (B, f_out, sum_l^L (2*l+1)**2)
+    &#39;&#39;&#39;
+    psi = torch.einsum(&#34;ni,xyn-&gt;xyi&#34;, self.D, self.w) / self.D.shape[0] ** 0.5
+    return self.lin(x, weight=psi)
+
+
+def compute_trace(rotA, rotB):
+    &#39;&#39;&#39;
+    rotA, rotB are tensors of shape (*,3,3)
+    returns Tr(rotA, rotB.T)
+    &#39;&#39;&#39;
+    prod = torch.matmul(rotA, rotB.transpose(-1, -2))
+    trace = prod.diagonal(dim1=-1, dim2=-2).sum(-1)
+    return trace
+
+
+def rotation_error_rads(rotA, rotB):
+    &#39;&#39;&#39;
+    rotA, rotB are tensors of shape (*,3,3)
+    returns rotation error in radians, tensor of shape (*)
+    &#39;&#39;&#39;
+    trace = compute_trace(rotA, rotB)
+    return torch.arccos(torch.clamp((trace - 1) / 2, -1, 1))
+
+
+def nearest_rotmat(src, target):
+    &#39;&#39;&#39;return index of target that is nearest to each element in src
+    uses negative trace of the dot product to avoid arccos operation
+    :src: tensor of shape (B, 3, 3)
+    :target: tensor of shape (*, 3, 3)
+    &#39;&#39;&#39;
+    trace = compute_trace(src.unsqueeze(1), target.unsqueeze(0)) #TODO: This could be precomputed in the dataloader
+
+    return torch.max(trace, dim=1)[1]
+
+def so3_healpix_grid(hp_order: int = 3):
+    &#34;&#34;&#34;Returns healpix grid over so3 of equally spaced rotations
+
+    https://github.com/google-research/google-research/blob/4808a726f4b126ea38d49cdd152a6bb5d42efdf0/implicit_pdf/models.py#L272
+    alpha: 0-2pi around Y
+    beta: 0-pi around X
+    gamma: 0-2pi around Y
+    hp_order | num_points | bin width (deg)  | N inplane
+    ----------------------------------------
+         0    |         72 |    60           |
+         1    |        576 |    30
+         2    |       4608 |    15           | 24
+         3    |      36864 |    7.5          | 48
+         4    |     294912 |    3.75         | 96
+         5    |    2359296 |    1.875
+
+    :return: tensor of shape (3, npix)
+    &#34;&#34;&#34;
+    n_side = 2 ** hp_order
+    npix = hp.nside2npix(n_side)
+    beta, alpha = hp.pix2ang(n_side, torch.arange(npix))
+    beta = beta.float()
+    alpha = alpha.float()
+    gamma = torch.linspace(0, 2 * np.pi, 6 * n_side + 1)[:-1]
+
+    alpha = alpha.repeat(len(gamma))
+    beta = beta.repeat(len(gamma))
+    gamma = torch.repeat_interleave(gamma, npix)
+    result = torch.stack((alpha, beta, gamma)).float()
+    return result
+
+@functools.cache
+def compute_symmetry_group_matrices(symmetry:str):
+    return torch.stack([torch.FloatTensor(x) for x in R.create_group(symmetry.upper()).as_matrix()])
+
+class I2S(nn.Module):
+    &#39;&#39;&#39;
+    Instantiate I2S-style network for predicting distributions over SO(3) from
+    single image
+    &#39;&#39;&#39;
+
+    def __init__(self, imageEncoder, imageEncoderOutputShape,
+                 symmetry:str,
+                 lmax:int=6, s2_fdim:int=512, so3_fdim:int=16,
+                 hp_order_projector:int=2,
+                 hp_order_s2:int=2,
+                 hp_order_so3:int=3,
+                 so3_act_resolution:int=10, #TODO: what is the effect of resolution??
+                 rand_fraction_points_to_project:float=0.2):
+        &#34;&#34;&#34;
+
+        Args:
+            imageEncoder:
+            imageEncoderOutputShape:
+            symmetry (str): The symmetry to be applied during training
+            lmax:
+            s2_fdim:
+            so3_fdim:
+            hp_order_projector:
+            hp_order_s2:
+            hp_order_so3:
+            so3_act_resolution:
+            rand_fraction_points_to_project:
+        &#34;&#34;&#34;
+        super().__init__()
+        self.encoder = imageEncoder
+        self.symmetry = symmetry.upper()
+        self.lmax = lmax
+        self.s2_fdim = s2_fdim
+        self.so3_fdim = so3_fdim
+        self.hp_order_projector = hp_order_projector
+        self.hp_order_s2 = hp_order_s2
+        self.hp_order = hp_order_so3
+
+        self.n_sphere_pixels = hp.order2npix(self.hp_order)
+
+        self.projector = Image2SphereProjector(
+            fmap_shape=imageEncoderOutputShape,
+            sphere_fdim=s2_fdim,
+            lmax=lmax,
+            hp_order=hp_order_projector,
+            rand_fraction_points_to_project = rand_fraction_points_to_project
+        )
+
+        # s2 filter has global support
+        s2_kernel_grid = s2_healpix_grid(max_beta=np.inf, hp_order=self.hp_order_s2)
+        self.s2_conv = S2Conv(s2_fdim, so3_fdim, lmax, s2_kernel_grid)
+
+        self.so3_act = e3nn.nn.SO3Activation(lmax, lmax, act=torch.relu, resolution=so3_act_resolution)
+
+        # locally supported so3 filter
+        so3_kernel_grid = so3_near_identity_grid()
+        self.so3_conv = SO3Conv(so3_fdim, 1, lmax, so3_kernel_grid)
+
+        # define spatial grid used to convert output irreps into valid prob distribution
+        #hp_order=2 which corresponds to ~5000 points, is
+        # sufficient for training in real world images.  Using denser grids will slow down loss computation
+
+        output_eulerRad_yxy = so3_healpix_grid(hp_order=self.hp_order)
+        self.register_buffer(&#34;output_eulerRad_yxy&#34;, output_eulerRad_yxy)
+
+        i2sCache = joblib.Memory(location=os.path.join(tempfile.gettempdir(), &#34;I2S_cache.joblib&#34;), verbose=0)
+        def _compute_parameters(lmax, output_eulerRad_yxy):
+            output_wigners = flat_wigner(lmax, *output_eulerRad_yxy).transpose(0, 1)
+            output_rotmats = o3.angles_to_matrix(*output_eulerRad_yxy)
+            return output_wigners, output_rotmats
+
+        compute_parameters = i2sCache.cache(_compute_parameters)
+        output_wigners, output_rotmats = compute_parameters(lmax, output_eulerRad_yxy)
+
+
+        self.register_buffer(
+            &#34;output_wigners&#34;, output_wigners
+        )
+        output_rotmats = o3.angles_to_matrix(*output_eulerRad_yxy)
+        self.register_buffer(
+            &#34;output_rotmats&#34;, output_rotmats
+        )
+
+        self.register_buffer(&#34;symmetryGroupMatrix&#34;, compute_symmetry_group_matrices(self.symmetry))
+
+    def _forward(self, x):
+        &#39;&#39;&#39;Returns so3 irreps
+
+        :x: image, tensor of shape (B, c, L, L)
+        &#39;&#39;&#39;
+        x = self.encoder(x)
+        x = self.projector(x)
+        x = self.s2_conv(x)
+        x = self.so3_act(x)
+        x = self.so3_conv(x)
+        return x
+
+    def forward(self, img):
+
+        &#39;&#39;&#39;Compute cross entropy loss using ground truth rotation, the correct label
+        is the nearest rotation in the spatial grid to the ground truth rotation
+
+        :img: float tensor of shape (B, c, L, L)
+        &#39;&#39;&#39;
+        x = self._forward(img)
+        grid_signal = torch.matmul(x, self.output_wigners).squeeze(1)
+        rotmats = self.output_rotmats
+        with torch.no_grad():
+            probs = nn.functional.softmax(grid_signal, dim=-1)
+            maxprob, pred_id = probs.max(dim=1)
+            pred_rotmat = rotmats[pred_id]
+
+        return grid_signal, pred_rotmat, maxprob, probs
+
+    def forward_topk(self, img, k):
+        x = self._forward(img)
+        grid_signal = torch.matmul(x, self.output_wigners).squeeze(1)
+        rotmats = self.output_rotmats
+        with torch.no_grad():
+            probs = nn.functional.softmax(grid_signal, dim=-1)
+            maxprob, pred_id = torch.topk(probs, k=k, dim=-1, largest=True)
+            pred_rotmat = rotmats[pred_id]
+        return grid_signal, pred_rotmat, maxprob, probs
+
+
+    def nearest_rotmat(self, rotMat, toCompareRotMats=None):
+        if toCompareRotMats is None:
+            toCompareRotMats = self.output_rotmats
+        return nearest_rotmat(rotMat, toCompareRotMats) #THIS IS COMPUTATIONALLY EXPENSIVE
+
+
+    @classmethod
+    def rotation_error_rads(cls, rotA, rotB):
+        &#39;&#39;&#39;
+        rotA, rotB are tensors of shape (*,3,3)
+        returns rotation error in radians, tensor of shape (*)
+        &#39;&#39;&#39;
+        return rotation_error_rads(rotA, rotB)
+
+    def forward_and_loss(self, img, gt_rot, per_img_weight=None):
+        &#39;&#39;&#39;Compute cross entropy loss using ground truth rotation, the correct label
+        is the nearest rotation in the spatial grid to the ground truth rotation
+
+        :img: float tensor of shape (B, c, L, L)
+        :gt_rotation: valid rotation matrices, tensor of shape (B, 3, 3)
+        :per_img_weight: float tensor of shape (B,) with per_image_weight for loss calculation
+        &#39;&#39;&#39;
+
+        grid_signal, pred_rotmats, maxprob, probs = self.forward(img)
+
+        if self.symmetry != &#34;C1&#34;:
+            n_groupElems = self.symmetryGroupMatrix.shape[0]
+            #Perform symmetry expansion
+            gtrotMats = self.symmetryGroupMatrix[None, ...] @ gt_rot[:, None, ...]
+            rotMat_gtIds = self.nearest_rotmat(gtrotMats.view(-1, 3, 3)).view(grid_signal.shape[0], -1)
+            target_he = torch.zeros_like(grid_signal)
+            rows = torch.arange(grid_signal.shape[0]).view(-1, 1).repeat(1, n_groupElems)
+            target_he[rows, rotMat_gtIds] = 1 / n_groupElems
+            loss = nn.functional.cross_entropy(grid_signal, target_he, reduction=&#34;none&#34;, label_smoothing=0.1)
+
+            with torch.no_grad():
+                error_rads = rotation_error_rads(gtrotMats.view(-1,3,3),
+                                                 torch.repeat_interleave(pred_rotmats, n_groupElems, dim=0))
+                error_rads = error_rads.view(-1, n_groupElems)
+                error_rads = error_rads.min(1).values
+
+        else:
+            # find nearest grid point to ground truth rotation matrix
+            rot_id = self.nearest_rotmat(gt_rot)
+            loss = nn.functional.cross_entropy(grid_signal, rot_id, reduction=&#34;none&#34;, label_smoothing=0.1)
+            with torch.no_grad():
+                error_rads = rotation_error_rads(gt_rot, pred_rotmats)
+
+        if per_img_weight is not None:
+            loss = loss * per_img_weight.squeeze(-1)
+        loss = loss.mean()
+
+        return loss, error_rads, pred_rotmats, maxprob, probs
+
+    @torch.no_grad()
+    def compute_probabilities(self, img, hp_order=None):
+        &#39;&#39;&#39;Computes probability distribution over arbitrary spatial grid specified by
+        wigners
+
+        Our method can be trained on a sparser spatial resolution, but queried at a much denser
+        resolution (up to hp_order=5)
+        &#39;&#39;&#39;
+        if hp_order is None:
+            hp_order = self.hp_order
+            output_eulerRad_yxy = so3_healpix_grid(hp_order=hp_order)
+        else:
+            output_eulerRad_yxy = self.output_eulerRad_yxy
+
+        output_wigners = flat_wigner(self.lmax, *output_eulerRad_yxy).transpose(0, 1)
+        output_rotmats = o3.angles_to_matrix(*output_eulerRad_yxy)
+
+        x = self._forward(img)
+        logits = torch.matmul(x, output_wigners).squeeze(1)
+        probs = nn.Softmax(dim=1)(logits)
+
+        return probs, output_rotmats
+
+def plot_so3_distribution(probs: torch.Tensor,
+                          rots: torch.Tensor,
+                          gt_rotation=None,
+                          fig=None,
+                          ax=None,
+                          display_threshold_probability=0.000005,
+                          show_color_wheel: bool=True,
+                          canonical_rotation=torch.eye(3),
+                         ):
+    &#39;&#39;&#39;
+    Taken from https://github.com/google-research/google-research/blob/master/implicit_pdf/evaluation.py
+    &#39;&#39;&#39;
+    cmap = plt.cm.hsv
+
+    def _show_single_marker(ax, rotation, marker, edgecolors=True, facecolors=False):
+        alpha, beta, gamma = o3.matrix_to_angles(rotation)
+        color = cmap(0.5 + gamma.repeat(2) / 2. / np.pi)[-1]
+        ax.scatter(alpha, beta-np.pi/2, s=2000, edgecolors=color, facecolors=&#39;none&#39;, marker=marker, linewidth=5)
+        ax.scatter(alpha, beta-np.pi/2, s=1500, edgecolors=&#39;k&#39;, facecolors=&#39;none&#39;, marker=marker, linewidth=2)
+        ax.scatter(alpha, beta-np.pi/2, s=2500, edgecolors=&#39;k&#39;, facecolors=&#39;none&#39;, marker=marker, linewidth=2)
+
+    if ax is None:
+        fig = plt.figure(figsize=(8, 4), dpi=200)
+        fig.subplots_adjust(0.01, 0.08, 0.90, 0.95)
+        ax = fig.add_subplot(111, projection=&#39;mollweide&#39;)
+
+    rots = rots @ canonical_rotation
+    scatterpoint_scaling = 3e3
+    alpha, beta, gamma = o3.matrix_to_angles(rots)
+
+    # offset alpha and beta so different gammas are visible
+    R = 0.02
+    alpha += R * np.cos(gamma)
+    beta += R * np.sin(gamma)
+
+    which_to_display = (probs &gt; display_threshold_probability)
+
+    # Display the distribution
+    ax.scatter(alpha[which_to_display],
+               beta[which_to_display]-np.pi/2,
+               s=scatterpoint_scaling * probs[which_to_display],
+               c=cmap(0.5 + gamma[which_to_display] / 2. / np.pi))
+    if gt_rotation is not None:
+        if len(gt_rotation.shape) == 2:
+            gt_rotation = gt_rotation.unsqueeze(0)
+        gt_rotation = gt_rotation @ canonical_rotation
+        _show_single_marker(ax, gt_rotation, &#39;o&#39;)
+    ax.grid()
+    ax.set_xticklabels([])
+    ax.set_yticklabels([])
+
+    if show_color_wheel:
+        # Add a color wheel showing the tilt angle to color conversion.
+        ax = fig.add_axes([0.86, 0.17, 0.12, 0.12], projection=&#39;polar&#39;)
+        theta = np.linspace(-3 * np.pi / 2, np.pi / 2, 200)
+        radii = np.linspace(0.4, 0.5, 2)
+        _, theta_grid = np.meshgrid(radii, theta)
+        colormap_val = 0.5 + theta_grid / np.pi / 2.
+        ax.pcolormesh(theta, radii, colormap_val.T, cmap=cmap)
+        ax.set_yticklabels([])
+        ax.set_xticklabels([r&#39;90$\degree$&#39;, None,
+                            r&#39;180$\degree$&#39;, None,
+                            r&#39;270$\degree$&#39;, None,
+                            r&#39;0$\degree$&#39;], fontsize=14)
+        ax.spines[&#39;polar&#39;].set_visible(False)
+        plt.text(0.5, 0.5, &#39;Tilt&#39;, fontsize=14,
+                 horizontalalignment=&#39;center&#39;,
+                 verticalalignment=&#39;center&#39;, transform=ax.transAxes)
+
+    plt.show()
+
+def _test():
+    model = torchvision.models.resnet50(weights=None)  # Better if pretrained
+    model = nn.Sequential(*list(model.children())[:-2])
+
+    b,c,l = 4,3,224
+    imgs = torch.rand(b,c,l,l)
+
+    model = I2S(model, model(imgs).shape[1:], symmetry=&#34;C1&#34;, lmax=6, s2_fdim=512, so3_fdim=16, hp_order_so3=2)
+
+
+    from scipy.spatial.transform import Rotation
+    gt_rot = torch.from_numpy(Rotation.random(b).as_matrix().astype(np.float32))
+    grid_signal, pred_rotmat, maxprob, probs = model.forward(imgs)
+    pred_rotmat = model.forward(imgs)
+    print(&#34;out&#34;, grid_signal.shape)
+    print(&#34;pred_rotmat&#34;, pred_rotmat)
+    probs, output_rotmats = model.compute_probabilities(imgs)
+    plot_so3_distribution(probs[0], output_rotmats, gt_rotation=gt_rot[0])
+
+if __name__ == &#34;__main__&#34;:
+    _test()
+    print(&#34;Done!&#34;)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="cesped.network.image2sphere.compute_symmetry_group_matrices"><code class="name flex">
+<span>def <span class="ident">compute_symmetry_group_matrices</span></span>(<span>symmetry: str)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@functools.cache
+def compute_symmetry_group_matrices(symmetry:str):
+    return torch.stack([torch.FloatTensor(x) for x in R.create_group(symmetry.upper()).as_matrix()])</code></pre>
+</details>
+</dd>
+<dt id="cesped.network.image2sphere.compute_trace"><code class="name flex">
+<span>def <span class="ident">compute_trace</span></span>(<span>rotA, rotB)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>rotA, rotB are tensors of shape (*,3,3)
+returns Tr(rotA, rotB.T)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def compute_trace(rotA, rotB):
+    &#39;&#39;&#39;
+    rotA, rotB are tensors of shape (*,3,3)
+    returns Tr(rotA, rotB.T)
+    &#39;&#39;&#39;
+    prod = torch.matmul(rotA, rotB.transpose(-1, -2))
+    trace = prod.diagonal(dim1=-1, dim2=-2).sum(-1)
+    return trace</code></pre>
+</details>
+</dd>
+<dt id="cesped.network.image2sphere.flat_wigner"><code class="name flex">
+<span>def <span class="ident">flat_wigner</span></span>(<span>lmax, alpha, beta, gamma)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def flat_wigner(lmax, alpha, beta, gamma):
+  return torch.cat([
+    (2 * l + 1) ** 0.5 * o3.wigner_D(l, alpha, beta, gamma).flatten(-2) for l in range(lmax + 1)
+  ], dim=-1)</code></pre>
+</details>
+</dd>
+<dt id="cesped.network.image2sphere.nearest_rotmat"><code class="name flex">
+<span>def <span class="ident">nearest_rotmat</span></span>(<span>src, target)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>return index of target that is nearest to each element in src
+uses negative trace of the dot product to avoid arccos operation
+:src: tensor of shape (B, 3, 3)
+:target: tensor of shape (*, 3, 3)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def nearest_rotmat(src, target):
+    &#39;&#39;&#39;return index of target that is nearest to each element in src
+    uses negative trace of the dot product to avoid arccos operation
+    :src: tensor of shape (B, 3, 3)
+    :target: tensor of shape (*, 3, 3)
+    &#39;&#39;&#39;
+    trace = compute_trace(src.unsqueeze(1), target.unsqueeze(0)) #TODO: This could be precomputed in the dataloader
+
+    return torch.max(trace, dim=1)[1]</code></pre>
+</details>
+</dd>
+<dt id="cesped.network.image2sphere.plot_so3_distribution"><code class="name flex">
+<span>def <span class="ident">plot_so3_distribution</span></span>(<span>probs: torch.Tensor, rots: torch.Tensor, gt_rotation=None, fig=None, ax=None, display_threshold_probability=5e-06, show_color_wheel: bool = True, canonical_rotation=tensor([[1., 0., 0.],
+[0., 1., 0.],
+[0., 0., 1.]]))</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Taken from <a href="https://github.com/google-research/google-research/blob/master/implicit_pdf/evaluation.py">https://github.com/google-research/google-research/blob/master/implicit_pdf/evaluation.py</a></p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def plot_so3_distribution(probs: torch.Tensor,
+                          rots: torch.Tensor,
+                          gt_rotation=None,
+                          fig=None,
+                          ax=None,
+                          display_threshold_probability=0.000005,
+                          show_color_wheel: bool=True,
+                          canonical_rotation=torch.eye(3),
+                         ):
+    &#39;&#39;&#39;
+    Taken from https://github.com/google-research/google-research/blob/master/implicit_pdf/evaluation.py
+    &#39;&#39;&#39;
+    cmap = plt.cm.hsv
+
+    def _show_single_marker(ax, rotation, marker, edgecolors=True, facecolors=False):
+        alpha, beta, gamma = o3.matrix_to_angles(rotation)
+        color = cmap(0.5 + gamma.repeat(2) / 2. / np.pi)[-1]
+        ax.scatter(alpha, beta-np.pi/2, s=2000, edgecolors=color, facecolors=&#39;none&#39;, marker=marker, linewidth=5)
+        ax.scatter(alpha, beta-np.pi/2, s=1500, edgecolors=&#39;k&#39;, facecolors=&#39;none&#39;, marker=marker, linewidth=2)
+        ax.scatter(alpha, beta-np.pi/2, s=2500, edgecolors=&#39;k&#39;, facecolors=&#39;none&#39;, marker=marker, linewidth=2)
+
+    if ax is None:
+        fig = plt.figure(figsize=(8, 4), dpi=200)
+        fig.subplots_adjust(0.01, 0.08, 0.90, 0.95)
+        ax = fig.add_subplot(111, projection=&#39;mollweide&#39;)
+
+    rots = rots @ canonical_rotation
+    scatterpoint_scaling = 3e3
+    alpha, beta, gamma = o3.matrix_to_angles(rots)
+
+    # offset alpha and beta so different gammas are visible
+    R = 0.02
+    alpha += R * np.cos(gamma)
+    beta += R * np.sin(gamma)
+
+    which_to_display = (probs &gt; display_threshold_probability)
+
+    # Display the distribution
+    ax.scatter(alpha[which_to_display],
+               beta[which_to_display]-np.pi/2,
+               s=scatterpoint_scaling * probs[which_to_display],
+               c=cmap(0.5 + gamma[which_to_display] / 2. / np.pi))
+    if gt_rotation is not None:
+        if len(gt_rotation.shape) == 2:
+            gt_rotation = gt_rotation.unsqueeze(0)
+        gt_rotation = gt_rotation @ canonical_rotation
+        _show_single_marker(ax, gt_rotation, &#39;o&#39;)
+    ax.grid()
+    ax.set_xticklabels([])
+    ax.set_yticklabels([])
+
+    if show_color_wheel:
+        # Add a color wheel showing the tilt angle to color conversion.
+        ax = fig.add_axes([0.86, 0.17, 0.12, 0.12], projection=&#39;polar&#39;)
+        theta = np.linspace(-3 * np.pi / 2, np.pi / 2, 200)
+        radii = np.linspace(0.4, 0.5, 2)
+        _, theta_grid = np.meshgrid(radii, theta)
+        colormap_val = 0.5 + theta_grid / np.pi / 2.
+        ax.pcolormesh(theta, radii, colormap_val.T, cmap=cmap)
+        ax.set_yticklabels([])
+        ax.set_xticklabels([r&#39;90$\degree$&#39;, None,
+                            r&#39;180$\degree$&#39;, None,
+                            r&#39;270$\degree$&#39;, None,
+                            r&#39;0$\degree$&#39;], fontsize=14)
+        ax.spines[&#39;polar&#39;].set_visible(False)
+        plt.text(0.5, 0.5, &#39;Tilt&#39;, fontsize=14,
+                 horizontalalignment=&#39;center&#39;,
+                 verticalalignment=&#39;center&#39;, transform=ax.transAxes)
+
+    plt.show()</code></pre>
+</details>
+</dd>
+<dt id="cesped.network.image2sphere.rotation_error_rads"><code class="name flex">
+<span>def <span class="ident">rotation_error_rads</span></span>(<span>rotA, rotB)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>rotA, rotB are tensors of shape (<em>,3,3)
+returns rotation error in radians, tensor of shape (</em>)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def rotation_error_rads(rotA, rotB):
+    &#39;&#39;&#39;
+    rotA, rotB are tensors of shape (*,3,3)
+    returns rotation error in radians, tensor of shape (*)
+    &#39;&#39;&#39;
+    trace = compute_trace(rotA, rotB)
+    return torch.arccos(torch.clamp((trace - 1) / 2, -1, 1))</code></pre>
+</details>
+</dd>
+<dt id="cesped.network.image2sphere.s2_healpix_grid"><code class="name flex">
+<span>def <span class="ident">s2_healpix_grid</span></span>(<span>hp_order, max_beta)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns healpix grid up to a max_beta</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def s2_healpix_grid(hp_order, max_beta):
+    &#34;&#34;&#34;Returns healpix grid up to a max_beta
+    &#34;&#34;&#34;
+    n_side = 2**hp_order
+    # npix = hp.nside2npix(n_side)
+    m = hp.query_disc(nside=n_side, vec=(0,0,1), radius=max_beta)
+    beta, alpha = hp.pix2ang(n_side, m)
+    alpha = torch.from_numpy(alpha)
+    beta = torch.from_numpy(beta)
+    return torch.stack((alpha, beta)).float()</code></pre>
+</details>
+</dd>
+<dt id="cesped.network.image2sphere.s2_irreps"><code class="name flex">
+<span>def <span class="ident">s2_irreps</span></span>(<span>lmax)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def s2_irreps(lmax):
+  return o3.Irreps([(1, (l, 1)) for l in range(lmax + 1)])</code></pre>
+</details>
+</dd>
+<dt id="cesped.network.image2sphere.so3_healpix_grid"><code class="name flex">
+<span>def <span class="ident">so3_healpix_grid</span></span>(<span>hp_order: int = 3)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns healpix grid over so3 of equally spaced rotations</p>
+<p><a href="https://github.com/google-research/google-research/blob/4808a726f4b126ea38d49cdd152a6bb5d42efdf0/implicit_pdf/models.py#L272">https://github.com/google-research/google-research/blob/4808a726f4b126ea38d49cdd152a6bb5d42efdf0/implicit_pdf/models.py#L272</a>
+alpha: 0-2pi around Y
+beta: 0-pi around X
+gamma: 0-2pi around Y
+hp_order | num_points | bin width (deg)
+| N inplane</p>
+<hr>
+<pre><code> 0    |         72 |    60           |
+ 1    |        576 |    30
+ 2    |       4608 |    15           | 24
+ 3    |      36864 |    7.5          | 48
+ 4    |     294912 |    3.75         | 96
+ 5    |    2359296 |    1.875
+</code></pre>
+<p>:return: tensor of shape (3, npix)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def so3_healpix_grid(hp_order: int = 3):
+    &#34;&#34;&#34;Returns healpix grid over so3 of equally spaced rotations
+
+    https://github.com/google-research/google-research/blob/4808a726f4b126ea38d49cdd152a6bb5d42efdf0/implicit_pdf/models.py#L272
+    alpha: 0-2pi around Y
+    beta: 0-pi around X
+    gamma: 0-2pi around Y
+    hp_order | num_points | bin width (deg)  | N inplane
+    ----------------------------------------
+         0    |         72 |    60           |
+         1    |        576 |    30
+         2    |       4608 |    15           | 24
+         3    |      36864 |    7.5          | 48
+         4    |     294912 |    3.75         | 96
+         5    |    2359296 |    1.875
+
+    :return: tensor of shape (3, npix)
+    &#34;&#34;&#34;
+    n_side = 2 ** hp_order
+    npix = hp.nside2npix(n_side)
+    beta, alpha = hp.pix2ang(n_side, torch.arange(npix))
+    beta = beta.float()
+    alpha = alpha.float()
+    gamma = torch.linspace(0, 2 * np.pi, 6 * n_side + 1)[:-1]
+
+    alpha = alpha.repeat(len(gamma))
+    beta = beta.repeat(len(gamma))
+    gamma = torch.repeat_interleave(gamma, npix)
+    result = torch.stack((alpha, beta, gamma)).float()
+    return result</code></pre>
+</details>
+</dd>
+<dt id="cesped.network.image2sphere.so3_irreps"><code class="name flex">
+<span>def <span class="ident">so3_irreps</span></span>(<span>lmax)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def so3_irreps(lmax):
+  return o3.Irreps([(2 * l + 1, (l, 1)) for l in range(lmax + 1)])</code></pre>
+</details>
+</dd>
+<dt id="cesped.network.image2sphere.so3_near_identity_grid"><code class="name flex">
+<span>def <span class="ident">so3_near_identity_grid</span></span>(<span>max_rads=0.2617993877991494, n_angles=8)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Spatial grid over SO3 used to parametrize localized filter</p>
+<p>:return: a local grid of SO(3) points
+size of the kernel = n_alpha**3</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def so3_near_identity_grid(max_rads=np.pi / 12, n_angles=8):
+    &#34;&#34;&#34;Spatial grid over SO3 used to parametrize localized filter
+
+    :return: a local grid of SO(3) points
+           size of the kernel = n_alpha**3
+    &#34;&#34;&#34;
+
+    angles_range = torch.linspace(-max_rads, max_rads, n_angles)
+    grid = torch.cartesian_prod(angles_range, angles_range, angles_range)
+    return grid.T</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="cesped.network.image2sphere.I2S"><code class="flex name class">
+<span>class <span class="ident">I2S</span></span>
+<span>(</span><span>imageEncoder, imageEncoderOutputShape, symmetry: str, lmax: int = 6, s2_fdim: int = 512, so3_fdim: int = 16, hp_order_projector: int = 2, hp_order_s2: int = 2, hp_order_so3: int = 3, so3_act_resolution: int = 10, rand_fraction_points_to_project: float = 0.2)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Instantiate I2S-style network for predicting distributions over SO(3) from
+single image</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt>imageEncoder:</dt>
+<dt>imageEncoderOutputShape:</dt>
+<dt><strong><code>symmetry</code></strong> :&ensp;<code>str</code></dt>
+<dd>The symmetry to be applied during training</dd>
+</dl>
+<p>lmax:
+s2_fdim:
+so3_fdim:
+hp_order_projector:
+hp_order_s2:
+hp_order_so3:
+so3_act_resolution:
+rand_fraction_points_to_project:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class I2S(nn.Module):
+    &#39;&#39;&#39;
+    Instantiate I2S-style network for predicting distributions over SO(3) from
+    single image
+    &#39;&#39;&#39;
+
+    def __init__(self, imageEncoder, imageEncoderOutputShape,
+                 symmetry:str,
+                 lmax:int=6, s2_fdim:int=512, so3_fdim:int=16,
+                 hp_order_projector:int=2,
+                 hp_order_s2:int=2,
+                 hp_order_so3:int=3,
+                 so3_act_resolution:int=10, #TODO: what is the effect of resolution??
+                 rand_fraction_points_to_project:float=0.2):
+        &#34;&#34;&#34;
+
+        Args:
+            imageEncoder:
+            imageEncoderOutputShape:
+            symmetry (str): The symmetry to be applied during training
+            lmax:
+            s2_fdim:
+            so3_fdim:
+            hp_order_projector:
+            hp_order_s2:
+            hp_order_so3:
+            so3_act_resolution:
+            rand_fraction_points_to_project:
+        &#34;&#34;&#34;
+        super().__init__()
+        self.encoder = imageEncoder
+        self.symmetry = symmetry.upper()
+        self.lmax = lmax
+        self.s2_fdim = s2_fdim
+        self.so3_fdim = so3_fdim
+        self.hp_order_projector = hp_order_projector
+        self.hp_order_s2 = hp_order_s2
+        self.hp_order = hp_order_so3
+
+        self.n_sphere_pixels = hp.order2npix(self.hp_order)
+
+        self.projector = Image2SphereProjector(
+            fmap_shape=imageEncoderOutputShape,
+            sphere_fdim=s2_fdim,
+            lmax=lmax,
+            hp_order=hp_order_projector,
+            rand_fraction_points_to_project = rand_fraction_points_to_project
+        )
+
+        # s2 filter has global support
+        s2_kernel_grid = s2_healpix_grid(max_beta=np.inf, hp_order=self.hp_order_s2)
+        self.s2_conv = S2Conv(s2_fdim, so3_fdim, lmax, s2_kernel_grid)
+
+        self.so3_act = e3nn.nn.SO3Activation(lmax, lmax, act=torch.relu, resolution=so3_act_resolution)
+
+        # locally supported so3 filter
+        so3_kernel_grid = so3_near_identity_grid()
+        self.so3_conv = SO3Conv(so3_fdim, 1, lmax, so3_kernel_grid)
+
+        # define spatial grid used to convert output irreps into valid prob distribution
+        #hp_order=2 which corresponds to ~5000 points, is
+        # sufficient for training in real world images.  Using denser grids will slow down loss computation
+
+        output_eulerRad_yxy = so3_healpix_grid(hp_order=self.hp_order)
+        self.register_buffer(&#34;output_eulerRad_yxy&#34;, output_eulerRad_yxy)
+
+        i2sCache = joblib.Memory(location=os.path.join(tempfile.gettempdir(), &#34;I2S_cache.joblib&#34;), verbose=0)
+        def _compute_parameters(lmax, output_eulerRad_yxy):
+            output_wigners = flat_wigner(lmax, *output_eulerRad_yxy).transpose(0, 1)
+            output_rotmats = o3.angles_to_matrix(*output_eulerRad_yxy)
+            return output_wigners, output_rotmats
+
+        compute_parameters = i2sCache.cache(_compute_parameters)
+        output_wigners, output_rotmats = compute_parameters(lmax, output_eulerRad_yxy)
+
+
+        self.register_buffer(
+            &#34;output_wigners&#34;, output_wigners
+        )
+        output_rotmats = o3.angles_to_matrix(*output_eulerRad_yxy)
+        self.register_buffer(
+            &#34;output_rotmats&#34;, output_rotmats
+        )
+
+        self.register_buffer(&#34;symmetryGroupMatrix&#34;, compute_symmetry_group_matrices(self.symmetry))
+
+    def _forward(self, x):
+        &#39;&#39;&#39;Returns so3 irreps
+
+        :x: image, tensor of shape (B, c, L, L)
+        &#39;&#39;&#39;
+        x = self.encoder(x)
+        x = self.projector(x)
+        x = self.s2_conv(x)
+        x = self.so3_act(x)
+        x = self.so3_conv(x)
+        return x
+
+    def forward(self, img):
+
+        &#39;&#39;&#39;Compute cross entropy loss using ground truth rotation, the correct label
+        is the nearest rotation in the spatial grid to the ground truth rotation
+
+        :img: float tensor of shape (B, c, L, L)
+        &#39;&#39;&#39;
+        x = self._forward(img)
+        grid_signal = torch.matmul(x, self.output_wigners).squeeze(1)
+        rotmats = self.output_rotmats
+        with torch.no_grad():
+            probs = nn.functional.softmax(grid_signal, dim=-1)
+            maxprob, pred_id = probs.max(dim=1)
+            pred_rotmat = rotmats[pred_id]
+
+        return grid_signal, pred_rotmat, maxprob, probs
+
+    def forward_topk(self, img, k):
+        x = self._forward(img)
+        grid_signal = torch.matmul(x, self.output_wigners).squeeze(1)
+        rotmats = self.output_rotmats
+        with torch.no_grad():
+            probs = nn.functional.softmax(grid_signal, dim=-1)
+            maxprob, pred_id = torch.topk(probs, k=k, dim=-1, largest=True)
+            pred_rotmat = rotmats[pred_id]
+        return grid_signal, pred_rotmat, maxprob, probs
+
+
+    def nearest_rotmat(self, rotMat, toCompareRotMats=None):
+        if toCompareRotMats is None:
+            toCompareRotMats = self.output_rotmats
+        return nearest_rotmat(rotMat, toCompareRotMats) #THIS IS COMPUTATIONALLY EXPENSIVE
+
+
+    @classmethod
+    def rotation_error_rads(cls, rotA, rotB):
+        &#39;&#39;&#39;
+        rotA, rotB are tensors of shape (*,3,3)
+        returns rotation error in radians, tensor of shape (*)
+        &#39;&#39;&#39;
+        return rotation_error_rads(rotA, rotB)
+
+    def forward_and_loss(self, img, gt_rot, per_img_weight=None):
+        &#39;&#39;&#39;Compute cross entropy loss using ground truth rotation, the correct label
+        is the nearest rotation in the spatial grid to the ground truth rotation
+
+        :img: float tensor of shape (B, c, L, L)
+        :gt_rotation: valid rotation matrices, tensor of shape (B, 3, 3)
+        :per_img_weight: float tensor of shape (B,) with per_image_weight for loss calculation
+        &#39;&#39;&#39;
+
+        grid_signal, pred_rotmats, maxprob, probs = self.forward(img)
+
+        if self.symmetry != &#34;C1&#34;:
+            n_groupElems = self.symmetryGroupMatrix.shape[0]
+            #Perform symmetry expansion
+            gtrotMats = self.symmetryGroupMatrix[None, ...] @ gt_rot[:, None, ...]
+            rotMat_gtIds = self.nearest_rotmat(gtrotMats.view(-1, 3, 3)).view(grid_signal.shape[0], -1)
+            target_he = torch.zeros_like(grid_signal)
+            rows = torch.arange(grid_signal.shape[0]).view(-1, 1).repeat(1, n_groupElems)
+            target_he[rows, rotMat_gtIds] = 1 / n_groupElems
+            loss = nn.functional.cross_entropy(grid_signal, target_he, reduction=&#34;none&#34;, label_smoothing=0.1)
+
+            with torch.no_grad():
+                error_rads = rotation_error_rads(gtrotMats.view(-1,3,3),
+                                                 torch.repeat_interleave(pred_rotmats, n_groupElems, dim=0))
+                error_rads = error_rads.view(-1, n_groupElems)
+                error_rads = error_rads.min(1).values
+
+        else:
+            # find nearest grid point to ground truth rotation matrix
+            rot_id = self.nearest_rotmat(gt_rot)
+            loss = nn.functional.cross_entropy(grid_signal, rot_id, reduction=&#34;none&#34;, label_smoothing=0.1)
+            with torch.no_grad():
+                error_rads = rotation_error_rads(gt_rot, pred_rotmats)
+
+        if per_img_weight is not None:
+            loss = loss * per_img_weight.squeeze(-1)
+        loss = loss.mean()
+
+        return loss, error_rads, pred_rotmats, maxprob, probs
+
+    @torch.no_grad()
+    def compute_probabilities(self, img, hp_order=None):
+        &#39;&#39;&#39;Computes probability distribution over arbitrary spatial grid specified by
+        wigners
+
+        Our method can be trained on a sparser spatial resolution, but queried at a much denser
+        resolution (up to hp_order=5)
+        &#39;&#39;&#39;
+        if hp_order is None:
+            hp_order = self.hp_order
+            output_eulerRad_yxy = so3_healpix_grid(hp_order=hp_order)
+        else:
+            output_eulerRad_yxy = self.output_eulerRad_yxy
+
+        output_wigners = flat_wigner(self.lmax, *output_eulerRad_yxy).transpose(0, 1)
+        output_rotmats = o3.angles_to_matrix(*output_eulerRad_yxy)
+
+        x = self._forward(img)
+        logits = torch.matmul(x, output_wigners).squeeze(1)
+        probs = nn.Softmax(dim=1)(logits)
+
+        return probs, output_rotmats</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>torch.nn.modules.module.Module</li>
+</ul>
+<h3>Static methods</h3>
+<dl>
+<dt id="cesped.network.image2sphere.I2S.rotation_error_rads"><code class="name flex">
+<span>def <span class="ident">rotation_error_rads</span></span>(<span>rotA, rotB)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>rotA, rotB are tensors of shape (<em>,3,3)
+returns rotation error in radians, tensor of shape (</em>)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def rotation_error_rads(cls, rotA, rotB):
+    &#39;&#39;&#39;
+    rotA, rotB are tensors of shape (*,3,3)
+    returns rotation error in radians, tensor of shape (*)
+    &#39;&#39;&#39;
+    return rotation_error_rads(rotA, rotB)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="cesped.network.image2sphere.I2S.compute_probabilities"><code class="name flex">
+<span>def <span class="ident">compute_probabilities</span></span>(<span>self, img, hp_order=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Computes probability distribution over arbitrary spatial grid specified by
+wigners</p>
+<p>Our method can be trained on a sparser spatial resolution, but queried at a much denser
+resolution (up to hp_order=5)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@torch.no_grad()
+def compute_probabilities(self, img, hp_order=None):
+    &#39;&#39;&#39;Computes probability distribution over arbitrary spatial grid specified by
+    wigners
+
+    Our method can be trained on a sparser spatial resolution, but queried at a much denser
+    resolution (up to hp_order=5)
+    &#39;&#39;&#39;
+    if hp_order is None:
+        hp_order = self.hp_order
+        output_eulerRad_yxy = so3_healpix_grid(hp_order=hp_order)
+    else:
+        output_eulerRad_yxy = self.output_eulerRad_yxy
+
+    output_wigners = flat_wigner(self.lmax, *output_eulerRad_yxy).transpose(0, 1)
+    output_rotmats = o3.angles_to_matrix(*output_eulerRad_yxy)
+
+    x = self._forward(img)
+    logits = torch.matmul(x, output_wigners).squeeze(1)
+    probs = nn.Softmax(dim=1)(logits)
+
+    return probs, output_rotmats</code></pre>
+</details>
+</dd>
+<dt id="cesped.network.image2sphere.I2S.forward"><code class="name flex">
+<span>def <span class="ident">forward</span></span>(<span>self, img) ‑> Callable[..., Any]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Compute cross entropy loss using ground truth rotation, the correct label
+is the nearest rotation in the spatial grid to the ground truth rotation</p>
+<p>:img: float tensor of shape (B, c, L, L)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def forward(self, img):
+
+    &#39;&#39;&#39;Compute cross entropy loss using ground truth rotation, the correct label
+    is the nearest rotation in the spatial grid to the ground truth rotation
+
+    :img: float tensor of shape (B, c, L, L)
+    &#39;&#39;&#39;
+    x = self._forward(img)
+    grid_signal = torch.matmul(x, self.output_wigners).squeeze(1)
+    rotmats = self.output_rotmats
+    with torch.no_grad():
+        probs = nn.functional.softmax(grid_signal, dim=-1)
+        maxprob, pred_id = probs.max(dim=1)
+        pred_rotmat = rotmats[pred_id]
+
+    return grid_signal, pred_rotmat, maxprob, probs</code></pre>
+</details>
+</dd>
+<dt id="cesped.network.image2sphere.I2S.forward_and_loss"><code class="name flex">
+<span>def <span class="ident">forward_and_loss</span></span>(<span>self, img, gt_rot, per_img_weight=None)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Compute cross entropy loss using ground truth rotation, the correct label
+is the nearest rotation in the spatial grid to the ground truth rotation</p>
+<p>:img: float tensor of shape (B, c, L, L)
+:gt_rotation: valid rotation matrices, tensor of shape (B, 3, 3)
+:per_img_weight: float tensor of shape (B,) with per_image_weight for loss calculation</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def forward_and_loss(self, img, gt_rot, per_img_weight=None):
+    &#39;&#39;&#39;Compute cross entropy loss using ground truth rotation, the correct label
+    is the nearest rotation in the spatial grid to the ground truth rotation
+
+    :img: float tensor of shape (B, c, L, L)
+    :gt_rotation: valid rotation matrices, tensor of shape (B, 3, 3)
+    :per_img_weight: float tensor of shape (B,) with per_image_weight for loss calculation
+    &#39;&#39;&#39;
+
+    grid_signal, pred_rotmats, maxprob, probs = self.forward(img)
+
+    if self.symmetry != &#34;C1&#34;:
+        n_groupElems = self.symmetryGroupMatrix.shape[0]
+        #Perform symmetry expansion
+        gtrotMats = self.symmetryGroupMatrix[None, ...] @ gt_rot[:, None, ...]
+        rotMat_gtIds = self.nearest_rotmat(gtrotMats.view(-1, 3, 3)).view(grid_signal.shape[0], -1)
+        target_he = torch.zeros_like(grid_signal)
+        rows = torch.arange(grid_signal.shape[0]).view(-1, 1).repeat(1, n_groupElems)
+        target_he[rows, rotMat_gtIds] = 1 / n_groupElems
+        loss = nn.functional.cross_entropy(grid_signal, target_he, reduction=&#34;none&#34;, label_smoothing=0.1)
+
+        with torch.no_grad():
+            error_rads = rotation_error_rads(gtrotMats.view(-1,3,3),
+                                             torch.repeat_interleave(pred_rotmats, n_groupElems, dim=0))
+            error_rads = error_rads.view(-1, n_groupElems)
+            error_rads = error_rads.min(1).values
+
+    else:
+        # find nearest grid point to ground truth rotation matrix
+        rot_id = self.nearest_rotmat(gt_rot)
+        loss = nn.functional.cross_entropy(grid_signal, rot_id, reduction=&#34;none&#34;, label_smoothing=0.1)
+        with torch.no_grad():
+            error_rads = rotation_error_rads(gt_rot, pred_rotmats)
+
+    if per_img_weight is not None:
+        loss = loss * per_img_weight.squeeze(-1)
+    loss = loss.mean()
+
+    return loss, error_rads, pred_rotmats, maxprob, probs</code></pre>
+</details>
+</dd>
+<dt id="cesped.network.image2sphere.I2S.forward_topk"><code class="name flex">
+<span>def <span class="ident">forward_topk</span></span>(<span>self, img, k)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def forward_topk(self, img, k):
+    x = self._forward(img)
+    grid_signal = torch.matmul(x, self.output_wigners).squeeze(1)
+    rotmats = self.output_rotmats
+    with torch.no_grad():
+        probs = nn.functional.softmax(grid_signal, dim=-1)
+        maxprob, pred_id = torch.topk(probs, k=k, dim=-1, largest=True)
+        pred_rotmat = rotmats[pred_id]
+    return grid_signal, pred_rotmat, maxprob, probs</code></pre>
+</details>
+</dd>
+<dt id="cesped.network.image2sphere.I2S.nearest_rotmat"><code class="name flex">
+<span>def <span class="ident">nearest_rotmat</span></span>(<span>self, rotMat, toCompareRotMats=None)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def nearest_rotmat(self, rotMat, toCompareRotMats=None):
+    if toCompareRotMats is None:
+        toCompareRotMats = self.output_rotmats
+    return nearest_rotmat(rotMat, toCompareRotMats) #THIS IS COMPUTATIONALLY EXPENSIVE</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="cesped.network.image2sphere.Image2SphereProjector"><code class="flex name class">
+<span>class <span class="ident">Image2SphereProjector</span></span>
+<span>(</span><span>fmap_shape, sphere_fdim: int, lmax: int, coverage: float = 0.9, sigma: float = 0.2, max_beta: float = 1.5707963267948966, taper_beta: float = 1.3089969389957472, hp_order: int = 2, rand_fraction_points_to_project: float = 0.2)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Define orthographic projection from image space to half of sphere, returning
+coefficients of spherical harmonics</p>
+<p>:fmap_shape: shape of incoming feature map (channels, height, width)
+:fdim_sphere: dimensionality of featuremap projected to sphere
+:lmax: maximum degree of harmonics
+:coverage: fraction of feature map that is projected onto sphere
+:sigma: stdev of gaussians used to sample points in image space
+:max_beta: maximum azimuth angle projected onto sphere (np.pi/2 corresponds to half sphere)
+:taper_beta: if less than max_beta, taper magnitude of projected features beyond this angle
+:hp_order: recursion level of healpy grid where points are projected
+:rand_fraction_points_to_project: number of grid points used to perform projection, acts like dropout regularizer</p>
+<p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Image2SphereProjector(nn.Module):
+  &#39;&#39;&#39;Define orthographic projection from image space to half of sphere, returning
+  coefficients of spherical harmonics
+
+  :fmap_shape: shape of incoming feature map (channels, height, width)
+  :fdim_sphere: dimensionality of featuremap projected to sphere
+  :lmax: maximum degree of harmonics
+  :coverage: fraction of feature map that is projected onto sphere
+  :sigma: stdev of gaussians used to sample points in image space
+  :max_beta: maximum azimuth angle projected onto sphere (np.pi/2 corresponds to half sphere)
+  :taper_beta: if less than max_beta, taper magnitude of projected features beyond this angle
+  :hp_order: recursion level of healpy grid where points are projected
+  :rand_fraction_points_to_project: number of grid points used to perform projection, acts like dropout regularizer
+  &#39;&#39;&#39;
+  def __init__(self,
+               fmap_shape,
+               sphere_fdim: int,
+               lmax: int,
+               coverage: float = 0.9,
+               sigma: float = 0.2,
+               max_beta: float = np.radians(90),
+               taper_beta: float = np.radians(75),
+               hp_order: int = 2,
+               rand_fraction_points_to_project: float = 0.2,
+              ):
+    super().__init__()
+    self.lmax = lmax
+
+    # point-wise linear operation to convert to proper dimensionality if needed
+    if fmap_shape[0] != sphere_fdim:
+      self.conv1x1 = nn.Conv2d(fmap_shape[0], sphere_fdim, 1)
+    else:
+      self.conv1x1 = nn.Identity()
+
+    # determine sampling locations for orthographic projection
+    self.kernel_grid = s2_healpix_grid(max_beta=max_beta, hp_order=hp_order)
+    self.xyz = o3.angles_to_xyz(*self.kernel_grid)
+
+    # orthographic projection
+    max_radius = torch.linalg.norm(self.xyz[:,[0,2]], dim=1).max()
+    sample_x = coverage * self.xyz[:,2] / max_radius # range -1 to 1
+    sample_y = coverage * self.xyz[:,0] / max_radius
+
+    gridx, gridy = torch.meshgrid(2*[torch.linspace(-1, 1, fmap_shape[1])], indexing=&#39;ij&#39;)
+    scale = 1 / np.sqrt(2 * np.pi * sigma**2)
+    data = scale * torch.exp(-((gridx.unsqueeze(-1) - sample_x).pow(2) \
+                                +(gridy.unsqueeze(-1) - sample_y).pow(2)) / (2*sigma**2) )
+    data = data / data.sum((0,1), keepdims=True)
+
+    # apply mask to taper magnitude near border if desired
+    betas = self.kernel_grid[1]
+    if taper_beta &lt; max_beta:
+        mask = ((betas - max_beta)/(taper_beta - max_beta)).clamp(max=1).view(1, 1, -1)
+    else:
+        mask = torch.ones_like(data)
+
+    data = (mask * data).unsqueeze(0).unsqueeze(0).to(torch.float32)
+    self.weight = nn.Parameter(data= data, requires_grad=True)
+
+    self.n_pts = self.weight.shape[-1]
+    self.ind = torch.arange(self.n_pts)
+    self.n_subset = int(rand_fraction_points_to_project * self.n_pts) + 1
+
+    self.register_buffer(
+        &#34;Y&#34;, o3.spherical_harmonics_alpha_beta(range(lmax+1), *self.kernel_grid, normalization=&#39;component&#39;)
+    )
+
+  def forward(self, x):
+    &#39;&#39;&#39;
+    :x: float tensor of shape (B, C, H, W)
+    :return: feature vector of shape (B,P,C) where P is number of points on S2
+    &#39;&#39;&#39;
+    x = self.conv1x1(x)
+
+    if self.n_subset is not None:
+        self.ind = torch.randperm(self.n_pts)[:self.n_subset]
+
+    x = (x.unsqueeze(-1) * self.weight[..., self.ind]).sum((2,3))
+    x = torch.relu(x)
+    x = torch.einsum(&#39;ni,xyn-&gt;xyi&#39;, self.Y[self.ind], x) / self.ind.shape[0]**0.5
+    return x</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>torch.nn.modules.module.Module</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="cesped.network.image2sphere.Image2SphereProjector.forward"><code class="name flex">
+<span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., Any]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>:x: float tensor of shape (B, C, H, W)
+:return: feature vector of shape (B,P,C) where P is number of points on S2</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def forward(self, x):
+  &#39;&#39;&#39;
+  :x: float tensor of shape (B, C, H, W)
+  :return: feature vector of shape (B,P,C) where P is number of points on S2
+  &#39;&#39;&#39;
+  x = self.conv1x1(x)
+
+  if self.n_subset is not None:
+      self.ind = torch.randperm(self.n_pts)[:self.n_subset]
+
+  x = (x.unsqueeze(-1) * self.weight[..., self.ind]).sum((2,3))
+  x = torch.relu(x)
+  x = torch.einsum(&#39;ni,xyn-&gt;xyi&#39;, self.Y[self.ind], x) / self.ind.shape[0]**0.5
+  return x</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="cesped.network.image2sphere.S2Conv"><code class="flex name class">
+<span>class <span class="ident">S2Conv</span></span>
+<span>(</span><span>f_in: int, f_out: int, lmax: int, kernel_grid: tuple)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>S2 group convolution which outputs signal over SO(3) irreps</p>
+<p>:f_in: feature dimensionality of input signal
+:f_out: feature dimensionality of output signal
+:lmax: maximum degree of harmonics used to represent input and output signals
+technically, you can have different degrees for input and output, but
+we do not explore that in our work
+:kernel_grid: spatial locations over which the filter is defined (alphas, betas)
+we find that it is better to parametrize filter in spatial domain
+and project to harmonics at every forward pass.</p>
+<p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class S2Conv(nn.Module):
+  &#39;&#39;&#39;S2 group convolution which outputs signal over SO(3) irreps
+
+  :f_in: feature dimensionality of input signal
+  :f_out: feature dimensionality of output signal
+  :lmax: maximum degree of harmonics used to represent input and output signals
+         technically, you can have different degrees for input and output, but
+         we do not explore that in our work
+  :kernel_grid: spatial locations over which the filter is defined (alphas, betas)
+                we find that it is better to parametrize filter in spatial domain
+                and project to harmonics at every forward pass.
+  &#39;&#39;&#39;
+  def __init__(self, f_in: int, f_out: int, lmax: int, kernel_grid: tuple):
+    super().__init__()
+    # filter weight parametrized over spatial grid on S2
+    self.register_parameter(
+      &#34;w&#34;, torch.nn.Parameter(torch.randn(f_in, f_out, kernel_grid.shape[1]))
+    )  # [f_in, f_out, n_s2_pts]
+
+    s2Cache = joblib.Memory(location=os.path.join(tempfile.gettempdir(), &#34;S2_cache.joblib&#34;), verbose=0)
+    def _compute_parameters(lmax, kernel_grid):
+        spherical_harmonics = o3.spherical_harmonics_alpha_beta(range(lmax + 1),
+                                        *kernel_grid, normalization=&#34;component&#34;) # [n_s2_pts, (2*lmax+1)**2]
+        s2_ir =  s2_irreps(lmax)
+        so3_ir = so3_irreps(lmax)
+        return spherical_harmonics, s2_ir, so3_ir
+    compute_parameters = s2Cache.cache(_compute_parameters)
+    spherical_harmonics, s2_ir, so3_ir = compute_parameters(lmax, kernel_grid)
+
+    # linear projection to convert filter weights to fourier domain
+    self.register_buffer(
+      &#34;Y&#34;, spherical_harmonics)  # [n_s2_pts, (2*lmax+1)**2]
+
+    # defines group convolution using appropriate irreps
+    # note, we set internal_weights to False since we defined our own filter above
+    self.lin = o3.Linear(s2_ir, so3_ir,
+                         f_in=f_in, f_out=f_out, internal_weights=False)
+
+  def forward(self, x):
+    &#39;&#39;&#39;Perform S2 group convolution to produce signal over irreps of SO(3).
+    First project filter into fourier domain then perform convolution
+
+    :x: tensor of shape (B, f_in, (2*lmax+1)**2), signal over S2 irreps
+    :return: tensor of shape (B, f_out, sum_l^L (2*l+1)**2)
+    &#39;&#39;&#39;
+    psi = torch.einsum(&#34;ni,xyn-&gt;xyi&#34;, self.Y, self.w) / self.Y.shape[0] ** 0.5
+    return self.lin(x, weight=psi)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>torch.nn.modules.module.Module</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="cesped.network.image2sphere.S2Conv.forward"><code class="name flex">
+<span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., Any]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Perform S2 group convolution to produce signal over irreps of SO(3).
+First project filter into fourier domain then perform convolution</p>
+<p>:x: tensor of shape (B, f_in, (2<em>lmax+1)</em><em>2), signal over S2 irreps
+:return: tensor of shape (B, f_out, sum_l^L (2</em>l+1)**2)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def forward(self, x):
+  &#39;&#39;&#39;Perform S2 group convolution to produce signal over irreps of SO(3).
+  First project filter into fourier domain then perform convolution
+
+  :x: tensor of shape (B, f_in, (2*lmax+1)**2), signal over S2 irreps
+  :return: tensor of shape (B, f_out, sum_l^L (2*l+1)**2)
+  &#39;&#39;&#39;
+  psi = torch.einsum(&#34;ni,xyn-&gt;xyi&#34;, self.Y, self.w) / self.Y.shape[0] ** 0.5
+  return self.lin(x, weight=psi)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="cesped.network.image2sphere.SO3Conv"><code class="flex name class">
+<span>class <span class="ident">SO3Conv</span></span>
+<span>(</span><span>f_in: int, f_out: int, lmax: int, kernel_grid: tuple)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>SO3 group convolution</p>
+<p>:f_in: feature dimensionality of input signal
+:f_out: feature dimensionality of output signal
+:lmax: maximum degree of harmonics used to represent input and output signals
+technically, you can have different degrees for input and output, but
+we do not explore that in our work
+:kernel_grid: spatial locations over which the filter is defined (alphas, betas, gammas)
+we find that it is better to parametrize filter in spatial domain
+and project to harmonics at every forward pass</p>
+<p>Initializes internal Module state, shared by both nn.Module and ScriptModule.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SO3Conv(nn.Module):
+  &#39;&#39;&#39;SO3 group convolution
+
+  :f_in: feature dimensionality of input signal
+  :f_out: feature dimensionality of output signal
+  :lmax: maximum degree of harmonics used to represent input and output signals
+         technically, you can have different degrees for input and output, but
+         we do not explore that in our work
+  :kernel_grid: spatial locations over which the filter is defined (alphas, betas, gammas)
+                we find that it is better to parametrize filter in spatial domain
+                and project to harmonics at every forward pass
+  &#39;&#39;&#39;
+  def __init__(self, f_in: int, f_out: int, lmax: int, kernel_grid: tuple):
+    super().__init__()
+
+    # filter weight parametrized over spatial grid on SO3
+    self.register_parameter(
+      &#34;w&#34;, torch.nn.Parameter(torch.randn(f_in, f_out, kernel_grid.shape[1]))
+    )  # [f_in, f_out, n_so3_pts]
+
+    # wigner D matrices used to project spatial signal to irreps of SO(3)
+    so3Cache = joblib.Memory(location=os.path.join(tempfile.gettempdir(), &#34;SO3_cache.joblib&#34;), verbose=0)
+    def _compute_parameters(lmax, kernel_grid):
+        f_wigner =  flat_wigner(lmax, *kernel_grid)  # [n_so3_pts, sum_l^L (2*l+1)**2]
+        so3_ir = so3_irreps(lmax)
+        return f_wigner, so3_ir
+    compute_parameters = so3Cache.cache(_compute_parameters)
+    f_wigner, so3_ir = compute_parameters(lmax, kernel_grid)
+    self.register_buffer(&#34;D&#34;, f_wigner)
+
+    # defines group convolution using appropriate irreps
+    self.lin = o3.Linear(so3_ir, so3_ir,
+                         f_in=f_in, f_out=f_out, internal_weights=False)
+
+  def forward(self, x):
+    &#39;&#39;&#39;Perform SO3 group convolution to produce signal over irreps of SO(3).
+    First project filter into fourier domain then perform convolution
+
+    :x: tensor of shape (B, f_in, sum_l^L (2*l+1)**2), signal over SO3 irreps
+    :return: tensor of shape (B, f_out, sum_l^L (2*l+1)**2)
+    &#39;&#39;&#39;
+    psi = torch.einsum(&#34;ni,xyn-&gt;xyi&#34;, self.D, self.w) / self.D.shape[0] ** 0.5
+    return self.lin(x, weight=psi)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>torch.nn.modules.module.Module</li>
+</ul>
+<h3>Methods</h3>
+<dl>
+<dt id="cesped.network.image2sphere.SO3Conv.forward"><code class="name flex">
+<span>def <span class="ident">forward</span></span>(<span>self, x) ‑> Callable[..., Any]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Perform SO3 group convolution to produce signal over irreps of SO(3).
+First project filter into fourier domain then perform convolution</p>
+<p>:x: tensor of shape (B, f_in, sum_l^L (2<em>l+1)</em><em>2), signal over SO3 irreps
+:return: tensor of shape (B, f_out, sum_l^L (2</em>l+1)**2)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def forward(self, x):
+  &#39;&#39;&#39;Perform SO3 group convolution to produce signal over irreps of SO(3).
+  First project filter into fourier domain then perform convolution
+
+  :x: tensor of shape (B, f_in, sum_l^L (2*l+1)**2), signal over SO3 irreps
+  :return: tensor of shape (B, f_out, sum_l^L (2*l+1)**2)
+  &#39;&#39;&#39;
+  psi = torch.einsum(&#34;ni,xyn-&gt;xyi&#34;, self.D, self.w) / self.D.shape[0] ** 0.5
+  return self.lin(x, weight=psi)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="cesped.network" href="index.html">cesped.network</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="cesped.network.image2sphere.compute_symmetry_group_matrices" href="#cesped.network.image2sphere.compute_symmetry_group_matrices">compute_symmetry_group_matrices</a></code></li>
+<li><code><a title="cesped.network.image2sphere.compute_trace" href="#cesped.network.image2sphere.compute_trace">compute_trace</a></code></li>
+<li><code><a title="cesped.network.image2sphere.flat_wigner" href="#cesped.network.image2sphere.flat_wigner">flat_wigner</a></code></li>
+<li><code><a title="cesped.network.image2sphere.nearest_rotmat" href="#cesped.network.image2sphere.nearest_rotmat">nearest_rotmat</a></code></li>
+<li><code><a title="cesped.network.image2sphere.plot_so3_distribution" href="#cesped.network.image2sphere.plot_so3_distribution">plot_so3_distribution</a></code></li>
+<li><code><a title="cesped.network.image2sphere.rotation_error_rads" href="#cesped.network.image2sphere.rotation_error_rads">rotation_error_rads</a></code></li>
+<li><code><a title="cesped.network.image2sphere.s2_healpix_grid" href="#cesped.network.image2sphere.s2_healpix_grid">s2_healpix_grid</a></code></li>
+<li><code><a title="cesped.network.image2sphere.s2_irreps" href="#cesped.network.image2sphere.s2_irreps">s2_irreps</a></code></li>
+<li><code><a title="cesped.network.image2sphere.so3_healpix_grid" href="#cesped.network.image2sphere.so3_healpix_grid">so3_healpix_grid</a></code></li>
+<li><code><a title="cesped.network.image2sphere.so3_irreps" href="#cesped.network.image2sphere.so3_irreps">so3_irreps</a></code></li>
+<li><code><a title="cesped.network.image2sphere.so3_near_identity_grid" href="#cesped.network.image2sphere.so3_near_identity_grid">so3_near_identity_grid</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="cesped.network.image2sphere.I2S" href="#cesped.network.image2sphere.I2S">I2S</a></code></h4>
+<ul class="">
+<li><code><a title="cesped.network.image2sphere.I2S.compute_probabilities" href="#cesped.network.image2sphere.I2S.compute_probabilities">compute_probabilities</a></code></li>
+<li><code><a title="cesped.network.image2sphere.I2S.forward" href="#cesped.network.image2sphere.I2S.forward">forward</a></code></li>
+<li><code><a title="cesped.network.image2sphere.I2S.forward_and_loss" href="#cesped.network.image2sphere.I2S.forward_and_loss">forward_and_loss</a></code></li>
+<li><code><a title="cesped.network.image2sphere.I2S.forward_topk" href="#cesped.network.image2sphere.I2S.forward_topk">forward_topk</a></code></li>
+<li><code><a title="cesped.network.image2sphere.I2S.nearest_rotmat" href="#cesped.network.image2sphere.I2S.nearest_rotmat">nearest_rotmat</a></code></li>
+<li><code><a title="cesped.network.image2sphere.I2S.rotation_error_rads" href="#cesped.network.image2sphere.I2S.rotation_error_rads">rotation_error_rads</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="cesped.network.image2sphere.Image2SphereProjector" href="#cesped.network.image2sphere.Image2SphereProjector">Image2SphereProjector</a></code></h4>
+<ul class="">
+<li><code><a title="cesped.network.image2sphere.Image2SphereProjector.forward" href="#cesped.network.image2sphere.Image2SphereProjector.forward">forward</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="cesped.network.image2sphere.S2Conv" href="#cesped.network.image2sphere.S2Conv">S2Conv</a></code></h4>
+<ul class="">
+<li><code><a title="cesped.network.image2sphere.S2Conv.forward" href="#cesped.network.image2sphere.S2Conv.forward">forward</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="cesped.network.image2sphere.SO3Conv" href="#cesped.network.image2sphere.SO3Conv">SO3Conv</a></code></h4>
+<ul class="">
+<li><code><a title="cesped.network.image2sphere.SO3Conv.forward" href="#cesped.network.image2sphere.SO3Conv.forward">forward</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>

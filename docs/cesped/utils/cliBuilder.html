@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>cesped.utils.cliBuilder API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>cesped.utils.cliBuilder</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import sys
+
+import tempfile
+
+import os
+import os.path as osp
+from omegaconf import OmegaConf
+from typing import Dict, Any, List
+
+import torch
+from lightning import Callback, Trainer
+from lightning.pytorch.cli import LightningCLI
+
+_ckpt_path_argname = &#34;ckpt_path&#34;
+class MyLightningCLI(LightningCLI):
+    def add_arguments_to_parser(self, parser):
+
+        parser.add_argument(&#34;--n_threads_torch&#34;, default=4, type=int, help=&#34;Number of inter_operation threads&#34;)
+        parser.add_argument(f&#34;--{_ckpt_path_argname}&#34;, type=str, help=&#34;The model checkpoint to load&#34;)
+
+        parser.link_arguments(&#34;data.image_size&#34;, &#34;model.image_size&#34;)
+        parser.link_arguments(&#34;data.symmetry&#34;, &#34;model.symmetry&#34;, apply_on=&#34;instantiate&#34;)
+
+
+
+    # def before_instantiate_classes(self) -&gt; None:
+    #     self.config[&#34;model&#34;][&#34;image_size&#34;] = self.config[&#34;data&#34;][&#34;image_size&#34;]
+
+    def _instantiate_trainer(self, config: Dict[str, Any], callbacks: List[Callback]) -&gt; Trainer:
+        assert config[&#34;logger&#34;] in [None, False], (&#34;Error, do not provide info about the logger as config. Modify&#34;
+                                          &#34; MyLightningCLI instead&#34;)
+        if config[&#34;logger&#34;] is not False:
+            from lightning.pytorch.loggers import TensorBoardLogger, CSVLogger
+            saveDir = config[&#34;default_root_dir&#34;]
+            logger1 = TensorBoardLogger(saveDir)
+            _, version = os.path.split(logger1.log_dir)
+            logger2 = CSVLogger(saveDir, version=version)
+            config[&#34;logger&#34;] = [logger1, logger2]
+        return super()._instantiate_trainer(config, callbacks)
+
+    def instantiate_classes(self) -&gt; None:
+        &#34;&#34;&#34;Instantiates the classes and sets their attributes.&#34;&#34;&#34;
+        super().instantiate_classes()
+
+    def before_instantiate_classes(self):
+        super().before_instantiate_classes()
+        torch.set_num_threads(self.config[&#34;n_threads_torch&#34;])
+
+    @property
+    def ckpt_path(self):
+        return self.config.get(_ckpt_path_argname)
+
+class CheckpointLoader():
+    def __init__(self, config_fnames):
+
+        self._config_fnames = config_fnames
+        self.conf = {}
+        for confFname in self._config_fnames:
+            self.conf.update(OmegaConf.load(confFname))
+
+        self.ckpt_path = None
+        self._tmpdir = None
+        self._new_config_fname = None
+
+    def __enter__(self):
+        self._tmpdir = tempfile.TemporaryDirectory()
+        tmpdir_path = self._tmpdir.name
+
+        if f&#34;--{_ckpt_path_argname}&#34; in sys.argv:
+            checkpointName = sys.argv[sys.argv.index(f&#34;--{_ckpt_path_argname}&#34;) + 1]
+            self.ckpt_path = osp.abspath(osp.expanduser(checkpointName))
+            model_config_fname = osp.join(osp.dirname(osp.dirname(self.ckpt_path)), &#34;config.yaml&#34;)
+
+            if not osp.isfile(model_config_fname):
+                raise RuntimeError(f&#34;Error, {model_config_fname} does not exist&#34;)
+
+            self.conf.update(dict(model=OmegaConf.load(model_config_fname)[&#34;model&#34;]))
+
+            self._new_config_fname = osp.join(tmpdir_path, &#34;final_config.yaml&#34;)
+            with open(self._new_config_fname, &#34;w&#34;) as f:
+                OmegaConf.save(self.conf, f)
+            self.ckpt_found = True
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self._tmpdir.cleanup()
+
+    @property
+    def config_fnames(self):
+        if self._new_config_fname is None:
+            return self._config_fnames
+        else:
+            return [self._new_config_fname]</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="cesped.utils.cliBuilder.CheckpointLoader"><code class="flex name class">
+<span>class <span class="ident">CheckpointLoader</span></span>
+<span>(</span><span>config_fnames)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class CheckpointLoader():
+    def __init__(self, config_fnames):
+
+        self._config_fnames = config_fnames
+        self.conf = {}
+        for confFname in self._config_fnames:
+            self.conf.update(OmegaConf.load(confFname))
+
+        self.ckpt_path = None
+        self._tmpdir = None
+        self._new_config_fname = None
+
+    def __enter__(self):
+        self._tmpdir = tempfile.TemporaryDirectory()
+        tmpdir_path = self._tmpdir.name
+
+        if f&#34;--{_ckpt_path_argname}&#34; in sys.argv:
+            checkpointName = sys.argv[sys.argv.index(f&#34;--{_ckpt_path_argname}&#34;) + 1]
+            self.ckpt_path = osp.abspath(osp.expanduser(checkpointName))
+            model_config_fname = osp.join(osp.dirname(osp.dirname(self.ckpt_path)), &#34;config.yaml&#34;)
+
+            if not osp.isfile(model_config_fname):
+                raise RuntimeError(f&#34;Error, {model_config_fname} does not exist&#34;)
+
+            self.conf.update(dict(model=OmegaConf.load(model_config_fname)[&#34;model&#34;]))
+
+            self._new_config_fname = osp.join(tmpdir_path, &#34;final_config.yaml&#34;)
+            with open(self._new_config_fname, &#34;w&#34;) as f:
+                OmegaConf.save(self.conf, f)
+            self.ckpt_found = True
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self._tmpdir.cleanup()
+
+    @property
+    def config_fnames(self):
+        if self._new_config_fname is None:
+            return self._config_fnames
+        else:
+            return [self._new_config_fname]</code></pre>
+</details>
+<h3>Instance variables</h3>
+<dl>
+<dt id="cesped.utils.cliBuilder.CheckpointLoader.config_fnames"><code class="name">var <span class="ident">config_fnames</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def config_fnames(self):
+    if self._new_config_fname is None:
+        return self._config_fnames
+    else:
+        return [self._new_config_fname]</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="cesped.utils.cliBuilder.MyLightningCLI"><code class="flex name class">
+<span>class <span class="ident">MyLightningCLI</span></span>
+<span>(</span><span>model_class: Union[Type[lightning.pytorch.core.module.LightningModule], Callable[..., lightning.pytorch.core.module.LightningModule], ForwardRef(None)] = None, datamodule_class: Union[Type[lightning.pytorch.core.datamodule.LightningDataModule], Callable[..., lightning.pytorch.core.datamodule.LightningDataModule], ForwardRef(None)] = None, save_config_callback: Optional[Type[lightning.pytorch.cli.SaveConfigCallback]] = lightning.pytorch.cli.SaveConfigCallback, save_config_kwargs: Optional[Dict[str, Any]] = None, trainer_class: Union[Type[lightning.pytorch.trainer.trainer.Trainer], Callable[..., lightning.pytorch.trainer.trainer.Trainer]] = lightning.pytorch.trainer.trainer.Trainer, trainer_defaults: Optional[Dict[str, Any]] = None, seed_everything_default: Union[bool, int] = True, parser_kwargs: Union[Dict[str, Any], Dict[str, Dict[str, Any]], ForwardRef(None)] = None, subclass_mode_model: bool = False, subclass_mode_data: bool = False, args: Union[List[str], Dict[str, Any], jsonargparse._namespace.Namespace, ForwardRef(None)] = None, run: bool = True, auto_configure_optimizers: bool = True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Implementation of a configurable command line tool for pytorch-lightning.</p>
+<p>Receives as input pytorch-lightning classes (or callables which return pytorch-lightning classes), which are
+called / instantiated using a parsed configuration file and / or command line args.</p>
+<p>Parsing of configuration from environment variables can be enabled by setting <code>parser_kwargs={"default_env":
+True}&lt;code&gt;. A full configuration yaml would be parsed from &lt;/code&gt;PL_CONFIG</code> if set. Individual settings are so parsed
+from variables named for example <code>PL_TRAINER__MAX_EPOCHS</code>.</p>
+<p>For more info, read :ref:<code>the CLI docs &lt;lightning-cli&gt;</code>.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>model_class</code></strong></dt>
+<dd>An optional :class:<code>~lightning.pytorch.core.module.LightningModule</code> class to train on or a
+callable which returns a :class:<code>~lightning.pytorch.core.module.LightningModule</code> instance when
+called. If <code>None</code>, you can pass a registered model with <code>--model=MyModel</code>.</dd>
+<dt><strong><code>datamodule_class</code></strong></dt>
+<dd>An optional :class:<code>~lightning.pytorch.core.datamodule.LightningDataModule</code> class or a
+callable which returns a :class:<code>~lightning.pytorch.core.datamodule.LightningDataModule</code> instance when
+called. If <code>None</code>, you can pass a registered datamodule with <code>--data=MyDataModule</code>.</dd>
+<dt><strong><code>save_config_callback</code></strong></dt>
+<dd>A callback class to save the config.</dd>
+<dt><strong><code>save_config_kwargs</code></strong></dt>
+<dd>Parameters that will be used to instantiate the save_config_callback.</dd>
+<dt><strong><code>trainer_class</code></strong></dt>
+<dd>An optional subclass of the :class:<code>~lightning.pytorch.trainer.trainer.Trainer</code> class or a
+callable which returns a :class:<code>~lightning.pytorch.trainer.trainer.Trainer</code> instance when called.</dd>
+<dt><strong><code>trainer_defaults</code></strong></dt>
+<dd>Set to override Trainer defaults or add persistent callbacks. The callbacks added through
+this argument will not be configurable from a configuration file and will always be present for
+this particular CLI. Alternatively, configurable callbacks can be added as explained in
+:ref:<code>the CLI docs &lt;lightning-cli&gt;</code>.</dd>
+<dt><strong><code>seed_everything_default</code></strong></dt>
+<dd>Number for the :func:<code>~lightning.fabric.utilities.seed.seed_everything</code>
+seed value. Set to True to automatically choose a seed value.
+Setting it to False will avoid calling <code>seed_everything</code>.</dd>
+<dt><strong><code>parser_kwargs</code></strong></dt>
+<dd>Additional arguments to instantiate each <code>LightningArgumentParser</code>.</dd>
+<dt><strong><code>subclass_mode_model</code></strong></dt>
+<dd>Whether model can be any <code>subclass
+&lt;https://jsonargparse.readthedocs.io/en/stable/#class-type-and-sub-classes&gt;</code>_
+of the given class.</dd>
+<dt><strong><code>subclass_mode_data</code></strong></dt>
+<dd>Whether datamodule can be any <code>subclass
+&lt;https://jsonargparse.readthedocs.io/en/stable/#class-type-and-sub-classes&gt;</code>_
+of the given class.</dd>
+<dt><strong><code>args</code></strong></dt>
+<dd>Arguments to parse. If <code>None</code> the arguments are taken from <code>sys.argv</code>. Command line style
+arguments can be given in a <code>list</code>. Alternatively, structured config options can be given in a
+<code>dict</code> or <code>jsonargparse.Namespace</code>.</dd>
+<dt><strong><code>run</code></strong></dt>
+<dd>Whether subcommands should be added to run a :class:<code>~lightning.pytorch.trainer.trainer.Trainer</code>
+method. If set to <code>False</code>, the trainer and model classes will be instantiated only.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class MyLightningCLI(LightningCLI):
+    def add_arguments_to_parser(self, parser):
+
+        parser.add_argument(&#34;--n_threads_torch&#34;, default=4, type=int, help=&#34;Number of inter_operation threads&#34;)
+        parser.add_argument(f&#34;--{_ckpt_path_argname}&#34;, type=str, help=&#34;The model checkpoint to load&#34;)
+
+        parser.link_arguments(&#34;data.image_size&#34;, &#34;model.image_size&#34;)
+        parser.link_arguments(&#34;data.symmetry&#34;, &#34;model.symmetry&#34;, apply_on=&#34;instantiate&#34;)
+
+
+
+    # def before_instantiate_classes(self) -&gt; None:
+    #     self.config[&#34;model&#34;][&#34;image_size&#34;] = self.config[&#34;data&#34;][&#34;image_size&#34;]
+
+    def _instantiate_trainer(self, config: Dict[str, Any], callbacks: List[Callback]) -&gt; Trainer:
+        assert config[&#34;logger&#34;] in [None, False], (&#34;Error, do not provide info about the logger as config. Modify&#34;
+                                          &#34; MyLightningCLI instead&#34;)
+        if config[&#34;logger&#34;] is not False:
+            from lightning.pytorch.loggers import TensorBoardLogger, CSVLogger
+            saveDir = config[&#34;default_root_dir&#34;]
+            logger1 = TensorBoardLogger(saveDir)
+            _, version = os.path.split(logger1.log_dir)
+            logger2 = CSVLogger(saveDir, version=version)
+            config[&#34;logger&#34;] = [logger1, logger2]
+        return super()._instantiate_trainer(config, callbacks)
+
+    def instantiate_classes(self) -&gt; None:
+        &#34;&#34;&#34;Instantiates the classes and sets their attributes.&#34;&#34;&#34;
+        super().instantiate_classes()
+
+    def before_instantiate_classes(self):
+        super().before_instantiate_classes()
+        torch.set_num_threads(self.config[&#34;n_threads_torch&#34;])
+
+    @property
+    def ckpt_path(self):
+        return self.config.get(_ckpt_path_argname)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>lightning.pytorch.cli.LightningCLI</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li>cesped.inferEntry._MyInferLightningCLI</li>
+<li>cesped.trainEntry._TrainCLI</li>
+</ul>
+<h3>Instance variables</h3>
+<dl>
+<dt id="cesped.utils.cliBuilder.MyLightningCLI.ckpt_path"><code class="name">var <span class="ident">ckpt_path</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def ckpt_path(self):
+    return self.config.get(_ckpt_path_argname)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="cesped.utils.cliBuilder.MyLightningCLI.add_arguments_to_parser"><code class="name flex">
+<span>def <span class="ident">add_arguments_to_parser</span></span>(<span>self, parser)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Implement to add extra arguments to the parser or link arguments.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>parser</code></strong></dt>
+<dd>The parser object to which arguments can be added</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add_arguments_to_parser(self, parser):
+
+    parser.add_argument(&#34;--n_threads_torch&#34;, default=4, type=int, help=&#34;Number of inter_operation threads&#34;)
+    parser.add_argument(f&#34;--{_ckpt_path_argname}&#34;, type=str, help=&#34;The model checkpoint to load&#34;)
+
+    parser.link_arguments(&#34;data.image_size&#34;, &#34;model.image_size&#34;)
+    parser.link_arguments(&#34;data.symmetry&#34;, &#34;model.symmetry&#34;, apply_on=&#34;instantiate&#34;)</code></pre>
+</details>
+</dd>
+<dt id="cesped.utils.cliBuilder.MyLightningCLI.before_instantiate_classes"><code class="name flex">
+<span>def <span class="ident">before_instantiate_classes</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Implement to run some code before instantiating the classes.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def before_instantiate_classes(self):
+    super().before_instantiate_classes()
+    torch.set_num_threads(self.config[&#34;n_threads_torch&#34;])</code></pre>
+</details>
+</dd>
+<dt id="cesped.utils.cliBuilder.MyLightningCLI.instantiate_classes"><code class="name flex">
+<span>def <span class="ident">instantiate_classes</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Instantiates the classes and sets their attributes.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def instantiate_classes(self) -&gt; None:
+    &#34;&#34;&#34;Instantiates the classes and sets their attributes.&#34;&#34;&#34;
+    super().instantiate_classes()</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="cesped.utils" href="index.html">cesped.utils</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="cesped.utils.cliBuilder.CheckpointLoader" href="#cesped.utils.cliBuilder.CheckpointLoader">CheckpointLoader</a></code></h4>
+<ul class="">
+<li><code><a title="cesped.utils.cliBuilder.CheckpointLoader.config_fnames" href="#cesped.utils.cliBuilder.CheckpointLoader.config_fnames">config_fnames</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="cesped.utils.cliBuilder.MyLightningCLI" href="#cesped.utils.cliBuilder.MyLightningCLI">MyLightningCLI</a></code></h4>
+<ul class="">
+<li><code><a title="cesped.utils.cliBuilder.MyLightningCLI.add_arguments_to_parser" href="#cesped.utils.cliBuilder.MyLightningCLI.add_arguments_to_parser">add_arguments_to_parser</a></code></li>
+<li><code><a title="cesped.utils.cliBuilder.MyLightningCLI.before_instantiate_classes" href="#cesped.utils.cliBuilder.MyLightningCLI.before_instantiate_classes">before_instantiate_classes</a></code></li>
+<li><code><a title="cesped.utils.cliBuilder.MyLightningCLI.ckpt_path" href="#cesped.utils.cliBuilder.MyLightningCLI.ckpt_path">ckpt_path</a></code></li>
+<li><code><a title="cesped.utils.cliBuilder.MyLightningCLI.instantiate_classes" href="#cesped.utils.cliBuilder.MyLightningCLI.instantiate_classes">instantiate_classes</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>

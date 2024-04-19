@@ -1,0 +1,1647 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>cesped.particlesDataset API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>cesped.particlesDataset</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from itertools import chain
+
+import functools
+import json
+import os.path
+import warnings
+from os import PathLike
+import os.path as osp
+
+from tqdm import tqdm
+from typing import Union, Literal, Optional, List, Tuple, Any, Dict
+
+warnings.filterwarnings(&#34;ignore&#34;, &#34;Gimbal lock detected. Setting third angle to zero since it &#34;
+                                  &#34;is not possible to uniquely determine all angles.&#34;)
+warnings.filterwarnings(&#34;ignore&#34;, message=&#34;The torchvision.datapoints and torchvision.transforms.v2 namespaces are&#34;
+                                          &#34; still Beta.&#34;)
+
+
+import numpy as np
+import torch
+from scipy.spatial.transform import Rotation as R
+from starstack.particlesStar import ParticlesStarSet
+from torch.utils.data import Dataset
+
+from cesped.constants import RELION_EULER_CONVENTION, RELION_ANGLES_NAMES, RELION_SHIFTS_NAMES, \
+    RELION_ORI_POSE_CONFIDENCE_NAME, RELION_PRED_POSE_CONFIDENCE_NAME, default_configs_dir, defaultBenchmarkDir
+
+from cesped.datamanager.augmentations import Augmenter
+from cesped.zenodo.bechmarkUrls import NAME_PARTITION_TO_RECORID
+from cesped.datamanager.ctf import apply_ctf
+from cesped.utils.tensors import data_to_numpy
+from cesped.zenodo.downloadFromZenodo import download_record, getDoneFname
+
+&#34;&#34;&#34;
+This module implements the ParticlesDataset class. A Pytorch Dataset for dealing with Cryo-EM particles 
+in the CESPED benchmark
+&#34;&#34;&#34;
+
+
+class ParticlesDataset(Dataset):
+    &#34;&#34;&#34;
+    ParticlesDataset: A Pytorch Dataset for dealing with Cryo-EM particles in the CESPED benchmark.&lt;br&gt;
+    It can download data automatically
+
+    ```python
+    #Loads the halfset 0 for the benchmark entry named &#34;TEST&#34;
+    ds = ParticlesDataset(targetName=&#34;TEST&#34;, halfset=0, benchmarkDir=&#34;/tmp/cryoSupervisedDataset/&#34;)
+    ```
+    and each particle can be acessed as usually
+    ```python
+    img, rotMat, xyShiftAngs, confidence, metadata = ds[0]
+    ```
+    &lt;br&gt;
+    &#34;&#34;&#34;
+
+    def __init__(self, targetName: Union[PathLike, str],
+                 halfset: Literal[0, 1],
+                 benchmarkDir: str = defaultBenchmarkDir,
+                 image_size: Optional[int] = None,
+                 apply_perImg_normalization: bool = True,
+                 ctf_correction: Literal[&#34;none&#34;, &#34;phase_flip&#34;] = &#34;phase_flip&#34;,
+                 image_size_factor_for_crop: float = 0.25,
+                 ):
+        &#34;&#34;&#34;
+        ##Builder
+
+        Args:
+            targetName (Union[PathLike, str]): The name of the target to use. It is also the basename of \
+            the directory where the data is.
+            halfset (Literal[0, 1]): The second parameter.
+            benchmarkDir (str): The root directory where the datasets are downloaded.
+            image_size (Optional[int]): The final size of the image (after cropping). If None, keep the original size
+            apply_perImg_normalization (bool): Apply cryo-EM per-image normalization. I = (I-noiseMean)/noiseStd.
+            ctf_correction (Literal[none, phase_flip]): phase_flip will correct amplitude inversion due to defocus
+            image_size_factor_for_crop (float): Fraction of the image size to be cropped. Final size of the image \
+            is origSize*(1-image_size_factor_for_crop). It is important because particles in cryo-EM tend to \
+            be only 50% to 25% of the total area of the image.
+
+        &#34;&#34;&#34;
+
+        super().__init__()
+        assert halfset in [0, 1], f&#34;Error, data halfset should be 0 or 1. Currently it is {halfset}&#34;
+        self.targetName = targetName
+        self.halfset = halfset
+        self.benchmarkDir = osp.expanduser(benchmarkDir)
+        self._image_size = image_size
+        self.apply_perImg_normalization = apply_perImg_normalization
+        assert ctf_correction in [&#34;none&#34;, &#34;phase_flip&#34;]
+        self.ctf_correction = ctf_correction
+
+        self._particles = None
+        self._symmetry = None
+        self._lock = torch.multiprocessing.RLock()
+        self._augmenter = None
+
+        assert 0 &lt;= image_size_factor_for_crop &lt;= 0.5
+        self.image_size_factor_for_crop = image_size_factor_for_crop
+
+
+    @property
+    def image_size(self):
+        &#34;&#34;&#34;The image size in pixels&#34;&#34;&#34;
+        if self._image_size is None:
+            return self.particles.particle_shape[-1]
+        else:
+            return self._image_size
+    @property
+    def datadir(self):
+        &#34;&#34;&#34; the directory where the target is stored&#34;&#34;&#34;
+        return osp.join(self.benchmarkDir, self.targetName)
+
+    @property
+    def starFname(self):
+        &#34;&#34;&#34; the particles star filename&#34;&#34;&#34;
+        return osp.join(self.datadir, f&#34;particles_{self.halfset}.star&#34;)
+
+    @property
+    def stackFname(self):
+        &#34;&#34;&#34; the particles mrcs filename&#34;&#34;&#34;
+        return osp.join(self.datadir, f&#34;particles_{self.halfset}.mrcs&#34;)
+
+    @property
+    def particles(self):
+        &#34;&#34;&#34;
+        a starstack.particlesStar.ParticlesStarSet representing the loaded particles
+        &#34;&#34;&#34;
+        if self._particles is None:
+            if not self._is_avaible():
+                self._download()
+            self._particles = ParticlesStarSet(starFname=self.starFname, particlesDir=self.datadir)
+        return self._particles
+    @property
+    def symmetry(self):
+        &#34;&#34;&#34;The point symmetry of the dataset&#34;&#34;&#34;
+        if not self._is_avaible():
+            self._download()
+        if self._symmetry is None:
+            with open(osp.join(self.datadir, f&#34;info_{self.halfset}.json&#34;)) as f:
+                self._symmetry = json.load(f)[&#34;symmetry&#34;].upper()
+        return self._symmetry
+
+    @property
+    def sampling_rate(self):
+        &#34;&#34;&#34;The particle image sampling rate in A/pixels&#34;&#34;&#34;
+        return self.particles.sampling_rate
+
+    @property
+    def augmenter(self):
+        &#34;&#34;&#34;The data augmentator object to be applied&#34;&#34;&#34;
+        return self._augmenter
+
+    @augmenter.setter
+    def augmenter(self, augmenterObj:Augmenter):
+        &#34;&#34;&#34;
+
+        Args:
+            augmenter: he data augmentator object to be applied
+
+        &#34;&#34;&#34;
+        self._augmenter = augmenterObj
+
+    @classmethod
+    def addNewEntryLocally(cls, starFname: Union[str, PathLike], particlesRootDir: Union[str, PathLike],
+                           newTargetName: Union[str, PathLike], halfset: Literal[0, 1], symmetry:str,
+                           benchmarkDir: Union[str, PathLike] = defaultBenchmarkDir):
+        &#34;&#34;&#34;
+
+        Adds a new dataset to the local copy of the CESPED benchmark. It rearanges the starfile content and copies the
+        stack of images. Notice that it duplicates your particle images.
+        Args:
+            starFname (Union[str, PathLike]): The star filename with the particles to be added to the local benchmark
+            particlesRootDir (Union[str, PathLike]): The root directory that is referred in the starFname (e.g. Relion project dir).
+            newTargetName (Union[str, PathLike]): The name of the target to use.
+            halfset (Literal[0, 1]): The second parameter.
+            symmetry (str): The point symmetry of the dataset
+            benchmarkDir (str): The root directory where the datasets are downloaded.
+
+        &#34;&#34;&#34;
+
+        stack = ParticlesStarSet(starFname=starFname, particlesDir=particlesRootDir)
+        assert isinstance(stack[len(stack) - 1][0], np.ndarray), &#34;Error, there is some problem reading your data&#34;
+        newTargetDir = os.path.join(benchmarkDir, newTargetName)
+        os.makedirs(newTargetDir, exist_ok=True)
+        newStarFname = os.path.join(newTargetDir, f&#34;particles_{halfset}.star&#34;)
+        newStackFname = os.path.join(newTargetDir, f&#34;particles_{halfset}.mrcs&#34;)
+        stack.save(newStarFname, newStackFname)
+
+        with open(os.path.join(newTargetDir, f&#34;info_{halfset}.json&#34;), &#34;w&#34;) as f: #TODO: move name template to download/uploadFromZenodo
+            json.dump({&#34;symmetry&#34;: symmetry.upper()}, f)
+
+        with open(getDoneFname(newTargetDir, halfset), &#34;w&#34;) as f:
+            f.write(&#34;%s\n&#34; % newTargetName)
+
+    @classmethod
+    def getCESPEDEntries(cls) -&gt; List[Tuple[str, int]]:
+        &#34;&#34;&#34;
+        Returns the list of available entries in benchmarkDir
+
+        Returns:
+            List[Tuple[str,int]]: the list of available entries in benchmarkDir
+
+        &#34;&#34;&#34;
+        return list(NAME_PARTITION_TO_RECORID.keys())
+        
+    @classmethod
+    def getLocallyAvailableEntries(cls, benchmarkDir: Union[str, PathLike] = defaultBenchmarkDir) -&gt; List[Tuple[str, int]]:
+        &#34;&#34;&#34;
+        Returns the list of available entries in benchmarkDir
+        Args:
+            benchmarkDir (str): The root directory where the datasets are downloaded.
+
+        Returns:
+            List[Tuple[str,int]]: the list of available entries in benchmarkDir
+
+        &#34;&#34;&#34;
+        avail = []
+        for dirname in os.listdir(benchmarkDir):
+            if os.path.isfile(dirname):
+                continue
+            if os.path.exists(os.path.join(benchmarkDir, dirname, &#34;particles_0.mrcs&#34;)):
+                avail.append((dirname, 0))
+            if os.path.exists(os.path.join(benchmarkDir, dirname, &#34;particles_1.mrcs&#34;)):
+                avail.append((dirname, 1))
+        return avail
+
+    def _download(self):
+        assert (self.targetName, self.halfset) in NAME_PARTITION_TO_RECORID, (f&#34;Error, unknown target and/or &#34;
+                                                                              f&#34;halfset {self.targetName} {self.halfset}&#34;)
+        download_record(NAME_PARTITION_TO_RECORID[self.targetName, self.halfset],
+                        destination_dir=self.datadir)
+        #Validation
+        pset = ParticlesStarSet(starFname=self.starFname, particlesDir=self.datadir)
+        for i in tqdm(range(len(pset)), desc=&#34;Checking downloaded dataset&#34;):
+            img, md = pset[i]
+            assert len(img.shape) == 2, f&#34;Error, there were problems downloading the target {self.targetName}&#34;
+
+    def _is_avaible(self):
+        return osp.isfile(getDoneFname(self.datadir,
+                                       NAME_PARTITION_TO_RECORID.get((self.targetName, self.halfset), self.halfset)))
+
+    @functools.lru_cache(1)
+    def _getParticleNormalizationMask(self, particleNumPixels: int,
+                                      normalizationRadiusPixels: Optional[int] = None,
+                                      device: Optional[Union[torch.device, str]] = None) -&gt; torch.Tensor:
+        &#34;&#34;&#34;
+        Gets a mask with 1s in the corners and 0 for the center
+
+        Args:
+            particleNumPixels: The number of pixels of the particle
+            normalizationRadiusPixels: The number of pixels of the radius of the particle (inner circle)
+            device: The torch device
+
+        Returns:
+            torch.Tensor: The mask with 1s in the corners of the image and 0s for the center
+        &#34;&#34;&#34;
+
+        radius = particleNumPixels // 2
+        if normalizationRadiusPixels is None:
+            normalizationRadiusPixels = radius
+        ies, jes = torch.meshgrid(
+            torch.linspace(-1 * radius, 1 * radius, particleNumPixels, dtype=torch.float32),
+            torch.linspace(-1 * radius, 1 * radius, particleNumPixels, dtype=torch.float32),
+            indexing=&#34;ij&#34;
+        )
+        r = (ies ** 2 + jes ** 2) ** 0.5
+        _normalizationMask = (r &gt; normalizationRadiusPixels)
+        _normalizationMask = _normalizationMask.to(device)
+        return _normalizationMask
+
+    def _normalize(self, img):
+        &#34;&#34;&#34;
+
+        Args:
+            img: 1XSxS tensor
+
+        Returns:
+
+        &#34;&#34;&#34;
+        backgroundMask = self._getParticleNormalizationMask(img.shape[-1])
+        noiseRegion = img[:, backgroundMask]
+        meanImg = noiseRegion.mean()
+        stdImg = noiseRegion.std()
+        return (img - meanImg) / stdImg
+
+    def getIdx(self, item: int) -&gt; Tuple[np.ndarray, Dict[str, Any]]:
+        &#34;&#34;&#34;
+
+        Args:
+            item: a particle index
+
+        Returns:
+            Tuple[torch.Tensor, Dict[str, Any]]. The raw image before any pre-processing \
+             as an LxL np.array and the metadata as dictionary
+        &#34;&#34;&#34;
+        with self._lock:
+            try:
+                return self.particles[item]
+            except ValueError:
+                print(f&#34;Error retrieving item {item}&#34;)
+                raise
+
+    def resizeImage(self, img):
+
+        ori_pixelSize = float(self.particles.optics_md[&#34;rlnImagePixelSize&#34;].item())
+        particle_size_after_crop = int(self.particles.optics_md[&#34;rlnImageSize&#34;].item() * (1 - self.image_size_factor_for_crop))
+
+        desired_sampling_rate = float(self.particles.optics_md[&#34;rlnImagePixelSize&#34;].item() * particle_size_after_crop / self.image_size)
+
+        img, pad_info, crop_info = resize_and_padCrop_tensorBatch(img.unsqueeze(0),
+                                                                  ori_pixelSize,
+                                                                  desired_sampling_rate, self.image_size,
+                                                                  padding_mode=&#34;constant&#34;)
+        img = img.squeeze(0)
+        return img
+        
+    def __getitem(self, item):
+        img, md_row = self.getIdx(item)
+        iid = md_row[&#34;rlnImageName&#34;]
+
+        img = torch.FloatTensor(img).unsqueeze(0)
+
+        if self.apply_perImg_normalization:
+            img = self._normalize(img)
+
+        if self.ctf_correction != &#34;none&#34;:
+            ctf, wimg = apply_ctf(img, float(self.particles.optics_md[&#34;rlnImagePixelSize&#34;].item()),
+                                  dfu=md_row[&#34;rlnDefocusU&#34;], dfv=md_row[&#34;rlnDefocusV&#34;],
+                                  dfang=md_row[&#34;rlnDefocusAngle&#34;],
+                                  volt=float(self.particles.optics_md[&#34;rlnVoltage&#34;][0]),
+                                  cs=float(self.particles.optics_md[&#34;rlnSphericalAberration&#34;][0]),
+                                  w=float(self.particles.optics_md[&#34;rlnAmplitudeContrast&#34;][0]),
+                                  mode=self.ctf_correction)
+            wimg = torch.clamp(wimg, img.min(), img.max())
+            wimg = torch.nan_to_num(wimg, nan=img.mean())
+            # img = torch.concat([img, wimg], dim=0)
+            img = wimg
+
+        if img.isnan().any():
+            raise RuntimeError(f&#34;Error, img with idx {item} is NAN&#34;)
+
+        img = self.resizeImage(img)
+
+        degEuler = torch.FloatTensor([md_row[name] for name in RELION_ANGLES_NAMES])
+        xyShiftAngs = torch.FloatTensor([md_row[name] for name in RELION_SHIFTS_NAMES])
+
+        if self.augmenter is not None:
+            img, degEuler, shift, _ = self.augmenter(img, #1xSxS image expected
+                                                     degEuler,
+                                                     shiftFraction=xyShiftAngs / (self.image_size * self.sampling_rate))
+            xyShiftAngs = shift * (self.image_size*self.sampling_rate)
+
+        r = R.from_euler(RELION_EULER_CONVENTION, degEuler, degrees=True)
+        if self.symmetry.upper() != &#34;C1&#34;:
+            r = r.reduce(R.create_group(self.symmetry.upper()))
+        rotMat = r.as_matrix()
+        rotMat = torch.FloatTensor(rotMat)
+        confidence = torch.FloatTensor([md_row.get(RELION_ORI_POSE_CONFIDENCE_NAME, 1)])
+
+        return iid, img, (rotMat, xyShiftAngs, confidence), md_row.to_dict()
+
+    def __getitem__(self, item):
+        return self.__getitem(item)
+
+
+    def __len__(self):
+        return len(self.particles)
+
+    def updateMd(self, ids: List[str], angles: Optional[Union[torch.Tensor, np.ndarray]] = None,
+                 shifts: Optional[Union[torch.Tensor, np.ndarray]] = None,
+                 confidence: Optional[Union[torch.Tensor, np.ndarray]] = None,
+                 angles_format: Literal[&#34;rotmat&#34;, &#34;zyzEulerDegs&#34;] = &#34;rotmat&#34;,
+                 shifts_format: Literal[&#34;Angst&#34;] = &#34;Angst&#34;):
+        &#34;&#34;&#34;
+        Updates the metadata of the particles with selected ids
+
+        Args:
+            ids (List[str]): The ids of the entries to be updated e.g. [&#34;1@particles_0.mrcs&#34;, &#34;2@particles_0.mrcs]
+            angles (Optional[Union[torch.Tensor, np.ndarray]]): The particle pose angles to update
+            shifts (Optional[Union[torch.Tensor, np.ndarray]]): The particle shifts
+            confidence (Optional[Union[torch.Tensor, np.ndarray]]): The prediction confidence
+            angles_format (Literal[rotmat, zyzEulerDegs]): The format for the argument angles
+            shifts_format (Literal[rotmat, zyzEulerDegs]): The format for the argument shifts
+
+        &#34;&#34;&#34;
+
+        assert angles_format in [&#34;rotmat&#34;, &#34;zyzEulerDegs&#34;], \
+            &#39;Error, angle_format should be in [&#34;rotmat&#34;, &#34;zyzEulerDegs&#34;]&#39;
+
+        assert shifts_format in [&#34;Angst&#34;], \
+            &#39;Error, shifts_format should be in [&#34;Angst&#34;]&#39;
+
+        col2val = {}
+
+        if angles is not None:
+            angles = data_to_numpy(angles)
+            if angles_format == &#34;rotmat&#34;:
+                r = R.from_matrix(angles)
+                rots, tilts, psis = r.as_euler(RELION_EULER_CONVENTION, degrees=True).T
+            else:
+                rots, tilts, psis = [angles[:, i] for i in range(3)]
+
+            col2val.update({ #RELION_ANGLES_NAMES
+                RELION_ANGLES_NAMES[0]: rots,
+                RELION_ANGLES_NAMES[1]: tilts,
+                RELION_ANGLES_NAMES[2]: psis
+            })
+
+        if shifts is not None:
+            shifts = data_to_numpy(shifts)
+            col2val.update({
+                RELION_SHIFTS_NAMES[0]: shifts[:, 0],
+                RELION_SHIFTS_NAMES[1]: shifts[:, 1],
+            })
+
+        if confidence is not None:
+            confidence = data_to_numpy(confidence)
+            col2val.update({
+                RELION_PRED_POSE_CONFIDENCE_NAME: confidence,
+            })
+        assert col2val, &#34;Error, no editing values were provided&#34;
+        self.particles.updateMd(ids=ids, colname2change=col2val)
+
+    def saveMd(self, fname: Union[str, os.PathLike], overwrite: bool = True):
+        &#34;&#34;&#34;
+        Saves the metadata of the current PartcilesDataset as a starfile
+        Args:
+            fname: The name of the file were the metadata will be saved
+            overwrite: If true, overwrites the file fname if already exists
+
+        &#34;&#34;&#34;
+        assert fname.endswith(&#34;.star&#34;), &#34;Error, metadata files will be saved as star files. Change extension to .star&#34;
+        self.particles.save(starFname=fname, overwrite=overwrite)
+
+
+def resize_and_padCrop_tensorBatch(array, current_sampling_rate, new_sampling_rate, new_n_pixels=None, padding_mode=&#39;reflect&#39;):
+
+    ndims = array.ndim - 2
+    if isinstance(array, np.ndarray):
+        wasNumpy = True
+        array = torch.from_numpy(array)
+
+    else:
+        wasNumpy = False
+
+    if isinstance(current_sampling_rate, tuple):
+        current_sampling_rate = torch.tensor(current_sampling_rate)
+    if isinstance(new_sampling_rate, tuple):
+        new_sampling_rate = torch.tensor(new_sampling_rate)
+
+    scaleFactor = current_sampling_rate / new_sampling_rate
+    if isinstance(scaleFactor, (int,float)):
+        scaleFactor = (scaleFactor,) * ndims
+    else:
+        scaleFactor = tuple(scaleFactor)
+    # Resize the array
+    if ndims == 2:
+        mode = &#39;bilinear&#39;
+    elif ndims == 3:
+        mode = &#39;trilinear&#39;
+    else:
+        raise ValueError(f&#34;Option not valid. ndims={ndims}&#34;)
+    resampled_array = torch.nn.functional.interpolate(array, scale_factor=scaleFactor, mode=mode, antialias=False)
+    pad_width = []
+    crop_positions = []
+    if new_n_pixels is not None:
+        if isinstance(new_n_pixels, int):
+            new_n_pixels = [new_n_pixels] * ndims
+        for i in range(ndims):
+            new_n_pix = new_n_pixels[i]
+            old_n_pix = resampled_array.shape[i+2]
+            if new_n_pix &lt; old_n_pix:
+                # Crop the tensor
+                crop_start = (old_n_pix - new_n_pix) // 2
+                resampled_array = resampled_array.narrow(i+2, crop_start, new_n_pix)
+                crop_positions.append((crop_start, crop_start+new_n_pix))
+            elif new_n_pix &gt; old_n_pix:
+                # Pad the tensor
+                pad_before = (new_n_pix - old_n_pix) // 2
+                pad_after = new_n_pix - old_n_pix - pad_before
+                pad_width.extend((pad_before, pad_after))
+
+        if len(pad_width) &gt; 0:
+            resampled_array = torch.nn.functional.pad(resampled_array, pad_width, mode=padding_mode)
+
+
+    if wasNumpy:
+        resampled_array = resampled_array.numpy()
+    return resampled_array, pad_width, crop_positions
+
+
+if __name__ == &#34;__main__&#34;:
+    from argparse import ArgumentParser
+    from omegaconf import OmegaConf
+
+    cfg = OmegaConf.load(osp.join(default_configs_dir, &#34;defaultDataConfig.yaml&#34;))
+
+    parser = ArgumentParser(description=&#34;Dataset utility&#34;)
+    subparsers = parser.add_subparsers(title=&#34;mode&#34;, dest=&#34;mode&#34;, required=True)
+
+    # Create parser for &#39;visualize&#39; mode
+    visualize_parser = subparsers.add_parser(&#34;visualize&#34;, help=&#34;Run dataset visualization&#34;)
+
+    visualize_parser.add_argument(&#34;-t&#34;, &#34;--targetName&#34;, help=&#34;The target to use&#34;, type=str, required=True)
+    visualize_parser.add_argument(&#34;-p&#34;, &#34;--halfset&#34;, help=&#34;The halfset to use&#34;, choices=[&#34;0&#34;, &#34;1&#34;], default=&#34;0&#34;)
+    visualize_parser.add_argument(&#34;-b&#34;, &#34;--benchmarkDir&#34;, help=&#34;The benchmark&#39;s directory&#34;, type=str,
+                                  default=defaultBenchmarkDir)
+    visualize_parser.add_argument(&#34;-s&#34;, &#34;--image_size&#34;, help=&#34;The desired image size&#34;, type=int,
+                                  default=cfg.data.image_size)
+    visualize_parser.add_argument(&#34;-c&#34;, &#34;--image_size_factor_for_crop&#34;, help=&#34;Percentage of image to crop&#34;, type=float,
+                                  default=cfg.data.image_size_factor_for_crop)
+    visualize_parser.add_argument(&#34;-f&#34;, &#34;--phase_flippling&#34;, help=&#34;Apply phase flippling&#34;, action=&#34;store_true&#34;)
+    visualize_parser.add_argument(&#34;-i&#34;, &#34;--channels_to_show&#34;, help=&#34;Channels of the images to show&#34;, type=int,
+                                  nargs=&#34;+&#34;)
+
+    # Create parser for &#39;add_entry&#39; mode
+    add_entry_parser = subparsers.add_parser(&#34;add_entry&#34;, help=&#34;Run add new entry locally&#34;)
+    add_entry_parser.add_argument(&#34;--newTargetName&#34;, help=&#34;The name of the new target to use&#34;, type=str,
+                                  required=True)
+    add_entry_parser.add_argument(&#34;-p&#34;, &#34;--halfset&#34;, help=&#34;The halfset to use&#34;, choices=[&#34;0&#34;, &#34;1&#34;],
+                                  required=True)
+    add_entry_parser.add_argument(&#34;-b&#34;, &#34;--benchmarkDir&#34;, help=&#34;The benchmark&#39;s directory&#34;, type=str,
+                                  default=defaultBenchmarkDir)
+                                  
+    add_entry_parser.add_argument(&#34;--starFname&#34;,
+                                  help=&#34;The star filename with the particles to be added to the local benchmark&#34;, type=str, required=True)
+    add_entry_parser.add_argument(&#34;--particlesRootDir&#34;, help=&#34;The root directory referred to in the starFname&#34;, type=str, required=True)
+    add_entry_parser.add_argument(&#34;--symmetry&#34;, help=&#34;The point symmetry of the dataset&#34;, type=str, required=True)
+
+
+
+    list_entries_parser = subparsers.add_parser(&#34;list_entries&#34;, help=&#34;List available entries&#34;)
+    list_entries_parser.add_argument(&#34;-b&#34;, &#34;--benchmarkDir&#34;, help=&#34;The benchmark&#39;s directory&#34;, type=str, default=defaultBenchmarkDir)
+
+
+    donwload_entry_parser = subparsers.add_parser(&#34;download_entry&#34;, help=&#34;Download an entry&#34;)
+    donwload_entry_parser.add_argument(&#34;-b&#34;, &#34;--benchmarkDir&#34;, help=&#34;The benchmark&#39;s directory&#34;, type=str, default=defaultBenchmarkDir)
+    donwload_entry_parser.add_argument(&#34;-p&#34;, &#34;--halfset&#34;, help=&#34;The halfset to use&#34;, choices=[&#34;0&#34;, &#34;1&#34;], required=True)
+    donwload_entry_parser.add_argument(&#34;-t&#34;, &#34;--targetName&#34;, help=&#34;The target to use&#34;, type=str, required=True)
+    
+    preprocess_entry_parser = subparsers.add_parser(&#34;preprocess_entry&#34;, help=&#34;Preprocess an entry&#34;)
+    preprocess_entry_parser.add_argument(&#34;-b&#34;, &#34;--benchmarkDir&#34;, help=&#34;The benchmark&#39;s directory&#34;, type=str, default=defaultBenchmarkDir)
+    preprocess_entry_parser.add_argument(&#34;-p&#34;, &#34;--halfset&#34;, help=&#34;The halfset to use&#34;, choices=[&#34;0&#34;, &#34;1&#34;], required=True)
+    preprocess_entry_parser.add_argument(&#34;-t&#34;, &#34;--targetName&#34;, help=&#34;The target to use&#34;, type=str, required=True)
+    preprocess_entry_parser.add_argument(&#34;-o&#34;, &#34;--outDir&#34;, help=&#34;The output directory&#34;, type=str, required=True)
+    
+    preprocess_entry_parser.add_argument(&#34;-s&#34;, &#34;--image_size&#34;, help=&#34;The final size of the image in pixels, obtained by resizing. Default: Original image size&#34;, type=int, required=False, default=None)
+    preprocess_entry_parser.add_argument(&#34;-f&#34;, &#34;--ctf_correction&#34;, help=&#34;The ctf correction mode. Default: %(default)s&#34;, choices=[&#39;none&#39;, &#39;phase_flip&#39;], default=&#34;none&#34;)
+    preprocess_entry_parser.add_argument(&#34;-c&#34;, &#34;--image_size_factor_for_crop&#34;, help=&#34;The fraction of the original image to be cropped. Default: &#34;, type=float, required=False, default=0.2)
+
+    args = parser.parse_args()
+
+    if args.mode == &#34;visualize&#34;:
+        # Run dataset visualization
+        ps = ParticlesDataset(targetName=args.targetName,
+                              halfset=int(args.halfset),
+                              benchmarkDir=args.benchmarkDir,
+                              image_size=args.image_size,
+                              ctf_correction=&#34;phase_flip&#34; if args.phase_flippling else &#34;none&#34;,
+                              image_size_factor_for_crop=args.image_size_factor_for_crop
+                              )
+        import matplotlib.pyplot as plt
+
+        channels_to_show = args.channels_to_show if args.channels_to_show else [0]
+        for elem in ps:
+            iid, img, *_ = elem
+            assert 1 &lt;= len(channels_to_show) &lt;= 4, &#34;Error, at least one channel required and no more than 4&#34;
+            f, axes = plt.subplots(1, len(channels_to_show), squeeze=False)
+            for j, c in enumerate(channels_to_show):
+                axes[0, c].imshow(img[c, ...], cmap=&#34;gray&#34;)
+            plt.show()
+            plt.close()
+        print(&#34;Done&#34;)
+
+    elif args.mode == &#34;add_entry&#34;:
+        # Run addNewEntryLocally
+        ParticlesDataset.addNewEntryLocally(starFname=args.starFname,
+                                            particlesRootDir=args.particlesRootDir,
+                                            newTargetName=args.newTargetName,
+                                            halfset=int(args.halfset),
+                                            symmetry=args.symmetry,
+                                            benchmarkDir=args.benchmarkDir)
+        print(
+            f&#34;Successfully added new entry {args.newTargetName} with halfset {args.halfset} to benchmark &#34;
+            f&#34;directory {args.benchmarkDir}.&#34;)
+
+    elif args.mode == &#34;list_entries&#34;:
+        remote_entries = ParticlesDataset.getCESPEDEntries()
+        print(&#34;Available for donwload entries:&#34;, remote_entries)
+        local_entries = ParticlesDataset.getLocallyAvailableEntries(benchmarkDir=args.benchmarkDir)
+        print(&#34;Locally available entries:&#34;, local_entries)
+        
+    elif args.mode == &#34;download_entry&#34;:
+
+        ps = ParticlesDataset(targetName=args.targetName,
+                              halfset=int(args.halfset),
+                              benchmarkDir=args.benchmarkDir,
+                              image_size=None,
+                              ctf_correction=&#34;none&#34;,
+                              image_size_factor_for_crop=0.,
+                              )
+        ps[0]
+        print(&#34;Data was downloaded to:&#34;)
+        print(ps.starFname)
+        print(ps.stackFname)
+    
+    elif args.mode == &#34;preprocess_entry&#34;:
+        ps = ParticlesDataset(targetName=args.targetName,
+                              halfset=int(args.halfset),
+                              benchmarkDir=args.benchmarkDir,
+                              image_size=args.image_size,
+                              ctf_correction=args.ctf_correction,
+                              image_size_factor_for_crop=args.image_size_factor_for_crop
+                              )
+                              
+        stack = ParticlesStarSet(starFname=ps.starFname)
+        assert isinstance(stack[len(stack) - 1][0], np.ndarray), &#34;Error, there is some problem reading your data&#34;
+        
+        outDir = os.path.expanduser(args.outDir)
+        os.makedirs(outDir, exist_ok=True)
+        newStarFname = os.path.join(outDir, f&#34;particles_{args.halfset}.star&#34;)
+        
+        stack.createFromPdNp(newStarFname, stack.optics_md,  stack.particles_md, npImages=(row[1] for row in ps), overwrite=True)
+
+    
+    else:
+        raise ValueError(&#34;Error, option is not valid&#34;)
+
+    &#34;&#34;&#34;
+    Reunning example
+    
+    particlesDataset visualize --targetName TEST --halfset 0
+    &#34;&#34;&#34;</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="cesped.particlesDataset.resize_and_padCrop_tensorBatch"><code class="name flex">
+<span>def <span class="ident">resize_and_padCrop_tensorBatch</span></span>(<span>array, current_sampling_rate, new_sampling_rate, new_n_pixels=None, padding_mode='reflect')</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def resize_and_padCrop_tensorBatch(array, current_sampling_rate, new_sampling_rate, new_n_pixels=None, padding_mode=&#39;reflect&#39;):
+
+    ndims = array.ndim - 2
+    if isinstance(array, np.ndarray):
+        wasNumpy = True
+        array = torch.from_numpy(array)
+
+    else:
+        wasNumpy = False
+
+    if isinstance(current_sampling_rate, tuple):
+        current_sampling_rate = torch.tensor(current_sampling_rate)
+    if isinstance(new_sampling_rate, tuple):
+        new_sampling_rate = torch.tensor(new_sampling_rate)
+
+    scaleFactor = current_sampling_rate / new_sampling_rate
+    if isinstance(scaleFactor, (int,float)):
+        scaleFactor = (scaleFactor,) * ndims
+    else:
+        scaleFactor = tuple(scaleFactor)
+    # Resize the array
+    if ndims == 2:
+        mode = &#39;bilinear&#39;
+    elif ndims == 3:
+        mode = &#39;trilinear&#39;
+    else:
+        raise ValueError(f&#34;Option not valid. ndims={ndims}&#34;)
+    resampled_array = torch.nn.functional.interpolate(array, scale_factor=scaleFactor, mode=mode, antialias=False)
+    pad_width = []
+    crop_positions = []
+    if new_n_pixels is not None:
+        if isinstance(new_n_pixels, int):
+            new_n_pixels = [new_n_pixels] * ndims
+        for i in range(ndims):
+            new_n_pix = new_n_pixels[i]
+            old_n_pix = resampled_array.shape[i+2]
+            if new_n_pix &lt; old_n_pix:
+                # Crop the tensor
+                crop_start = (old_n_pix - new_n_pix) // 2
+                resampled_array = resampled_array.narrow(i+2, crop_start, new_n_pix)
+                crop_positions.append((crop_start, crop_start+new_n_pix))
+            elif new_n_pix &gt; old_n_pix:
+                # Pad the tensor
+                pad_before = (new_n_pix - old_n_pix) // 2
+                pad_after = new_n_pix - old_n_pix - pad_before
+                pad_width.extend((pad_before, pad_after))
+
+        if len(pad_width) &gt; 0:
+            resampled_array = torch.nn.functional.pad(resampled_array, pad_width, mode=padding_mode)
+
+
+    if wasNumpy:
+        resampled_array = resampled_array.numpy()
+    return resampled_array, pad_width, crop_positions</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="cesped.particlesDataset.ParticlesDataset"><code class="flex name class">
+<span>class <span class="ident">ParticlesDataset</span></span>
+<span>(</span><span>targetName: Union[os.PathLike, str], halfset: Literal[0, 1], benchmarkDir: str = '/home/sanchezg/tmp/cryoSupervisedDataset', image_size: Optional[int] = None, apply_perImg_normalization: bool = True, ctf_correction: Literal['none', 'phase_flip'] = 'phase_flip', image_size_factor_for_crop: float = 0.25)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>ParticlesDataset: A Pytorch Dataset for dealing with Cryo-EM particles in the CESPED benchmark.<br>
+It can download data automatically</p>
+<pre><code class="language-python">#Loads the halfset 0 for the benchmark entry named &quot;TEST&quot;
+ds = ParticlesDataset(targetName=&quot;TEST&quot;, halfset=0, benchmarkDir=&quot;/tmp/cryoSupervisedDataset/&quot;)
+</code></pre>
+<p>and each particle can be acessed as usually</p>
+<pre><code class="language-python">img, rotMat, xyShiftAngs, confidence, metadata = ds[0]
+</code></pre>
+<p><br></p>
+<h2 id="builder">Builder</h2>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>targetName</code></strong> :&ensp;<code>Union[PathLike, str]</code></dt>
+<dd>The name of the target to use. It is also the basename of
+the directory where the data is.</dd>
+<dt><strong><code>halfset</code></strong> :&ensp;<code>Literal[0, 1]</code></dt>
+<dd>The second parameter.</dd>
+<dt><strong><code>benchmarkDir</code></strong> :&ensp;<code>str</code></dt>
+<dd>The root directory where the datasets are downloaded.</dd>
+<dt><strong><code>image_size</code></strong> :&ensp;<code>Optional[int]</code></dt>
+<dd>The final size of the image (after cropping). If None, keep the original size</dd>
+<dt><strong><code>apply_perImg_normalization</code></strong> :&ensp;<code>bool</code></dt>
+<dd>Apply cryo-EM per-image normalization. I = (I-noiseMean)/noiseStd.</dd>
+<dt><strong><code>ctf_correction</code></strong> :&ensp;<code>Literal[none, phase_flip]</code></dt>
+<dd>phase_flip will correct amplitude inversion due to defocus</dd>
+<dt><strong><code>image_size_factor_for_crop</code></strong> :&ensp;<code>float</code></dt>
+<dd>Fraction of the image size to be cropped. Final size of the image
+is origSize*(1-image_size_factor_for_crop). It is important because particles in cryo-EM tend to
+be only 50% to 25% of the total area of the image.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ParticlesDataset(Dataset):
+    &#34;&#34;&#34;
+    ParticlesDataset: A Pytorch Dataset for dealing with Cryo-EM particles in the CESPED benchmark.&lt;br&gt;
+    It can download data automatically
+
+    ```python
+    #Loads the halfset 0 for the benchmark entry named &#34;TEST&#34;
+    ds = ParticlesDataset(targetName=&#34;TEST&#34;, halfset=0, benchmarkDir=&#34;/tmp/cryoSupervisedDataset/&#34;)
+    ```
+    and each particle can be acessed as usually
+    ```python
+    img, rotMat, xyShiftAngs, confidence, metadata = ds[0]
+    ```
+    &lt;br&gt;
+    &#34;&#34;&#34;
+
+    def __init__(self, targetName: Union[PathLike, str],
+                 halfset: Literal[0, 1],
+                 benchmarkDir: str = defaultBenchmarkDir,
+                 image_size: Optional[int] = None,
+                 apply_perImg_normalization: bool = True,
+                 ctf_correction: Literal[&#34;none&#34;, &#34;phase_flip&#34;] = &#34;phase_flip&#34;,
+                 image_size_factor_for_crop: float = 0.25,
+                 ):
+        &#34;&#34;&#34;
+        ##Builder
+
+        Args:
+            targetName (Union[PathLike, str]): The name of the target to use. It is also the basename of \
+            the directory where the data is.
+            halfset (Literal[0, 1]): The second parameter.
+            benchmarkDir (str): The root directory where the datasets are downloaded.
+            image_size (Optional[int]): The final size of the image (after cropping). If None, keep the original size
+            apply_perImg_normalization (bool): Apply cryo-EM per-image normalization. I = (I-noiseMean)/noiseStd.
+            ctf_correction (Literal[none, phase_flip]): phase_flip will correct amplitude inversion due to defocus
+            image_size_factor_for_crop (float): Fraction of the image size to be cropped. Final size of the image \
+            is origSize*(1-image_size_factor_for_crop). It is important because particles in cryo-EM tend to \
+            be only 50% to 25% of the total area of the image.
+
+        &#34;&#34;&#34;
+
+        super().__init__()
+        assert halfset in [0, 1], f&#34;Error, data halfset should be 0 or 1. Currently it is {halfset}&#34;
+        self.targetName = targetName
+        self.halfset = halfset
+        self.benchmarkDir = osp.expanduser(benchmarkDir)
+        self._image_size = image_size
+        self.apply_perImg_normalization = apply_perImg_normalization
+        assert ctf_correction in [&#34;none&#34;, &#34;phase_flip&#34;]
+        self.ctf_correction = ctf_correction
+
+        self._particles = None
+        self._symmetry = None
+        self._lock = torch.multiprocessing.RLock()
+        self._augmenter = None
+
+        assert 0 &lt;= image_size_factor_for_crop &lt;= 0.5
+        self.image_size_factor_for_crop = image_size_factor_for_crop
+
+
+    @property
+    def image_size(self):
+        &#34;&#34;&#34;The image size in pixels&#34;&#34;&#34;
+        if self._image_size is None:
+            return self.particles.particle_shape[-1]
+        else:
+            return self._image_size
+    @property
+    def datadir(self):
+        &#34;&#34;&#34; the directory where the target is stored&#34;&#34;&#34;
+        return osp.join(self.benchmarkDir, self.targetName)
+
+    @property
+    def starFname(self):
+        &#34;&#34;&#34; the particles star filename&#34;&#34;&#34;
+        return osp.join(self.datadir, f&#34;particles_{self.halfset}.star&#34;)
+
+    @property
+    def stackFname(self):
+        &#34;&#34;&#34; the particles mrcs filename&#34;&#34;&#34;
+        return osp.join(self.datadir, f&#34;particles_{self.halfset}.mrcs&#34;)
+
+    @property
+    def particles(self):
+        &#34;&#34;&#34;
+        a starstack.particlesStar.ParticlesStarSet representing the loaded particles
+        &#34;&#34;&#34;
+        if self._particles is None:
+            if not self._is_avaible():
+                self._download()
+            self._particles = ParticlesStarSet(starFname=self.starFname, particlesDir=self.datadir)
+        return self._particles
+    @property
+    def symmetry(self):
+        &#34;&#34;&#34;The point symmetry of the dataset&#34;&#34;&#34;
+        if not self._is_avaible():
+            self._download()
+        if self._symmetry is None:
+            with open(osp.join(self.datadir, f&#34;info_{self.halfset}.json&#34;)) as f:
+                self._symmetry = json.load(f)[&#34;symmetry&#34;].upper()
+        return self._symmetry
+
+    @property
+    def sampling_rate(self):
+        &#34;&#34;&#34;The particle image sampling rate in A/pixels&#34;&#34;&#34;
+        return self.particles.sampling_rate
+
+    @property
+    def augmenter(self):
+        &#34;&#34;&#34;The data augmentator object to be applied&#34;&#34;&#34;
+        return self._augmenter
+
+    @augmenter.setter
+    def augmenter(self, augmenterObj:Augmenter):
+        &#34;&#34;&#34;
+
+        Args:
+            augmenter: he data augmentator object to be applied
+
+        &#34;&#34;&#34;
+        self._augmenter = augmenterObj
+
+    @classmethod
+    def addNewEntryLocally(cls, starFname: Union[str, PathLike], particlesRootDir: Union[str, PathLike],
+                           newTargetName: Union[str, PathLike], halfset: Literal[0, 1], symmetry:str,
+                           benchmarkDir: Union[str, PathLike] = defaultBenchmarkDir):
+        &#34;&#34;&#34;
+
+        Adds a new dataset to the local copy of the CESPED benchmark. It rearanges the starfile content and copies the
+        stack of images. Notice that it duplicates your particle images.
+        Args:
+            starFname (Union[str, PathLike]): The star filename with the particles to be added to the local benchmark
+            particlesRootDir (Union[str, PathLike]): The root directory that is referred in the starFname (e.g. Relion project dir).
+            newTargetName (Union[str, PathLike]): The name of the target to use.
+            halfset (Literal[0, 1]): The second parameter.
+            symmetry (str): The point symmetry of the dataset
+            benchmarkDir (str): The root directory where the datasets are downloaded.
+
+        &#34;&#34;&#34;
+
+        stack = ParticlesStarSet(starFname=starFname, particlesDir=particlesRootDir)
+        assert isinstance(stack[len(stack) - 1][0], np.ndarray), &#34;Error, there is some problem reading your data&#34;
+        newTargetDir = os.path.join(benchmarkDir, newTargetName)
+        os.makedirs(newTargetDir, exist_ok=True)
+        newStarFname = os.path.join(newTargetDir, f&#34;particles_{halfset}.star&#34;)
+        newStackFname = os.path.join(newTargetDir, f&#34;particles_{halfset}.mrcs&#34;)
+        stack.save(newStarFname, newStackFname)
+
+        with open(os.path.join(newTargetDir, f&#34;info_{halfset}.json&#34;), &#34;w&#34;) as f: #TODO: move name template to download/uploadFromZenodo
+            json.dump({&#34;symmetry&#34;: symmetry.upper()}, f)
+
+        with open(getDoneFname(newTargetDir, halfset), &#34;w&#34;) as f:
+            f.write(&#34;%s\n&#34; % newTargetName)
+
+    @classmethod
+    def getCESPEDEntries(cls) -&gt; List[Tuple[str, int]]:
+        &#34;&#34;&#34;
+        Returns the list of available entries in benchmarkDir
+
+        Returns:
+            List[Tuple[str,int]]: the list of available entries in benchmarkDir
+
+        &#34;&#34;&#34;
+        return list(NAME_PARTITION_TO_RECORID.keys())
+        
+    @classmethod
+    def getLocallyAvailableEntries(cls, benchmarkDir: Union[str, PathLike] = defaultBenchmarkDir) -&gt; List[Tuple[str, int]]:
+        &#34;&#34;&#34;
+        Returns the list of available entries in benchmarkDir
+        Args:
+            benchmarkDir (str): The root directory where the datasets are downloaded.
+
+        Returns:
+            List[Tuple[str,int]]: the list of available entries in benchmarkDir
+
+        &#34;&#34;&#34;
+        avail = []
+        for dirname in os.listdir(benchmarkDir):
+            if os.path.isfile(dirname):
+                continue
+            if os.path.exists(os.path.join(benchmarkDir, dirname, &#34;particles_0.mrcs&#34;)):
+                avail.append((dirname, 0))
+            if os.path.exists(os.path.join(benchmarkDir, dirname, &#34;particles_1.mrcs&#34;)):
+                avail.append((dirname, 1))
+        return avail
+
+    def _download(self):
+        assert (self.targetName, self.halfset) in NAME_PARTITION_TO_RECORID, (f&#34;Error, unknown target and/or &#34;
+                                                                              f&#34;halfset {self.targetName} {self.halfset}&#34;)
+        download_record(NAME_PARTITION_TO_RECORID[self.targetName, self.halfset],
+                        destination_dir=self.datadir)
+        #Validation
+        pset = ParticlesStarSet(starFname=self.starFname, particlesDir=self.datadir)
+        for i in tqdm(range(len(pset)), desc=&#34;Checking downloaded dataset&#34;):
+            img, md = pset[i]
+            assert len(img.shape) == 2, f&#34;Error, there were problems downloading the target {self.targetName}&#34;
+
+    def _is_avaible(self):
+        return osp.isfile(getDoneFname(self.datadir,
+                                       NAME_PARTITION_TO_RECORID.get((self.targetName, self.halfset), self.halfset)))
+
+    @functools.lru_cache(1)
+    def _getParticleNormalizationMask(self, particleNumPixels: int,
+                                      normalizationRadiusPixels: Optional[int] = None,
+                                      device: Optional[Union[torch.device, str]] = None) -&gt; torch.Tensor:
+        &#34;&#34;&#34;
+        Gets a mask with 1s in the corners and 0 for the center
+
+        Args:
+            particleNumPixels: The number of pixels of the particle
+            normalizationRadiusPixels: The number of pixels of the radius of the particle (inner circle)
+            device: The torch device
+
+        Returns:
+            torch.Tensor: The mask with 1s in the corners of the image and 0s for the center
+        &#34;&#34;&#34;
+
+        radius = particleNumPixels // 2
+        if normalizationRadiusPixels is None:
+            normalizationRadiusPixels = radius
+        ies, jes = torch.meshgrid(
+            torch.linspace(-1 * radius, 1 * radius, particleNumPixels, dtype=torch.float32),
+            torch.linspace(-1 * radius, 1 * radius, particleNumPixels, dtype=torch.float32),
+            indexing=&#34;ij&#34;
+        )
+        r = (ies ** 2 + jes ** 2) ** 0.5
+        _normalizationMask = (r &gt; normalizationRadiusPixels)
+        _normalizationMask = _normalizationMask.to(device)
+        return _normalizationMask
+
+    def _normalize(self, img):
+        &#34;&#34;&#34;
+
+        Args:
+            img: 1XSxS tensor
+
+        Returns:
+
+        &#34;&#34;&#34;
+        backgroundMask = self._getParticleNormalizationMask(img.shape[-1])
+        noiseRegion = img[:, backgroundMask]
+        meanImg = noiseRegion.mean()
+        stdImg = noiseRegion.std()
+        return (img - meanImg) / stdImg
+
+    def getIdx(self, item: int) -&gt; Tuple[np.ndarray, Dict[str, Any]]:
+        &#34;&#34;&#34;
+
+        Args:
+            item: a particle index
+
+        Returns:
+            Tuple[torch.Tensor, Dict[str, Any]]. The raw image before any pre-processing \
+             as an LxL np.array and the metadata as dictionary
+        &#34;&#34;&#34;
+        with self._lock:
+            try:
+                return self.particles[item]
+            except ValueError:
+                print(f&#34;Error retrieving item {item}&#34;)
+                raise
+
+    def resizeImage(self, img):
+
+        ori_pixelSize = float(self.particles.optics_md[&#34;rlnImagePixelSize&#34;].item())
+        particle_size_after_crop = int(self.particles.optics_md[&#34;rlnImageSize&#34;].item() * (1 - self.image_size_factor_for_crop))
+
+        desired_sampling_rate = float(self.particles.optics_md[&#34;rlnImagePixelSize&#34;].item() * particle_size_after_crop / self.image_size)
+
+        img, pad_info, crop_info = resize_and_padCrop_tensorBatch(img.unsqueeze(0),
+                                                                  ori_pixelSize,
+                                                                  desired_sampling_rate, self.image_size,
+                                                                  padding_mode=&#34;constant&#34;)
+        img = img.squeeze(0)
+        return img
+        
+    def __getitem(self, item):
+        img, md_row = self.getIdx(item)
+        iid = md_row[&#34;rlnImageName&#34;]
+
+        img = torch.FloatTensor(img).unsqueeze(0)
+
+        if self.apply_perImg_normalization:
+            img = self._normalize(img)
+
+        if self.ctf_correction != &#34;none&#34;:
+            ctf, wimg = apply_ctf(img, float(self.particles.optics_md[&#34;rlnImagePixelSize&#34;].item()),
+                                  dfu=md_row[&#34;rlnDefocusU&#34;], dfv=md_row[&#34;rlnDefocusV&#34;],
+                                  dfang=md_row[&#34;rlnDefocusAngle&#34;],
+                                  volt=float(self.particles.optics_md[&#34;rlnVoltage&#34;][0]),
+                                  cs=float(self.particles.optics_md[&#34;rlnSphericalAberration&#34;][0]),
+                                  w=float(self.particles.optics_md[&#34;rlnAmplitudeContrast&#34;][0]),
+                                  mode=self.ctf_correction)
+            wimg = torch.clamp(wimg, img.min(), img.max())
+            wimg = torch.nan_to_num(wimg, nan=img.mean())
+            # img = torch.concat([img, wimg], dim=0)
+            img = wimg
+
+        if img.isnan().any():
+            raise RuntimeError(f&#34;Error, img with idx {item} is NAN&#34;)
+
+        img = self.resizeImage(img)
+
+        degEuler = torch.FloatTensor([md_row[name] for name in RELION_ANGLES_NAMES])
+        xyShiftAngs = torch.FloatTensor([md_row[name] for name in RELION_SHIFTS_NAMES])
+
+        if self.augmenter is not None:
+            img, degEuler, shift, _ = self.augmenter(img, #1xSxS image expected
+                                                     degEuler,
+                                                     shiftFraction=xyShiftAngs / (self.image_size * self.sampling_rate))
+            xyShiftAngs = shift * (self.image_size*self.sampling_rate)
+
+        r = R.from_euler(RELION_EULER_CONVENTION, degEuler, degrees=True)
+        if self.symmetry.upper() != &#34;C1&#34;:
+            r = r.reduce(R.create_group(self.symmetry.upper()))
+        rotMat = r.as_matrix()
+        rotMat = torch.FloatTensor(rotMat)
+        confidence = torch.FloatTensor([md_row.get(RELION_ORI_POSE_CONFIDENCE_NAME, 1)])
+
+        return iid, img, (rotMat, xyShiftAngs, confidence), md_row.to_dict()
+
+    def __getitem__(self, item):
+        return self.__getitem(item)
+
+
+    def __len__(self):
+        return len(self.particles)
+
+    def updateMd(self, ids: List[str], angles: Optional[Union[torch.Tensor, np.ndarray]] = None,
+                 shifts: Optional[Union[torch.Tensor, np.ndarray]] = None,
+                 confidence: Optional[Union[torch.Tensor, np.ndarray]] = None,
+                 angles_format: Literal[&#34;rotmat&#34;, &#34;zyzEulerDegs&#34;] = &#34;rotmat&#34;,
+                 shifts_format: Literal[&#34;Angst&#34;] = &#34;Angst&#34;):
+        &#34;&#34;&#34;
+        Updates the metadata of the particles with selected ids
+
+        Args:
+            ids (List[str]): The ids of the entries to be updated e.g. [&#34;1@particles_0.mrcs&#34;, &#34;2@particles_0.mrcs]
+            angles (Optional[Union[torch.Tensor, np.ndarray]]): The particle pose angles to update
+            shifts (Optional[Union[torch.Tensor, np.ndarray]]): The particle shifts
+            confidence (Optional[Union[torch.Tensor, np.ndarray]]): The prediction confidence
+            angles_format (Literal[rotmat, zyzEulerDegs]): The format for the argument angles
+            shifts_format (Literal[rotmat, zyzEulerDegs]): The format for the argument shifts
+
+        &#34;&#34;&#34;
+
+        assert angles_format in [&#34;rotmat&#34;, &#34;zyzEulerDegs&#34;], \
+            &#39;Error, angle_format should be in [&#34;rotmat&#34;, &#34;zyzEulerDegs&#34;]&#39;
+
+        assert shifts_format in [&#34;Angst&#34;], \
+            &#39;Error, shifts_format should be in [&#34;Angst&#34;]&#39;
+
+        col2val = {}
+
+        if angles is not None:
+            angles = data_to_numpy(angles)
+            if angles_format == &#34;rotmat&#34;:
+                r = R.from_matrix(angles)
+                rots, tilts, psis = r.as_euler(RELION_EULER_CONVENTION, degrees=True).T
+            else:
+                rots, tilts, psis = [angles[:, i] for i in range(3)]
+
+            col2val.update({ #RELION_ANGLES_NAMES
+                RELION_ANGLES_NAMES[0]: rots,
+                RELION_ANGLES_NAMES[1]: tilts,
+                RELION_ANGLES_NAMES[2]: psis
+            })
+
+        if shifts is not None:
+            shifts = data_to_numpy(shifts)
+            col2val.update({
+                RELION_SHIFTS_NAMES[0]: shifts[:, 0],
+                RELION_SHIFTS_NAMES[1]: shifts[:, 1],
+            })
+
+        if confidence is not None:
+            confidence = data_to_numpy(confidence)
+            col2val.update({
+                RELION_PRED_POSE_CONFIDENCE_NAME: confidence,
+            })
+        assert col2val, &#34;Error, no editing values were provided&#34;
+        self.particles.updateMd(ids=ids, colname2change=col2val)
+
+    def saveMd(self, fname: Union[str, os.PathLike], overwrite: bool = True):
+        &#34;&#34;&#34;
+        Saves the metadata of the current PartcilesDataset as a starfile
+        Args:
+            fname: The name of the file were the metadata will be saved
+            overwrite: If true, overwrites the file fname if already exists
+
+        &#34;&#34;&#34;
+        assert fname.endswith(&#34;.star&#34;), &#34;Error, metadata files will be saved as star files. Change extension to .star&#34;
+        self.particles.save(starFname=fname, overwrite=overwrite)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>torch.utils.data.dataset.Dataset</li>
+<li>typing.Generic</li>
+</ul>
+<h3>Static methods</h3>
+<dl>
+<dt id="cesped.particlesDataset.ParticlesDataset.addNewEntryLocally"><code class="name flex">
+<span>def <span class="ident">addNewEntryLocally</span></span>(<span>starFname: Union[os.PathLike, str], particlesRootDir: Union[os.PathLike, str], newTargetName: Union[os.PathLike, str], halfset: Literal[0, 1], symmetry: str, benchmarkDir: Union[os.PathLike, str] = '/home/sanchezg/tmp/cryoSupervisedDataset')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Adds a new dataset to the local copy of the CESPED benchmark. It rearanges the starfile content and copies the
+stack of images. Notice that it duplicates your particle images.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>starFname</code></strong> :&ensp;<code>Union[str, PathLike]</code></dt>
+<dd>The star filename with the particles to be added to the local benchmark</dd>
+<dt><strong><code>particlesRootDir</code></strong> :&ensp;<code>Union[str, PathLike]</code></dt>
+<dd>The root directory that is referred in the starFname (e.g. Relion project dir).</dd>
+<dt><strong><code>newTargetName</code></strong> :&ensp;<code>Union[str, PathLike]</code></dt>
+<dd>The name of the target to use.</dd>
+<dt><strong><code>halfset</code></strong> :&ensp;<code>Literal[0, 1]</code></dt>
+<dd>The second parameter.</dd>
+<dt><strong><code>symmetry</code></strong> :&ensp;<code>str</code></dt>
+<dd>The point symmetry of the dataset</dd>
+<dt><strong><code>benchmarkDir</code></strong> :&ensp;<code>str</code></dt>
+<dd>The root directory where the datasets are downloaded.</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def addNewEntryLocally(cls, starFname: Union[str, PathLike], particlesRootDir: Union[str, PathLike],
+                       newTargetName: Union[str, PathLike], halfset: Literal[0, 1], symmetry:str,
+                       benchmarkDir: Union[str, PathLike] = defaultBenchmarkDir):
+    &#34;&#34;&#34;
+
+    Adds a new dataset to the local copy of the CESPED benchmark. It rearanges the starfile content and copies the
+    stack of images. Notice that it duplicates your particle images.
+    Args:
+        starFname (Union[str, PathLike]): The star filename with the particles to be added to the local benchmark
+        particlesRootDir (Union[str, PathLike]): The root directory that is referred in the starFname (e.g. Relion project dir).
+        newTargetName (Union[str, PathLike]): The name of the target to use.
+        halfset (Literal[0, 1]): The second parameter.
+        symmetry (str): The point symmetry of the dataset
+        benchmarkDir (str): The root directory where the datasets are downloaded.
+
+    &#34;&#34;&#34;
+
+    stack = ParticlesStarSet(starFname=starFname, particlesDir=particlesRootDir)
+    assert isinstance(stack[len(stack) - 1][0], np.ndarray), &#34;Error, there is some problem reading your data&#34;
+    newTargetDir = os.path.join(benchmarkDir, newTargetName)
+    os.makedirs(newTargetDir, exist_ok=True)
+    newStarFname = os.path.join(newTargetDir, f&#34;particles_{halfset}.star&#34;)
+    newStackFname = os.path.join(newTargetDir, f&#34;particles_{halfset}.mrcs&#34;)
+    stack.save(newStarFname, newStackFname)
+
+    with open(os.path.join(newTargetDir, f&#34;info_{halfset}.json&#34;), &#34;w&#34;) as f: #TODO: move name template to download/uploadFromZenodo
+        json.dump({&#34;symmetry&#34;: symmetry.upper()}, f)
+
+    with open(getDoneFname(newTargetDir, halfset), &#34;w&#34;) as f:
+        f.write(&#34;%s\n&#34; % newTargetName)</code></pre>
+</details>
+</dd>
+<dt id="cesped.particlesDataset.ParticlesDataset.getCESPEDEntries"><code class="name flex">
+<span>def <span class="ident">getCESPEDEntries</span></span>(<span>) ‑> List[Tuple[str, int]]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns the list of available entries in benchmarkDir</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>List[Tuple[str,int]]</code></dt>
+<dd>the list of available entries in benchmarkDir</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def getCESPEDEntries(cls) -&gt; List[Tuple[str, int]]:
+    &#34;&#34;&#34;
+    Returns the list of available entries in benchmarkDir
+
+    Returns:
+        List[Tuple[str,int]]: the list of available entries in benchmarkDir
+
+    &#34;&#34;&#34;
+    return list(NAME_PARTITION_TO_RECORID.keys())</code></pre>
+</details>
+</dd>
+<dt id="cesped.particlesDataset.ParticlesDataset.getLocallyAvailableEntries"><code class="name flex">
+<span>def <span class="ident">getLocallyAvailableEntries</span></span>(<span>benchmarkDir: Union[os.PathLike, str] = '/home/sanchezg/tmp/cryoSupervisedDataset') ‑> List[Tuple[str, int]]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Returns the list of available entries in benchmarkDir</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>benchmarkDir</code></strong> :&ensp;<code>str</code></dt>
+<dd>The root directory where the datasets are downloaded.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>List[Tuple[str,int]]</code></dt>
+<dd>the list of available entries in benchmarkDir</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def getLocallyAvailableEntries(cls, benchmarkDir: Union[str, PathLike] = defaultBenchmarkDir) -&gt; List[Tuple[str, int]]:
+    &#34;&#34;&#34;
+    Returns the list of available entries in benchmarkDir
+    Args:
+        benchmarkDir (str): The root directory where the datasets are downloaded.
+
+    Returns:
+        List[Tuple[str,int]]: the list of available entries in benchmarkDir
+
+    &#34;&#34;&#34;
+    avail = []
+    for dirname in os.listdir(benchmarkDir):
+        if os.path.isfile(dirname):
+            continue
+        if os.path.exists(os.path.join(benchmarkDir, dirname, &#34;particles_0.mrcs&#34;)):
+            avail.append((dirname, 0))
+        if os.path.exists(os.path.join(benchmarkDir, dirname, &#34;particles_1.mrcs&#34;)):
+            avail.append((dirname, 1))
+    return avail</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="cesped.particlesDataset.ParticlesDataset.augmenter"><code class="name">var <span class="ident">augmenter</span></code></dt>
+<dd>
+<div class="desc"><p>The data augmentator object to be applied</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def augmenter(self):
+    &#34;&#34;&#34;The data augmentator object to be applied&#34;&#34;&#34;
+    return self._augmenter</code></pre>
+</details>
+</dd>
+<dt id="cesped.particlesDataset.ParticlesDataset.datadir"><code class="name">var <span class="ident">datadir</span></code></dt>
+<dd>
+<div class="desc"><p>the directory where the target is stored</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def datadir(self):
+    &#34;&#34;&#34; the directory where the target is stored&#34;&#34;&#34;
+    return osp.join(self.benchmarkDir, self.targetName)</code></pre>
+</details>
+</dd>
+<dt id="cesped.particlesDataset.ParticlesDataset.image_size"><code class="name">var <span class="ident">image_size</span></code></dt>
+<dd>
+<div class="desc"><p>The image size in pixels</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def image_size(self):
+    &#34;&#34;&#34;The image size in pixels&#34;&#34;&#34;
+    if self._image_size is None:
+        return self.particles.particle_shape[-1]
+    else:
+        return self._image_size</code></pre>
+</details>
+</dd>
+<dt id="cesped.particlesDataset.ParticlesDataset.particles"><code class="name">var <span class="ident">particles</span></code></dt>
+<dd>
+<div class="desc"><p>a starstack.particlesStar.ParticlesStarSet representing the loaded particles</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def particles(self):
+    &#34;&#34;&#34;
+    a starstack.particlesStar.ParticlesStarSet representing the loaded particles
+    &#34;&#34;&#34;
+    if self._particles is None:
+        if not self._is_avaible():
+            self._download()
+        self._particles = ParticlesStarSet(starFname=self.starFname, particlesDir=self.datadir)
+    return self._particles</code></pre>
+</details>
+</dd>
+<dt id="cesped.particlesDataset.ParticlesDataset.sampling_rate"><code class="name">var <span class="ident">sampling_rate</span></code></dt>
+<dd>
+<div class="desc"><p>The particle image sampling rate in A/pixels</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def sampling_rate(self):
+    &#34;&#34;&#34;The particle image sampling rate in A/pixels&#34;&#34;&#34;
+    return self.particles.sampling_rate</code></pre>
+</details>
+</dd>
+<dt id="cesped.particlesDataset.ParticlesDataset.stackFname"><code class="name">var <span class="ident">stackFname</span></code></dt>
+<dd>
+<div class="desc"><p>the particles mrcs filename</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def stackFname(self):
+    &#34;&#34;&#34; the particles mrcs filename&#34;&#34;&#34;
+    return osp.join(self.datadir, f&#34;particles_{self.halfset}.mrcs&#34;)</code></pre>
+</details>
+</dd>
+<dt id="cesped.particlesDataset.ParticlesDataset.starFname"><code class="name">var <span class="ident">starFname</span></code></dt>
+<dd>
+<div class="desc"><p>the particles star filename</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def starFname(self):
+    &#34;&#34;&#34; the particles star filename&#34;&#34;&#34;
+    return osp.join(self.datadir, f&#34;particles_{self.halfset}.star&#34;)</code></pre>
+</details>
+</dd>
+<dt id="cesped.particlesDataset.ParticlesDataset.symmetry"><code class="name">var <span class="ident">symmetry</span></code></dt>
+<dd>
+<div class="desc"><p>The point symmetry of the dataset</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def symmetry(self):
+    &#34;&#34;&#34;The point symmetry of the dataset&#34;&#34;&#34;
+    if not self._is_avaible():
+        self._download()
+    if self._symmetry is None:
+        with open(osp.join(self.datadir, f&#34;info_{self.halfset}.json&#34;)) as f:
+            self._symmetry = json.load(f)[&#34;symmetry&#34;].upper()
+    return self._symmetry</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="cesped.particlesDataset.ParticlesDataset.getIdx"><code class="name flex">
+<span>def <span class="ident">getIdx</span></span>(<span>self, item: int) ‑> Tuple[numpy.ndarray, Dict[str, Any]]</span>
+</code></dt>
+<dd>
+<div class="desc"><h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>item</code></strong></dt>
+<dd>a particle index</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>Tuple[torch.Tensor, Dict[str, Any]]. The raw image before any pre-processing
+as an LxL np.array and the metadata as dictionary</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def getIdx(self, item: int) -&gt; Tuple[np.ndarray, Dict[str, Any]]:
+    &#34;&#34;&#34;
+
+    Args:
+        item: a particle index
+
+    Returns:
+        Tuple[torch.Tensor, Dict[str, Any]]. The raw image before any pre-processing \
+         as an LxL np.array and the metadata as dictionary
+    &#34;&#34;&#34;
+    with self._lock:
+        try:
+            return self.particles[item]
+        except ValueError:
+            print(f&#34;Error retrieving item {item}&#34;)
+            raise</code></pre>
+</details>
+</dd>
+<dt id="cesped.particlesDataset.ParticlesDataset.resizeImage"><code class="name flex">
+<span>def <span class="ident">resizeImage</span></span>(<span>self, img)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def resizeImage(self, img):
+
+    ori_pixelSize = float(self.particles.optics_md[&#34;rlnImagePixelSize&#34;].item())
+    particle_size_after_crop = int(self.particles.optics_md[&#34;rlnImageSize&#34;].item() * (1 - self.image_size_factor_for_crop))
+
+    desired_sampling_rate = float(self.particles.optics_md[&#34;rlnImagePixelSize&#34;].item() * particle_size_after_crop / self.image_size)
+
+    img, pad_info, crop_info = resize_and_padCrop_tensorBatch(img.unsqueeze(0),
+                                                              ori_pixelSize,
+                                                              desired_sampling_rate, self.image_size,
+                                                              padding_mode=&#34;constant&#34;)
+    img = img.squeeze(0)
+    return img</code></pre>
+</details>
+</dd>
+<dt id="cesped.particlesDataset.ParticlesDataset.saveMd"><code class="name flex">
+<span>def <span class="ident">saveMd</span></span>(<span>self, fname: Union[os.PathLike, str], overwrite: bool = True)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Saves the metadata of the current PartcilesDataset as a starfile</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>fname</code></strong></dt>
+<dd>The name of the file were the metadata will be saved</dd>
+<dt><strong><code>overwrite</code></strong></dt>
+<dd>If true, overwrites the file fname if already exists</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def saveMd(self, fname: Union[str, os.PathLike], overwrite: bool = True):
+    &#34;&#34;&#34;
+    Saves the metadata of the current PartcilesDataset as a starfile
+    Args:
+        fname: The name of the file were the metadata will be saved
+        overwrite: If true, overwrites the file fname if already exists
+
+    &#34;&#34;&#34;
+    assert fname.endswith(&#34;.star&#34;), &#34;Error, metadata files will be saved as star files. Change extension to .star&#34;
+    self.particles.save(starFname=fname, overwrite=overwrite)</code></pre>
+</details>
+</dd>
+<dt id="cesped.particlesDataset.ParticlesDataset.updateMd"><code class="name flex">
+<span>def <span class="ident">updateMd</span></span>(<span>self, ids: List[str], angles: Union[torch.Tensor, numpy.ndarray, ForwardRef(None)] = None, shifts: Union[torch.Tensor, numpy.ndarray, ForwardRef(None)] = None, confidence: Union[torch.Tensor, numpy.ndarray, ForwardRef(None)] = None, angles_format: Literal['rotmat', 'zyzEulerDegs'] = 'rotmat', shifts_format: Literal['Angst'] = 'Angst')</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Updates the metadata of the particles with selected ids</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>ids</code></strong> :&ensp;<code>List[str]</code></dt>
+<dd>The ids of the entries to be updated e.g. ["1@particles_0.mrcs", "2@particles_0.mrcs]</dd>
+<dt><strong><code>angles</code></strong> :&ensp;<code>Optional[Union[torch.Tensor, np.ndarray]]</code></dt>
+<dd>The particle pose angles to update</dd>
+<dt><strong><code>shifts</code></strong> :&ensp;<code>Optional[Union[torch.Tensor, np.ndarray]]</code></dt>
+<dd>The particle shifts</dd>
+<dt><strong><code>confidence</code></strong> :&ensp;<code>Optional[Union[torch.Tensor, np.ndarray]]</code></dt>
+<dd>The prediction confidence</dd>
+<dt><strong><code>angles_format</code></strong> :&ensp;<code>Literal[rotmat, zyzEulerDegs]</code></dt>
+<dd>The format for the argument angles</dd>
+<dt><strong><code>shifts_format</code></strong> :&ensp;<code>Literal[rotmat, zyzEulerDegs]</code></dt>
+<dd>The format for the argument shifts</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def updateMd(self, ids: List[str], angles: Optional[Union[torch.Tensor, np.ndarray]] = None,
+             shifts: Optional[Union[torch.Tensor, np.ndarray]] = None,
+             confidence: Optional[Union[torch.Tensor, np.ndarray]] = None,
+             angles_format: Literal[&#34;rotmat&#34;, &#34;zyzEulerDegs&#34;] = &#34;rotmat&#34;,
+             shifts_format: Literal[&#34;Angst&#34;] = &#34;Angst&#34;):
+    &#34;&#34;&#34;
+    Updates the metadata of the particles with selected ids
+
+    Args:
+        ids (List[str]): The ids of the entries to be updated e.g. [&#34;1@particles_0.mrcs&#34;, &#34;2@particles_0.mrcs]
+        angles (Optional[Union[torch.Tensor, np.ndarray]]): The particle pose angles to update
+        shifts (Optional[Union[torch.Tensor, np.ndarray]]): The particle shifts
+        confidence (Optional[Union[torch.Tensor, np.ndarray]]): The prediction confidence
+        angles_format (Literal[rotmat, zyzEulerDegs]): The format for the argument angles
+        shifts_format (Literal[rotmat, zyzEulerDegs]): The format for the argument shifts
+
+    &#34;&#34;&#34;
+
+    assert angles_format in [&#34;rotmat&#34;, &#34;zyzEulerDegs&#34;], \
+        &#39;Error, angle_format should be in [&#34;rotmat&#34;, &#34;zyzEulerDegs&#34;]&#39;
+
+    assert shifts_format in [&#34;Angst&#34;], \
+        &#39;Error, shifts_format should be in [&#34;Angst&#34;]&#39;
+
+    col2val = {}
+
+    if angles is not None:
+        angles = data_to_numpy(angles)
+        if angles_format == &#34;rotmat&#34;:
+            r = R.from_matrix(angles)
+            rots, tilts, psis = r.as_euler(RELION_EULER_CONVENTION, degrees=True).T
+        else:
+            rots, tilts, psis = [angles[:, i] for i in range(3)]
+
+        col2val.update({ #RELION_ANGLES_NAMES
+            RELION_ANGLES_NAMES[0]: rots,
+            RELION_ANGLES_NAMES[1]: tilts,
+            RELION_ANGLES_NAMES[2]: psis
+        })
+
+    if shifts is not None:
+        shifts = data_to_numpy(shifts)
+        col2val.update({
+            RELION_SHIFTS_NAMES[0]: shifts[:, 0],
+            RELION_SHIFTS_NAMES[1]: shifts[:, 1],
+        })
+
+    if confidence is not None:
+        confidence = data_to_numpy(confidence)
+        col2val.update({
+            RELION_PRED_POSE_CONFIDENCE_NAME: confidence,
+        })
+    assert col2val, &#34;Error, no editing values were provided&#34;
+    self.particles.updateMd(ids=ids, colname2change=col2val)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="cesped" href="index.html">cesped</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="cesped.particlesDataset.resize_and_padCrop_tensorBatch" href="#cesped.particlesDataset.resize_and_padCrop_tensorBatch">resize_and_padCrop_tensorBatch</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="cesped.particlesDataset.ParticlesDataset" href="#cesped.particlesDataset.ParticlesDataset">ParticlesDataset</a></code></h4>
+<ul class="">
+<li><code><a title="cesped.particlesDataset.ParticlesDataset.addNewEntryLocally" href="#cesped.particlesDataset.ParticlesDataset.addNewEntryLocally">addNewEntryLocally</a></code></li>
+<li><code><a title="cesped.particlesDataset.ParticlesDataset.augmenter" href="#cesped.particlesDataset.ParticlesDataset.augmenter">augmenter</a></code></li>
+<li><code><a title="cesped.particlesDataset.ParticlesDataset.datadir" href="#cesped.particlesDataset.ParticlesDataset.datadir">datadir</a></code></li>
+<li><code><a title="cesped.particlesDataset.ParticlesDataset.getCESPEDEntries" href="#cesped.particlesDataset.ParticlesDataset.getCESPEDEntries">getCESPEDEntries</a></code></li>
+<li><code><a title="cesped.particlesDataset.ParticlesDataset.getIdx" href="#cesped.particlesDataset.ParticlesDataset.getIdx">getIdx</a></code></li>
+<li><code><a title="cesped.particlesDataset.ParticlesDataset.getLocallyAvailableEntries" href="#cesped.particlesDataset.ParticlesDataset.getLocallyAvailableEntries">getLocallyAvailableEntries</a></code></li>
+<li><code><a title="cesped.particlesDataset.ParticlesDataset.image_size" href="#cesped.particlesDataset.ParticlesDataset.image_size">image_size</a></code></li>
+<li><code><a title="cesped.particlesDataset.ParticlesDataset.particles" href="#cesped.particlesDataset.ParticlesDataset.particles">particles</a></code></li>
+<li><code><a title="cesped.particlesDataset.ParticlesDataset.resizeImage" href="#cesped.particlesDataset.ParticlesDataset.resizeImage">resizeImage</a></code></li>
+<li><code><a title="cesped.particlesDataset.ParticlesDataset.sampling_rate" href="#cesped.particlesDataset.ParticlesDataset.sampling_rate">sampling_rate</a></code></li>
+<li><code><a title="cesped.particlesDataset.ParticlesDataset.saveMd" href="#cesped.particlesDataset.ParticlesDataset.saveMd">saveMd</a></code></li>
+<li><code><a title="cesped.particlesDataset.ParticlesDataset.stackFname" href="#cesped.particlesDataset.ParticlesDataset.stackFname">stackFname</a></code></li>
+<li><code><a title="cesped.particlesDataset.ParticlesDataset.starFname" href="#cesped.particlesDataset.ParticlesDataset.starFname">starFname</a></code></li>
+<li><code><a title="cesped.particlesDataset.ParticlesDataset.symmetry" href="#cesped.particlesDataset.ParticlesDataset.symmetry">symmetry</a></code></li>
+<li><code><a title="cesped.particlesDataset.ParticlesDataset.updateMd" href="#cesped.particlesDataset.ParticlesDataset.updateMd">updateMd</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>
