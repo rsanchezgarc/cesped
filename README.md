@@ -189,7 +189,7 @@ python -m cesped.evaluateEntry  --predictionType SO3 --targetName 11120  \
 
 ## API
 
-For API documentation check the [docs folder](docs)
+For API documentation check the [docs folder](https://rsanchezgarc.github.io/cesped/cesped/)
 
 
 ## Relion Singularity
