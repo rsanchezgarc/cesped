@@ -40,6 +40,7 @@ NAME_TO_MASK_URL={
 
     "10647": f"{_masks_base_url}/10647_mask.mrc",
     "astex-5534": f"{_masks_base_url}/10647_mask.mrc",
+    "consensus_10647":  f"{_masks_base_url}/10647_mask.mrc",
 
     "10280": f"{_masks_base_url}/10280_mask.mrc",
     "10786": f"{_masks_base_url}/10786_mask.mrc",
