@@ -26,7 +26,12 @@ NAME_PARTITION_TO_RECORID ={
     ("10409", 0): "8386582",
     ("10409", 1): "8386660",
 
+    ("consensus_10647", 0): "11061847",
+    ("consensus_10647", 1): "11061974",
+
 }
+
+RECORD_DEPENDENCIES = {"11061847":["8387534", "8390711"], "11061974":["8387534", "8390711"]}
 
 _masks_base_url = "https://zenodo.org/record/8392782/files/"
 NAME_TO_MASK_URL={
@@ -44,3 +49,4 @@ NAME_TO_MASK_URL={
     "10374": f"{_masks_base_url}/10374_mask.mrc",
 
 }
+

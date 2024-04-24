@@ -6,12 +6,13 @@ from hashlib import md5
 import requests
 from tqdm import tqdm
 
-from cesped.zenodo.bechmarkUrls import ROOT_URL_PATTERN, NAME_TO_MASK_URL
+from cesped.zenodo.bechmarkUrls import ROOT_URL_PATTERN, NAME_TO_MASK_URL, RECORD_DEPENDENCIES, \
+    NAME_PARTITION_TO_RECORID
 
 
 def getDoneFname(destination_dir, record_id):
     return os.path.join(destination_dir, f"SUCCESSFUL_DOWNLOAD_{record_id}.txt")
-def download_record(record_id:str, destination_dir:str, root_url:str=ROOT_URL_PATTERN):
+def download_record(record_id:str, destination_dir:str, root_url:str=ROOT_URL_PATTERN, check_mrcs=True):
     """
 
     @param record_id:
@@ -20,6 +21,19 @@ def download_record(record_id:str, destination_dir:str, root_url:str=ROOT_URL_PA
 
     """
 
+    if record_id in RECORD_DEPENDENCIES:
+        data_root_dir, targetName = os.path.split(destination_dir)
+        os.makedirs(destination_dir, exist_ok=True)
+        RECORD_TO_NAME = {record:name for (name,_), record in NAME_PARTITION_TO_RECORID.items()}
+        for dep_rec_id in RECORD_DEPENDENCIES[record_id]:
+            _destination_dir = os.path.join(data_root_dir, RECORD_TO_NAME[dep_rec_id])
+            os.makedirs(_destination_dir, exist_ok=True)
+            print(f"Downloading dependency {dep_rec_id}")
+            download_record(dep_rec_id, _destination_dir, root_url, check_mrcs=True)
+            for fname in os.listdir(_destination_dir):
+                if fname not in os.listdir(destination_dir) and not fname.endswith(".star"):
+                    os.symlink(os.path.join(_destination_dir, fname), os.path.join(destination_dir, fname))
+        check_mrcs = False
     donefname = getDoneFname(destination_dir, record_id)
     if os.path.isfile(donefname):
         return
@@ -116,23 +130,26 @@ def download_record(record_id:str, destination_dir:str, root_url:str=ROOT_URL_PA
     download_and_concatenate_files([url], [size], [checksum], output_file_path)
     print(f"Particle json downloaded at {output_file_path}")
 
-    assert mrcsFnames, "Error, mrcs files not found in the record"
-    urls = []
-    sizes = []
-    checksums = []
-    for fname in sorted(mrcsFnames, key=lambda x: int(x.split("mrcs.chunk_")[-1])):
-        url, size, checksum = files_info_dict[fname]
-        urls += [url]
-        sizes += [size]
-        checksums += [checksum]
+    current_size = 0
+    if check_mrcs:
+        assert mrcsFnames, "Error, mrcs files not found in the record"
+    if mrcsFnames:
+        urls = []
+        sizes = []
+        checksums = []
+        for fname in sorted(mrcsFnames, key=lambda x: int(x.split("mrcs.chunk_")[-1])):
+            url, size, checksum = files_info_dict[fname]
+            urls += [url]
+            sizes += [size]
+            checksums += [checksum]
 
-    output_file_path = os.path.join(destination_dir, starFname.replace(".star", ".mrcs"))
-    current_size = download_and_concatenate_files(urls, sizes, checksums, output_file_path)
-    print(f"Particle stack downloaded at {output_file_path}")
+        output_file_path = os.path.join(destination_dir, starFname.replace(".star", ".mrcs"))
+        current_size = download_and_concatenate_files(urls, sizes, checksums, output_file_path)
+        print(f"Particle stack downloaded at {output_file_path}")
+        print()
     with open(donefname, "w") as f:
         f.write("%s\n"%record_id)
         f.write("%s\n"%current_size)
-    print()
 
 def download_mask(targetName, mask_fname):
 
@@ -152,3 +169,4 @@ def download_mask(targetName, mask_fname):
 if __name__ == "__main__":
     from argParseFromDoc import parse_function_and_call
     parse_function_and_call(download_record)
+
