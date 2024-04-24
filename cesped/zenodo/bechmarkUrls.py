@@ -17,8 +17,8 @@ NAME_PARTITION_TO_RECORID ={
     ("10280", 0): "8353722",
     ("10280", 1): "8353737",
 
-    ("10647", 0): "8387534",
-    ("10647", 1): "8390711",
+    ("10648", 0): "8387534",
+    ("10648", 1): "8390711",
 
     ("10374", 0): "8386774",
     ("10374", 1): "8386881",
@@ -26,8 +26,8 @@ NAME_PARTITION_TO_RECORID ={
     ("10409", 0): "8386582",
     ("10409", 1): "8386660",
 
-    ("consensus_10647", 0): "11061847",
-    ("consensus_10647", 1): "11061974",
+    ("consensus_10648", 0): "11061847",
+    ("consensus_10648", 1): "11061974",
 
 }
 
@@ -38,9 +38,9 @@ NAME_TO_MASK_URL={
     "TEST":  f"{_masks_base_url}/11120_mask.mrc",
     "10166": f"{_masks_base_url}/10166_mask.mrc",
 
-    "10647": f"{_masks_base_url}/10647_mask.mrc",
-    "astex-5534": f"{_masks_base_url}/10647_mask.mrc",
-    "consensus_10647":  f"{_masks_base_url}/10647_mask.mrc",
+    "10648": f"{_masks_base_url}/10648_mask.mrc",
+    "astex-5534": f"{_masks_base_url}/10648_mask.mrc",
+    "consensus_10648":  f"{_masks_base_url}/10648_mask.mrc",
 
     "10280": f"{_masks_base_url}/10280_mask.mrc",
     "10786": f"{_masks_base_url}/10786_mask.mrc",

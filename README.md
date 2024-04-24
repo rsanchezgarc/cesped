@@ -154,7 +154,7 @@ The included targets are:
 | 10786     | Substance P-Neurokinin Receptor G protein complexes (SP-NK1R-miniGs399) | C1 | 184 | 3.3 | 3.0* | 288659 |
 | 10280     | Calcium-bound TMEM16F in nanodisc with supplement of PIP2 | C2 | 182 | 3.6 | 3.0* | 459504 |
 | 11120     | M22 bound TSHR Gs 7TM G protein | C1 | 232 | 3.4 | 3.0* | 244973 |
-| 10647     | PKM2 in complex with L-threonine | D2 | 222 | 3.7 | 3.3 | 234956 |
+| 10648     | PKM2 in complex with Compound 5 | D2 | 222 | 3.7 | 3.3 | 234956 |
 | 10409     | Replicating SARS-CoV-2 polymerase (Map 1) | C1 | 240 | 3.3 | 3.0* | 406001 |
 | 10374     | Human ABCG2 transporter with inhibitor MZ29 and 5D3-Fab | C2 | 216 | 3.7 | 3.0* | 323681 |
 
