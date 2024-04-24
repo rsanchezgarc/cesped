@@ -1,6 +1,6 @@
 # CESPED: Utilities for the Cryo-EM Supervised Pose Estimation Dataset
 
-CESPED, is a new dataset specifically designed for Supervised Pose Estimation in Cryo-EM. You can check our manuscript at https://arxiv.org/abs/2311.06194.
+CESPED is a new dataset specifically designed for Supervised Pose Estimation in Cryo-EM. You can check our manuscript at https://arxiv.org/abs/2311.06194.
 
 ## Installation
 cesped has been tested on python 3.11. Installation should be automatic using pip
@@ -108,9 +108,13 @@ Use `--benchmarkDir` to specify another directory<br/>
 
 In order to list the entries available for download and the ones already downloaded, you can use
 ```
-python -m cesped.particlesDataset preprocess_entry --t 10166 --halfset 0--o /tmp/dumpedData/ --ctf_correction "phase_flip"
+python -m cesped.particlesDataset list_entries
 ```
-use `-h` to display the list of available preprocessing operations.
+Preprocessing of the dataset entries can be executed using
+```
+python -m cesped.particlesDataset preprocess_entry --t 10166 --halfset 0 --o /tmp/dumpedData/ --ctf_correction "phase_flip"
+```
+where `--t` is the target name. Use `-h` to display the list of available preprocessing operations.
 
 The raw data can be easily accessed using the Python package [starstack](https://pypi.org/project/starstack/), which relies on the [mrcfile](https://pypi.org/project/mrcfile/) and [starfile](https://pypi.org/project/starfile/) packages. Predictions should be written as a star file with the newly
 predicted Euler angles.
