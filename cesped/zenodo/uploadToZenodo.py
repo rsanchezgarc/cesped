@@ -11,7 +11,7 @@ from cesped.zenodo import tokens
 
 
 SANDBOX = False
-CHUNK_SIZE = 1024 ** 2 * 300  # 300MB
+CHUNK_SIZE = 1024 ** 2 * 500  # 500MB
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-d", "--dirname" , type=str, required=True)
@@ -102,7 +102,7 @@ if __name__ == "__main__":
                     target_url = f"{upload_url}/{chunk_filename}"
                     #                print(chunk_filename)
                     r = requests.put(target_url, data=chunk, params=params)
-                    assert r.status_code in [200, 201]
+                    assert r.status_code in [200, 201], f"{r.status_code}"
                     chunk_number += 1
 
 
