@@ -103,7 +103,7 @@ if __name__ == "__main__":
                     target_url = f"{upload_url}/{chunk_filename}"
                     #                print(chunk_filename)
                     r = requests.put(target_url, data=chunk, params=params)
-                    assert r.status_code == 200
+                    assert r.status_code in [200, 201]
                     chunk_number += 1
 
 
