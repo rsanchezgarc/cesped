@@ -9,7 +9,6 @@ import argparse
 
 from cesped.zenodo import tokens
 
-#TODO: Ask for symmetry and store it.
 
 SANDBOX = False
 CHUNK_SIZE = 1024 ** 2 * 300  # 300MB
@@ -117,7 +116,7 @@ if __name__ == "__main__":
                     data=wrapped_file,
                     params=params,
                 )
-                assert r.status_code == 200, f"Error, {web_filename} was not uploaded"
+                assert r.status_code in [200, 201], f"Error, {web_filename} was not uploaded"
 
 
     with tempfile.TemporaryDirectory() as temp_dir:
