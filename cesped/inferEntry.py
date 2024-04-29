@@ -92,21 +92,19 @@ class _MyInferLightningCLI(MyLightningCLI):
         outFname = self.config[_outname_argname]
         outDir = osp.join(osp.dirname(outFname), "_tmp_" + osp.basename(osp.splitext(outFname)[0]))
         os.makedirs(outDir, exist_ok=True)
-
-        def remove_temp_dir(dir_path):
-            if os.path.exists(dir_path):
-                try:
-                    shutil.rmtree(dir_path)
-                    print(f"Removed temporary directory: {dir_path}")
-                except OSError:
-                    pass
-        atexit.register(remove_temp_dir, outDir)
-
         resultsWriter = CustomPredWriter(outDir)
         self.resultsWriter = resultsWriter
         callbacks += [resultsWriter]
-        return super()._instantiate_trainer(config, callbacks)
-
+        trainer = super()._instantiate_trainer(config, callbacks)
+        def remove_temp_dir(dir_path):
+            if os.path.exists(dir_path) and trainer.is_global_zero:
+                try:
+                    shutil.rmtree(dir_path)
+                    print(f"Removed temporary directory: {dir_path} PID {os.getgid()}")
+                except OSError:
+                    pass
+        atexit.register(remove_temp_dir, outDir)
+        return trainer
 
 if __name__ == "__main__":
 
