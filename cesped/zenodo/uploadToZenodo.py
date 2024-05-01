@@ -11,16 +11,18 @@ from cesped.zenodo import tokens
 
 
 SANDBOX = False
-CHUNK_SIZE = 1024 ** 2 * 500  # 500MB
+CHUNK_SIZE = 1000 ** 2 * 500  # 500MB
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-d", "--dirname" , type=str, required=True)
-    parser.add_argument("-e", "--empiarID" , type=int, required=True)
+    parser.add_argument("-e", "--empiarID" , type=str, required=True)
     parser.add_argument("-s", "--split" , type=int, required=True)
     parser.add_argument("-y", "--symmetry" , type=str, required=True)
-
+    parser.add_argument("--update_id", type=str, help="update existing entry with id", default=None)
+    parser.add_argument("--token", type=str, help="The access token", default=None)
+    
     args = parser.parse_args()
-    # dir_to_upload = "/homes/sanchezg/ScipionUserData/projects/EMPIAR-10166/Runs/000463_ProtRelionAutorefSplitData/extra/subset_1/"  # "/home/sanchezg/tmp/ConorData/bound/postprocess/"
+    # dir_to_upload = "/homes/sanchezg/ScipionUserData/projects/EMPIAR-10166/Runs/000463_ProtRelionAutorefSplitData/extra/subset_1/"
     # dataset_name = "CESPED-10166_split1"
     dir_to_upload = args.dirname
     assert args.split in [0,1]
@@ -34,11 +36,11 @@ if __name__ == "__main__":
 
     if not SANDBOX:
         # zenodo
-        ACCESS_TOKEN = tokens.ACCESS_TOKEN_ZENODO
+        ACCESS_TOKEN = tokens.ACCESS_TOKEN_ZENODO if args.token is None else args.token
         baseurl = 'https://zenodo.org/api/'
     else:
         # zenodo sandbox
-        ACCESS_TOKEN = tokens.ACCESS_TOKEN_ZENODO_SANDBOX
+        ACCESS_TOKEN = tokens.ACCESS_TOKEN_ZENODO_SANDBOX if args.token is None else args.token
         baseurl = 'https://sandbox.zenodo.org/api/'
 
     r = requests.get(baseurl + 'deposit/depositions', params={'access_token': ACCESS_TOKEN})
@@ -49,10 +51,14 @@ if __name__ == "__main__":
     # Creates empty deposition
     headers = {"Content-Type": "application/json"}
     params = {'access_token': ACCESS_TOKEN}
-    r = requests.post(baseurl + 'deposit/depositions', params=params, json={}, headers=headers)
+    
+    if args.update_id is not None:
+        r = requests.post(baseurl + f'deposit/depositions/{args.update_id}/actions/newversion', params=params, json={}, headers=headers)
+    else:
+        r = requests.post(baseurl + 'deposit/depositions', params=params, json={}, headers=headers)
 
     print("Empty deposition creation status", r.status_code)
-    assert r.status_code == 201
+    assert r.status_code == 201, r.json()
     # 201
     print(r.json())
 

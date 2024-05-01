@@ -288,7 +288,7 @@ class Evaluator():
 
             if self.verbose:
                 print("Computing statistics...")
-            mapVsGT_cor, (mapVsGT_resolt, m_mapVsGT_resolt, *_) = compute_stats(gt_map, pred_map,
+            (mapVsGT_cor, mapVsGT_masked_cor), (mapVsGT_resolt, m_mapVsGT_resolt, *_) = compute_stats(gt_map, pred_map,
                                                                                 samplingRate=gt_sampling,
                                                                                 resolution_threshold=0.143,
                                                                                 maskOrFname=mask_fname)
@@ -296,8 +296,9 @@ class Evaluator():
                                                                           samplingRate=gt_sampling,
                                                                           resolution_threshold=0.5,
                                                                           maskOrFname=mask_fname)
-            cor_diff = (gt_cor - mapVsGT_cor) #/ gt_cor
-
+            cor_diff = (gt_cor - mapVsGT_cor)
+            cor_diff_masked = (gt_cor - mapVsGT_masked_cor) 
+            
             res_diff05 = mapVsGT_resolt05 - gt_resolt05
             res_diff = mapVsGT_resolt - gt_resolt0143
 
@@ -308,8 +309,9 @@ class Evaluator():
                            GT_resolution0143=gt_resolt0143, GT_resolution05=gt_resolt05,
                            half2half_resolution=pred_resolut, half2half_resolution05=pred_resolt05,
                            half2half_correlation=pred_corr,
-                           mapVsGT_correlaton_masked=mapVsGT_cor[1], mapVsGT_correlaton_unmasked=mapVsGT_cor[0],
+                           mapVsGT_correlaton_masked=mapVsGT_masked_cor, mapVsGT_correlaton_unmasked=mapVsGT_cor,
                            mapVsGT_resolution=mapVsGT_resolt, mapVsGT_resolution05=mapVsGT_resolt05,
+                           mapVsGT_correlaton_diff_masked=cor_diff_masked, mapVsGT_correlaton_diff=cor_diff,
                            )
 
             with open(osp.join(self.wdir, "metrics.json"), "w") as f:
@@ -327,10 +329,10 @@ shifts_RMSE (Å):                          {shiftsRMSE}
 #Reconstruction
 half2half_correlation:                    {pred_corr}
 half2half_resolution (Å) (th=0.143, 0.5): {pred_resolut}  {pred_resolt05}
-mapVsGT_correlaton (masked, unmasked):    {"  ".join(reversed([str(x) for x in mapVsGT_cor]))}
+mapVsGT_correlaton (masked, unmasked):    {mapVsGT_masked_cor}  {mapVsGT_cor}
 mapVsGT_resolution (Å) (th=0.143, 0.5)    {mapVsGT_resolt}  {mapVsGT_resolt05}
 #Reconstruction differences
-cor_diff (%) (masked, unmasked):          {"  ".join(reversed([str(x * 100) for x in cor_diff]))}
+cor_diff   (masked, unmasked):            {cor_diff}  {cor_diff_masked}
 res_diff (Å) th=0.143, 0.5):              {res_diff}  {res_diff05}
             """
 
