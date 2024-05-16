@@ -11,8 +11,8 @@ def apply_ctf(image, sampling_rate, dfu, dfv, dfang, volt, cs, w, phase_shift=0,
     Input:
         image (Tensor) the DxD image in real space
         sampling_rate: in A/pixel
-        dfu (float or Bx1 tensor): DefocusU (Angstrom)
-        dfv (float or Bx1 tensor): DefocusV (Angstrom)
+        dfu (float or Bx1 tensor): DefocusU (Angstrom). Positive for underfocus
+        dfv (float or Bx1 tensor): DefocusV (Angstrom). Positive for underfocus
         dfang (float or Bx1 tensor): DefocusAngle (degrees)
         volt (float or Bx1 tensor): accelerating voltage (kV)
         cs (float or Bx1 tensor): spherical aberration (mm)
@@ -47,8 +47,8 @@ def _compute_ctf(freqs, dfu, dfv, dfang, volt, cs, w, phase_shift=0, bfactor=Non
 
     Input:
         freqs (Tensor) Nx2 or BxNx2 tensor of 2D spatial frequencies
-        dfu (float or Bx1 tensor): DefocusU (Angstrom)
-        dfv (float or Bx1 tensor): DefocusV (Angstrom)
+        dfu (float or Bx1 tensor): DefocusU (Angstrom). Positive for underfocus
+        dfv (float or Bx1 tensor): DefocusV (Angstrom). Positive for underfocus
         dfang (float or Bx1 tensor): DefocusAngle (degrees)
         volt (float or Bx1 tensor): accelerating voltage (kV)
         cs (float or Bx1 tensor): spherical aberration (mm)
@@ -74,7 +74,7 @@ def _compute_ctf(freqs, dfu, dfv, dfang, volt, cs, w, phase_shift=0, bfactor=Non
     ctf = (1 - w ** 2) ** .5 * torch.sin(gamma) - w * torch.cos(gamma)
     if bfactor is not None:
         ctf *= torch.exp(-bfactor / 4 * s2)
-    return ctf
+    return -ctf
 
 @functools.lru_cache(1)
 def _get2DFreqs(imageSize, sampling_rate, device=None):
