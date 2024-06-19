@@ -1,6 +1,8 @@
+import abc
 import os.path as osp
 import functools
 import random
+from abc import ABC
 from typing import Optional, Dict, Tuple
 
 import numpy as np
@@ -16,7 +18,11 @@ from cesped.constants import default_configs_dir
 
 # TODO: Implement augmentations in a better way, defining custom torchvision operations so that they can be used in batch mode seamingly.
 
-class Augmenter:
+class AugmenterBase(ABC):
+    @abc.abstractmethod
+    def applyAugmentation(self, imgs, degEulerList, shiftFractionList):
+        raise NotImplementedError()
+class Augmenter(AugmenterBase):
     def __init__(self,
                  configFname:Optional[str] = None,
                  min_n_augm_per_img: Optional[int] = None,

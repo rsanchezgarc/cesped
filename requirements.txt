@@ -1,4 +1,5 @@
 argParseFromDoc >=0.1.2
+einops >=0.8.0
 e3nn >=0.5.1
 healpy >=1.16.5
 joblib >=1.3

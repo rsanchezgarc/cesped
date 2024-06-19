@@ -3,7 +3,6 @@ from typing import Union, Tuple
 import torch
 import numpy as np
 from scipy.spatial.transform import Rotation as R
-
 from cesped.constants import RELION_EULER_CONVENTION
 from cesped.network.image2sphere import compute_trace, compute_symmetry_group_matrices, rotation_error_rads
 
