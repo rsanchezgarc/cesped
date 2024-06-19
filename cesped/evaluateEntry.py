@@ -27,7 +27,7 @@ class Evaluator():
                  benchmarkDir: Union[str, os.PathLike] = defaultBenchmarkDir,
                  relionBinDir:Optional[str]=relionBinDir, mpirun:Optional[str]=mpirunCmd,
                  relionSingularity:Optional[str]=relionSingularity,
-                 n_cpus=1, wdir=None, verbose=True, use_gt_mask=True):
+                 n_cpus=2, wdir=None, verbose=True, use_gt_mask=True):
         """
 
         Args:
