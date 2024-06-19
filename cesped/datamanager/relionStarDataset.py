@@ -396,3 +396,40 @@ def resize_and_padCrop_tensorBatch(array, current_sampling_rate, new_sampling_ra
     if wasNumpy:
         resampled_array = resampled_array.numpy()
     return resampled_array, pad_width, crop_positions
+    
+if __name__ == "__main__":
+    from argparse import ArgumentParser
+    from omegaconf import OmegaConf
+    
+    parser = ArgumentParser(description="Visualize dataset relion starDataset")
+    parser.add_argument("-f", "--filename", type=str, help="The starfile to visualize", required=True)
+    parser.add_argument("-d", "--dirname", type=str, help="The root directory for the particle stacks", required=False, default=None)
+    parser.add_argument("-s", "--symmetry", type=str, help="The point symmetry of the particle", required=True, default=None)
+    parser.add_argument("-b", "--resize_box", type=str, help="The desired image box size", required=False, default=None)
+    parser.add_argument("-n", "--normalization_type", help="The normalization type", choices=["none", "noiseStats", "subtractMean"], default="noiseStats", required=False)
+    parser.add_argument("-c", "--ctf_correction", type=str, help="The ctf correction type", choices=["none", "phase_flip", "ctf_multiply"], default="none", required=False)
+    parser.add_argument("-t", "--image_size_factor_for_crop", type=float, help="The  image_size_factor_for_crop", default=0., required=False)
+    args = parser.parse_args()
+    parts = ParticlesRelionStarDataset(starFname=args.filename,
+                 rootDir=args.filename,
+                 symmetry=args.symmetry,
+                 image_size=args.resize_box,
+                 perImg_normalization=args.normalization_type,
+                 ctf_correction=args.ctf_correction,
+                 image_size_factor_for_crop=args.image_size_factor_for_crop,
+                 )
+
+    from matplotlib import pyplot as plt    
+    channels_to_show = [0]             
+    for elem in parts:
+        iid, img, *_ = elem
+        print(img.shape)
+        assert 1 <= len(channels_to_show) <= 4, "Error, at least one channel required and no more than 4"
+        f, axes = plt.subplots(1, len(channels_to_show), squeeze=False)
+        for j, c in enumerate(channels_to_show):
+            axes[0, c].imshow(img[c, ...], cmap="gray")
+        plt.show()
+        plt.close()
+    print("Done")
+
+
