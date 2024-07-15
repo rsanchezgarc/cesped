@@ -42,9 +42,8 @@ def _compute_ctf(freqs, dfu, dfv, dfang, volt, cs, w, phase_shift=0, bfactor=Non
 
 @functools.lru_cache(1)
 def _get2DFreqs(imageSize, sampling_rate, device=None):
-    freqs = torch.stack(torch.meshgrid(
-        torch.linspace(-.5, .5, imageSize),
-        torch.linspace(-.5, .5, imageSize), indexing='ij'), -1)\
+    freqs1d = torch.fft.fftshift(torch.fft.fftfreq(imageSize))
+    freqs = torch.stack(torch.meshgrid(freqs1d, freqs1d, indexing='ij'), -1)\
             / sampling_rate
     freqs = freqs.reshape(-1,2)
     if device is not None:
