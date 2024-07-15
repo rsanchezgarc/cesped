@@ -65,7 +65,7 @@ def correct_ctf(image, sampling_rate, dfu, dfv, dfang, volt, cs, w, phase_shift=
     Apply the 2D CTF through a Wiener filter
 
     Input:
-        image (Tensor) the DxD image in real space
+        image (Tensor) the BxDxD image in real space
         sampling_rate: in A/pixel
         dfu (float or Bx1 tensor): DefocusU (Angstrom). Positive for underfocus
         dfv (float or Bx1 tensor): DefocusV (Angstrom). Positive for underfocus
@@ -82,7 +82,7 @@ def correct_ctf(image, sampling_rate, dfu, dfv, dfang, volt, cs, w, phase_shift=
 
     ctf = compute_ctf(image.shape[-1], sampling_rate, dfu, dfv, dfang, volt, cs, w, phase_shift, bfactor, device=image.device)
 
-    fimage = torch.fft.fftshift(torch.fft.fft2(image))
+    fimage = torch.fft.fftshift(torch.fft.fft2(image), dim=(-2,-1))
 
     if mode == 'phase_flip':
         fimage_corrected = fimage * torch.sign(ctf)
@@ -93,6 +93,6 @@ def correct_ctf(image, sampling_rate, dfu, dfv, dfang, volt, cs, w, phase_shift=
     else:
         raise ValueError("Only phase_flip, multiply and wiener are valid")
 
-    image_corrected = torch.real(torch.fft.ifft2(torch.fft.ifftshift(fimage_corrected))) #.squeeze()
+    image_corrected = torch.real(torch.fft.ifft2(torch.fft.ifftshift(fimage_corrected, dim=(-2,-1))))
     return ctf, image_corrected
 
