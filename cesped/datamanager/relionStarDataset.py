@@ -411,7 +411,7 @@ if __name__ == "__main__":
     parser.add_argument("-t", "--image_size_factor_for_crop", type=float, help="The  image_size_factor_for_crop", default=0., required=False)
     args = parser.parse_args()
     parts = ParticlesRelionStarDataset(starFname=args.filename,
-                 rootDir=args.filename,
+                 rootDir=args.dirname,
                  symmetry=args.symmetry,
                  image_size=args.resize_box,
                  perImg_normalization=args.normalization_type,
