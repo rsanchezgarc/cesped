@@ -37,6 +37,11 @@ dataset = ParticlesDataset(targetName, halfset)
 For a rapid test, use `targetName="TEST"` and `halfset=0`. If the dataset is not yet available in the benchmarkDir (defined in [defaultDataConfig.yaml](cesped%2Fconfigs%2FdefaultDataConfig.yaml)),
 it will be automatically downloaded. Metadata (Euler angles, CTF,...) are stored using Relion starfile format, and images are stored as .mrcs stacks.
 
+Useful properties of the ParticlesDataset object are 
+```
+dataset.symmetry
+dataset.image_size
+```
 3. Use it as a regular dataset
 ```
 dl = DataLoader(dataset, batch_size=32)
