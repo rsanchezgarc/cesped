@@ -106,9 +106,9 @@ and edit the config file to point where the singularity image file is located, o
 Users of other deep learning frameworks can download CESPED entries using the following command
 
 ```
-python -m cesped.particlesDataset download_entry -t 10166 --halfset 0
+python -m cesped.particlesDataset download_entry -t 10166
 ```
-This will download the associated starfile and mrcs file to the default benchmark directory (defined in [defaultDataConfig.yaml](cesped%2Fconfigs%2FdefaultDataConfig.yaml).
+This downloads both half-sets (0 and 1) by default, writes `particles_0.star`, `particles_1.star`, and a merged `particles_merged.star` to the default benchmark directory (defined in [defaultDataConfig.yaml](cesped%2Fconfigs%2FdefaultDataConfig.yaml). To fetch a single halfset, pass `--halfset 0` or `--halfset 1`.
 Use `--benchmarkDir` to specify another directory<br/>
 
 In order to list the entries available for download and the ones already downloaded, you can use

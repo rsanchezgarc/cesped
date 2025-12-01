@@ -9,6 +9,8 @@ from cesped.datamanager.relionStarDataset import ParticlesRelionStarDataset
 
 import torch
 import numpy as np
+import pandas as pd
+import starfile
 from starstack.particlesStar import ParticlesStarSet
 
 from cesped.constants import default_configs_dir, defaultBenchmarkDir
@@ -190,6 +192,52 @@ class ParticlesDataset(ParticlesRelionStarDataset):
         return osp.isfile(getDoneFname(self.datadir,
                                        NAME_PARTITION_TO_RECORID.get((self.targetName, self.halfset), self.halfset)))
 
+
+def _merge_star_files(star_fnames: List[Union[str, PathLike]], merged_fname: Union[str, PathLike]):
+    """
+    Merge multiple particles star files that may differ in headers.
+    - Optics tables are concatenated and deduplicated (union of columns).
+    - Particle tables are concatenated using the union of columns.
+    """
+    assert len(star_fnames) >= 2, "Error, at least two star files are needed to merge"
+
+    def _split_blocks(star_data):
+        if isinstance(star_data, dict):
+            optics_key = next((k for k in star_data if "optic" in k.lower()), None)
+            particle_key = next((k for k in star_data if "particle" in k.lower() and k != optics_key), None)
+            if particle_key is None:
+                particle_key = next(iter({k for k in star_data if k != optics_key}), None)
+            optics_df = star_data.get(optics_key) if optics_key else None
+            particles_df = star_data.get(particle_key) if particle_key else None
+        else:
+            optics_df = None
+            particles_df = star_data
+        assert particles_df is not None, "Error, could not identify particle table in star file"
+        return optics_df, particles_df
+
+    optics_list = []
+    particles_list = []
+    for fname in star_fnames:
+        optics_df, particles_df = _split_blocks(starfile.read(fname))
+        optics_list.append(optics_df)
+        particles_list.append(particles_df)
+
+    all_particle_cols = sorted(set().union(*(set(df.columns) for df in particles_list)))
+    particles_list = [df.reindex(columns=all_particle_cols) for df in particles_list]
+    merged_particles = pd.concat(particles_list, ignore_index=True)
+
+    merged_data = {"particles": merged_particles}
+
+    has_optics = any(df is not None for df in optics_list)
+    if has_optics:
+        optics_list = [df if df is not None else pd.DataFrame() for df in optics_list]
+        all_optics_cols = sorted(set().union(*(set(df.columns) for df in optics_list)))
+        optics_list = [df.reindex(columns=all_optics_cols) for df in optics_list]
+        merged_optics = pd.concat(optics_list, ignore_index=True).drop_duplicates().reset_index(drop=True)
+        merged_data["optics"] = merged_optics
+
+    starfile.write(merged_data, merged_fname, overwrite=True)
+
 if __name__ == "__main__":
     from argparse import ArgumentParser
     from omegaconf import OmegaConf
@@ -236,7 +284,7 @@ if __name__ == "__main__":
 
     donwload_entry_parser = subparsers.add_parser("download_entry", help="Download an entry")
     donwload_entry_parser.add_argument("-b", "--benchmarkDir", help="The benchmark's directory", type=str, default=defaultBenchmarkDir)
-    donwload_entry_parser.add_argument("-p", "--halfset", help="The halfset to use", choices=["0", "1"], required=True)
+    donwload_entry_parser.add_argument("-p", "--halfset", help="Halfset to download (omit to fetch both)", choices=["0", "1"], required=False, default=None)
     donwload_entry_parser.add_argument("-t", "--targetName", help="The target to use", type=str, required=True)
     
     preprocess_entry_parser = subparsers.add_parser("preprocess_entry", help="Preprocess an entry")
@@ -293,17 +341,30 @@ if __name__ == "__main__":
         
     elif args.mode == "download_entry":
 
-        ps = ParticlesDataset(targetName=args.targetName,
-                              halfset=int(args.halfset),
-                              benchmarkDir=args.benchmarkDir,
-                              image_size=None,
-                              ctf_correction="none",
-                              image_size_factor_for_crop=0.,
-                              )
-        ps[0]
-        print("Data was downloaded to:")
-        print(ps.starFname)
-        print(ps.stackFname)
+        halfsets = [int(args.halfset)] if args.halfset is not None else [0, 1]
+        downloaded = []
+        for hs in halfsets:
+            ps = ParticlesDataset(targetName=args.targetName,
+                                  halfset=hs,
+                                  benchmarkDir=args.benchmarkDir,
+                                  image_size=None,
+                                  ctf_correction="none",
+                                  image_size_factor_for_crop=0.,
+                                  )
+            # Trigger download/validation
+            ps[0]
+            downloaded.append(ps)
+            print(f"Downloaded halfset {hs} to:")
+            print(ps.starFname)
+            print(ps.stackFname)
+
+        if len(halfsets) > 1:
+            datadir = downloaded[0].datadir
+            merged_star = osp.join(datadir, "particles_merged.star")
+            star_paths = [osp.join(datadir, f"particles_{hs}.star") for hs in halfsets]
+            _merge_star_files(star_paths, merged_star)
+            print("Merged star file created at:")
+            print(merged_star)
     
     elif args.mode == "preprocess_entry":
         ps = ParticlesDataset(targetName=args.targetName,
