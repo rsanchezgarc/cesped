@@ -38,7 +38,8 @@ setup(
     author_email='ruben.sanchez-garcia@stats.ox.ac.uk',  # Optional
     keywords='deep learning cryoem pose estimation',  # Optional
     packages=find_packages(),
-    install_requires=[requirements],
+    install_requires=requirements,
+    python_requires='>=3.13',
     include_package_data=True,  # This line is important to read MANIFEST.in
     long_description_content_type="text/markdown",
 )

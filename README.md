@@ -3,7 +3,7 @@
 CESPED is a new dataset specifically designed for Supervised Pose Estimation in Cryo-EM. You can check our manuscript at https://arxiv.org/abs/2311.06194.
 
 ## Installation
-cesped has been tested on python 3.11. Installation should be automatic using pip
+cesped has been tested on Python 3.13. Installation should be automatic using pip
 ```
 pip install cesped
 #Or directy from the master branch
@@ -15,6 +15,12 @@ or cloning the repository
 git clone https://github.com/rsanchezgarc/cesped
 cd cesped
 pip install .
+```
+
+To create the supported Conda environment instead, run:
+```
+conda env create -f environment.yml
+conda activate cesped
 ```
 
 
