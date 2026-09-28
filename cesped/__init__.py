@@ -4,6 +4,6 @@ Utilities to train and evaluate deep learning models for Cryo-EM Supervised Part
 """
 
 
-__version__ = "25.12.0"
+__version__ = "26.09.0"
 
 from cesped.datamanager.relionStarDataset import ParticlesRelionStarDataset
