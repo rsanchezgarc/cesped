@@ -16,9 +16,15 @@ import starfile
 from cesped.constants import RELION_ANGLES_NAMES, RELION_SHIFTS_NAMES, RELION_PRED_POSE_CONFIDENCE_NAME, \
     RELION_ORI_POSE_CONFIDENCE_NAME, defaultBenchmarkDir, relionBinDir, mpirunCmd, relionSingularity, RELION_IMAGE_FNAME
 from cesped.particlesDataset import ParticlesDataset
+from cesped.utils.backprojection import reconstruct_starfile
 from cesped.utils.anglesStats import computeAngularError
 from cesped.utils.volumeStats import compute_stats
 from cesped.zenodo.downloadFromZenodo import download_mask
+
+
+RECONSTRUCTION_BACKENDS = ("relion", "python")
+"""Available reconstruction backends. "relion" (default) runs relion_reconstruct and reproduces the published
+CESPED numbers. "python" uses cesped.utils.backprojection and does not require RELION"""
 
 
 class Evaluator():
@@ -27,7 +33,8 @@ class Evaluator():
                  benchmarkDir: Union[str, os.PathLike] = defaultBenchmarkDir,
                  relionBinDir:Optional[str]=relionBinDir, mpirun:Optional[str]=mpirunCmd,
                  relionSingularity:Optional[str]=relionSingularity,
-                 n_cpus=2, wdir=None, verbose=True, use_gt_mask=True):
+                 n_cpus=2, wdir=None, verbose=True, use_gt_mask=True,
+                 reconstructionBackend: Literal["relion", "python"] = "relion", device: str = "auto"):
         """
 
         Args:
@@ -44,7 +51,18 @@ class Evaluator():
             verbose (bool): Print to stdout? Set it to true if using via command line
             use_gt_mask (bool): Should computations use ground-truth masks? It is recommended to set it to true. In \
                 that case, ground truth mask will be downloaded before computations.
+            reconstructionBackend (Literal[relion, python]): "relion" (default) uses relion_reconstruct, as in the \
+                published results. "python" uses the PyTorch implementation in cesped.utils.backprojection, which \
+                does not need RELION. Both use the same algorithm, but numbers are not bit-identical.
+            device (str): Device for the python backend: "auto", "cpu", "cuda" or "cuda:N"
         """
+        if reconstructionBackend not in RECONSTRUCTION_BACKENDS:
+            raise ValueError(f"reconstructionBackend must be one of {RECONSTRUCTION_BACKENDS}, "
+                             f"got {reconstructionBackend}")
+        if reconstructionBackend == "relion" and not relionSingularity and not (relionBinDir and mpirun):
+            raise ValueError("The relion reconstruction backend requires either relionSingularity or relionBinDir and "
+                             "mpirun (see configs/defaultRelionConfig.yaml). Alternatively, use "
+                             "--reconstructionBackend python, which does not require RELION")
 
         self.benchmarkDir = benchmarkDir
         self.predictionType = predictionType
@@ -56,6 +74,8 @@ class Evaluator():
         self.wdir = wdir
         self.verbose = verbose
         self.use_gt_mask = use_gt_mask
+        self.reconstructionBackend = reconstructionBackend
+        self.device = device
 
     def reconstruct(self, starFname: str, outname: str, particlesDir: str, symmetry: str = "c1",
                     cleanExisting: bool = True) -> Tuple[np.ndarray, float]:
@@ -75,7 +95,15 @@ class Evaluator():
             if exists and cleanExisting:
                 os.unlink(outname)
                 exists = False
-            if not exists:
+            if not exists and self.reconstructionBackend == "python":
+                useFom = self.usePredConfidence and \
+                         RELION_PRED_POSE_CONFIDENCE_NAME in starfile.read(starFname)["particles"]
+                if self.verbose:
+                    print(f"Python reconstruction of {starFname} (symmetry={symmetry}, fom_weighting={useFom})")
+                reconstruct_starfile(starFname, outFname=outname, particlesDir=particlesDir, symmetry=symmetry,
+                                     correctCtf=True, useFomWeighting=useFom, paddingFactor=2., device=self.device,
+                                     verbose=self.verbose)
+            elif not exists:
                 cmd = []
                 wdir = particlesDir if particlesDir else osp.dirname(starFname)
                 if self.relionSingularity:
@@ -154,6 +182,8 @@ class Evaluator():
         Returns:
 
         """
+        if self.reconstructionBackend != "relion":  # Never mix cached maps from different backends
+            outbasename = f"{outbasename}_{self.reconstructionBackend}"
         name0 = osp.join(self.wdir, outbasename + "_0.mrc")
         data0, sr0 = self.reconstruct(starFname0, name0, particlesDir, symmetry=symmetry, cleanExisting=cleanExisting)
 
@@ -314,11 +344,14 @@ class Evaluator():
                            mapVsGT_correlaton_diff_masked=cor_diff_masked, mapVsGT_correlaton_diff=cor_diff,
                            )
 
+            metrics = {k: float(v) for k, v in metrics.items()}  # numpy scalars are not JSON serializable
+            metrics["reconstructionBackend"] = self.reconstructionBackend
             with open(osp.join(self.wdir, "metrics.json"), "w") as f:
                 json.dump(metrics, f)
 
             report_str = f"""
 > EVALUATION for target:                  {targetName}
+reconstruction backend:                   {self.reconstructionBackend}
 GT_correlation:                           {gt_cor}
 GT_resolution (Å) (th=0.143, 0.5):        {gt_resolt0143}  {gt_resolt05}
 > RESULTS
@@ -332,7 +365,7 @@ half2half_resolution (Å) (th=0.143, 0.5): {pred_resolut}  {pred_resolt05}
 mapVsGT_correlaton (masked, unmasked):    {mapVsGT_masked_cor}  {mapVsGT_cor}
 mapVsGT_resolution (Å) (th=0.143, 0.5)    {mapVsGT_resolt}  {mapVsGT_resolt05}
 #Reconstruction differences
-cor_diff   (masked, unmasked):            {cor_diff}  {cor_diff_masked}
+cor_diff   (masked, unmasked):            {cor_diff_masked}  {cor_diff}
 res_diff (Å) th=0.143, 0.5):              {res_diff}  {res_diff05}
             """
 
@@ -347,7 +380,9 @@ def evaluate(targetName: str, half0PredsFname: str, half1PredsFname: str,
              mpirun: Optional[str] = mpirunCmd, relionSingularity: Optional[str] = relionSingularity,
              rm_prev_reconstructions: bool = True,
              ignore_symmetry: bool = False, use_gt_mask:bool=True,
-             n_cpus: int = 2, outdir: Optional[str] = None) -> Dict[str, float]:
+             n_cpus: int = 2, outdir: Optional[str] = None,
+             reconstructionBackend: Literal["relion", "python"] = "relion",
+             device: str = "auto") -> Dict[str, float]:
     """
 
     Args:
@@ -371,6 +406,11 @@ def evaluate(targetName: str, half0PredsFname: str, half1PredsFname: str,
         n_cpus (int): The number of cpus used in the calculations
         outdir (Optional[str]): The directory where computations will be stored. Used as cache for the GT \
          computations. If None, a temporary directory will be used instead
+        reconstructionBackend (Literal[relion, python]): How volumes are reconstructed. "relion" (default) runs \
+         relion_reconstruct, reproducing the published CESPED results. "python" uses a PyTorch reimplementation \
+         of the same algorithm that does not need RELION (relionBinDir, mpirun and relionSingularity are then \
+         ignored). Python and RELION numbers agree closely but are not identical, so do not mix them in a comparison.
+        device (str): Device used by the python backend: "auto" (GPU if available), "cpu", "cuda" or "cuda:N"
 
     Returns:
             Dict[str,float]: A dictionary with the computed metrics
@@ -389,7 +429,8 @@ def evaluate(targetName: str, half0PredsFname: str, half1PredsFname: str,
         evaluator = Evaluator(predictionType, usePredConfidence=usePredConfidence, benchmarkDir=benchmarkDir,
                               relionBinDir=relionBinDir, mpirun=mpirun, relionSingularity=relionSingularity,
                               n_cpus=n_cpus, wdir=outdir,
-                              use_gt_mask=use_gt_mask)
+                              use_gt_mask=use_gt_mask, reconstructionBackend=reconstructionBackend,
+                              device=device)
         return evaluator.runEvaluate(targetName, half0PredsFname, half1PredsFname,
                                      rm_prev_reconstructions, ignore_symmetry)
 

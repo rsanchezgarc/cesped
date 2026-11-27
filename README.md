@@ -107,6 +107,36 @@ and edit the config file to point where the singularity image file is located, o
 --singularityImgFile /path/to/relionSingularity.sif
 ```
 
+#### Evaluating without RELION (`--reconstructionBackend python`)
+
+If you cannot install RELION, add `--reconstructionBackend python`. Volumes are then reconstructed with a
+PyTorch reimplementation of `relion_reconstruct --ctf --pad 2` ([cesped/utils/backprojection.py](cesped/utils/backprojection.py)),
+and none of the RELION settings (`relionBinDir`, `mpirun`, `relionSingularity`) are needed.
+```
+python -m cesped.evaluateEntry  --predictionType SO3 --targetName 11120  \
+--half0PredsFname particles_preds_0.star  --half1PredsFname particles_preds_1.star \
+--outdir evaluation/ --reconstructionBackend python --device auto
+```
+`--device` can be `auto` (GPU if available, default), `cpu`, `cuda` or `cuda:N`. From Python, use
+`evaluate(..., reconstructionBackend="python")`.
+
+**Which backend should I use?** RELION (the default) is the reference used for all published CESPED results, so
+use it whenever you want numbers that are directly comparable with them. The Python backend implements the same
+algorithm (trilinear Fourier insertion at 2x padding, CTF correction, figure-of-merit weighting, point-group
+symmetry, RELION's regularisation, gridding correction and soft mask) and agrees closely with RELION 4.0.1: on the
+TEST entry, maps have FSC > 0.996 against RELION's at all frequencies, and resolutions differ by < 0.05 Å. Small
+differences remain, though, so **do not mix numbers computed with different backends in a single comparison**.
+The backend used is recorded in `metrics.json` (`reconstructionBackend`), and cached maps are stored with a
+`_python` suffix so that they are never mixed with RELION maps. Optical aberrations (beam tilt, higher-order
+Zernikes, anisotropic magnification) are not modelled by the Python backend; a warning is printed if the starfile
+contains them.
+
+The reconstruction can also be used on its own:
+```
+python -m cesped.utils.backprojection --starFname particles.star --particlesDir /path/to/stacks \
+--outFname vol.mrc --symmetry C1 [--useFomWeighting] [--device cuda]
+```
+
 ### Cross-plataform usage.
 
 Users of other deep learning frameworks can download CESPED entries using the following command
