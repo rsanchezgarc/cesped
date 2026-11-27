@@ -9,13 +9,19 @@
   `python` reconstructs volumes with `cesped.utils.backprojection`, a PyTorch reimplementation of
   `relion_reconstruct --ctf --pad 2 [--sym X] [--fom_weighting]` that does not require RELION. Use `--device` to pick
   the device (`auto` by default).
-- Validation against RELION 4.0.1 on the TEST entry (5000 particles per half, box 232):
-  - Single reconstructions (C1, C1 with figure-of-merit weighting, D2, and both half-sets): Pearson correlation
-    with the RELION maps ≥ 0.9986; FSC against the RELION maps ≥ 0.9965 at every frequency up to Nyquist.
-  - Full `evaluate` run with noisy predictions: every resolution metric within 0.03 Å of the RELION backend;
-    correlations equal to 4 decimals.
+- Validation against RELION 4.0.1 on the TEST entry (box 232):
+  - Single reconstructions of 1500 particles with symmetry C1, C4, D3, T and I, with figure-of-merit weighting,
+    and with padding 1.5: Pearson correlation with the RELION maps ≥ 0.9984, FSC against the RELION maps ≥ 0.994
+    at every frequency up to Nyquist, and amplitude within 0.4%.
+  - Full `evaluate` run (5000 particles per half, noisy predictions): every resolution metric within 0.03 Å of
+    the RELION backend, and correlations within 0.0001 (absolute). With a soft mask around the particle, masked
+    resolutions agree within 0.02 Å and masked correlations within 0.0001.
   - Numbers from the two backends are close but not identical. Do not mix them in one comparison. `metrics.json`
     now records the `reconstructionBackend`, and Python-backend maps are cached with a `_python` suffix.
+- Python backend limitations: symmetries C*n*, D*n*, T, O, I (I1-I4) only (RELION axis conventions); optical
+  aberrations are ignored with a warning; phase-flipped or CTF-premultiplied data are rejected. For odd box sizes the
+  maps differ from relion_reconstruct 4.0.1: on synthetic data the Python backend recovers the true volume
+  (correlation 0.999) and RELION does not (0.81). All CESPED entries have even boxes.
 - The reconstruction can be used on its own: `python -m cesped.utils.backprojection --starFname ... --outFname ...`.
 - RELION settings are no longer checked when `cesped` is imported. They are checked only when the `relion`
   backend is used.

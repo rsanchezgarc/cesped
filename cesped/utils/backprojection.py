@@ -2,23 +2,25 @@
 RELION-free 3D reconstruction by direct Fourier inversion (backprojection), implemented in PyTorch.
 
 It is a Python alternative to ``relion_reconstruct --ctf --pad 2 [--sym X] [--fom_weighting]`` that does not
-require a RELION installation. It mirrors the default algorithm used by ``relion_reconstruct`` (RELION >= 3.1,
-which skips the iterative gridding correction by default):
+require a RELION installation. It follows the algorithm of ``relion_reconstruct`` (RELION >= 3.1, which skips the
+iterative gridding correction by default):
 
 1. Each particle image is Fourier transformed at its original box size N, translated by
    ``(rlnOriginXAngst, rlnOriginYAngst)`` with a phase shift and multiplied by its CTF (RELION's CTF convention,
    including phase shift, B-factor and scale factor when present). If figure-of-merit weighting is requested,
    both the image and the CTF^2 term are multiplied by ``rlnParticleFigureOfMerit``.
-2. The central slice is rotated by the particle Euler matrix (and by every operator of the point group) and
-   inserted with trilinear weights into a padded ``(pad*N)^3`` half-Fourier volume. ``sum(CTF^2)`` is accumulated
-   in the same way.
-3. Hermitian symmetry is enforced on the ``kx = 0`` plane.
+2. The central slice is rotated by the particle Euler matrix and inserted with trilinear weights into a padded
+   ``(pad*N)^3`` half-Fourier volume. ``sum(CTF^2)`` is accumulated in the same way.
+3. Hermitian symmetry is enforced on the ``kx = 0`` plane and point-group symmetry is applied to the accumulated
+   data and weights by trilinear interpolation (RELION's ``BackProjector::symmetrise``). Point groups are built from
+   the same generators as RELION, so their orientation follows RELION's conventions.
 4. Fourier inversion: ``F = sum(CTF*img) / max(sum(CTF^2), shellMean(sum(CTF^2)) / 1000)``, restricted to Nyquist.
 5. Inverse FFT, cropping to N, gridding correction (division by ``sinc^2(r / (pad*N))``) and RELION's soft
    spherical mask (radius N/2, 3 pixel cosine edge, background subtracted).
 
-Optical aberrations stored in the optics table (beam tilt, odd/even Zernikes, anisotropic magnification) are NOT
-modelled; a warning is printed when they are present.
+Not supported (an error is raised or a warning printed): optical aberrations in the optics table (beam tilt,
+odd/even Zernikes, anisotropic magnification), phase-flipped or CTF-premultiplied particles, point groups with
+mirrors or inversion (e.g. Cnv, Dnh, Td, Oh) and helical symmetry.
 
 Command line usage:
 
@@ -29,6 +31,7 @@ python -m cesped.utils.backprojection --starFname particles.star --particlesDir 
 """
 import math
 import os
+import re
 import warnings
 from typing import Optional, Union
 
@@ -45,6 +48,7 @@ from cesped.constants import RELION_ANGLES_NAMES, RELION_SHIFTS_NAMES, RELION_EU
 
 _UNSUPPORTED_OPTICS_LABELS = ["rlnBeamTiltX", "rlnBeamTiltY", "rlnOddZernike", "rlnEvenZernike",
                               "rlnMagMat00", "rlnMagMat01", "rlnMagMat10", "rlnMagMat11"]
+_UNSUPPORTED_OPTICS_FLAGS = ["rlnCtfDataArePhaseFlipped", "rlnCtfDataAreCtfPremultiplied"]
 
 
 def relion_ctf_rfft(box_size: int, sampling_rate: float, dfu: torch.Tensor, dfv: torch.Tensor,
@@ -92,9 +96,82 @@ def relion_ctf_rfft(box_size: int, sampling_rate: float, dfu: torch.Tensor, dfv:
     return -_col(scale) * torch.sin(argument) * torch.exp(-_col(bfactor) / 4. * u2)
 
 
+# Generators (rotation order, axis) of RELION's point groups (SymList::fill_symmetry_class in symmetries.cpp)
+_RELION_GENERATORS = {
+    "T": [(3, (0., 0., 1.)), (2, (0., 0.816496, 0.577350))],
+    "O": [(3, (.5773502, .5773502, .5773502)), (4, (0., 0., 1.))],
+    "I": [(2, (0., 0., 1.)), (5, (0.525731114, 0., 0.850650807)), (3, (0., 0.356822076, 0.934172364))],
+    "I1": [(2, (1., 0., 0.)), (5, (0.85065080702670, 0., -0.5257311142635)), (3, (0.9341723640, 0.3568220765, 0.))],
+    "I3": [(2, (-0.5257311143, 0., 0.8506508070)), (5, (0., 0., 1.)),
+           (3, (-0.4911234778630044, 0.3568220764705179, 0.7946544753759428))],
+    "I4": [(2, (0.5257311143, 0., 0.8506508070)), (5, (0.8944271932547096, 0., 0.4472135909903704)),
+           (3, (0.4911234778630044, 0.3568220764705179, 0.7946544753759428))],
+}
+_RELION_GENERATORS["I2"] = _RELION_GENERATORS["I"]
+_GROUP_ORDERS = {"T": 12, "O": 24, "I": 60, "I1": 60, "I2": 60, "I3": 60, "I4": 60}
+
+
 def get_symmetry_matrices(symmetry: str) -> torch.Tensor:
-    """The rotation matrices of the point group, as a [K,3,3] tensor (scipy convention)."""
-    return torch.as_tensor(Rotation.create_group(symmetry.upper()).as_matrix())
+    """
+    The rotation matrices of a point group, as a [K,3,3] float64 tensor (identity first), built from the same
+    generators as RELION so that the orientation of the symmetry axes matches RELION's conventions.
+
+    Args:
+        symmetry (str): C1, Cn, Dn, T, O, I (=I2), I1, I2, I3 or I4. Groups with mirrors or inversion are not supported
+    """
+    sym = symmetry.upper().strip()
+    match = re.fullmatch(r"([CD])(\d+)", sym)
+    if match:
+        kind, n = match.group(1), int(match.group(2))
+        if n < 1:
+            raise ValueError(f"Invalid symmetry {symmetry}")
+        generators = [(n, (0., 0., 1.))] if n > 1 else []
+        if kind == "D":
+            generators.append((2, (1., 0., 0.)))
+        order = n * (2 if kind == "D" else 1)
+    elif sym in _RELION_GENERATORS:
+        generators, order = _RELION_GENERATORS[sym], _GROUP_ORDERS[sym]
+    else:
+        raise ValueError(f"Symmetry {symmetry} is not supported by the python reconstruction. Supported: C<n>, D<n>, "
+                         f"T, O, I, I1, I2, I3, I4. Use the relion backend for other groups")
+
+    gens = [Rotation.from_rotvec(2 * np.pi / fold * np.asarray(axis) / np.linalg.norm(axis)).as_matrix()
+            for fold, axis in generators]
+    group = [np.eye(3)]
+    frontier = [np.eye(3)]
+    while frontier:
+        new = []
+        for g in frontier:
+            for h in gens:
+                m = h @ g
+                if not any(np.abs(m - x).max() < 1e-4 for x in group):
+                    group.append(m)
+                    new.append(m)
+        frontier = new
+        if len(group) > order:
+            break
+    if len(group) != order:
+        raise RuntimeError(f"Error building symmetry group {symmetry}: {len(group)} elements, expected {order}")
+    return torch.as_tensor(np.stack(group))
+
+
+def _relion_padded_size(box_size: int, padding_factor: float) -> int:
+    """RELION's padded size: ROUND(padding_factor * box_size), made even."""
+    size = int(math.floor(padding_factor * box_size + 0.5))
+    return size + size % 2
+
+
+def _trilinear_corners(zyx: torch.Tensor):
+    """Yields (corner_indices [M,3] long, weights [M]) for the 8 trilinear neighbours of zyx [M,3] (float)."""
+    base = torch.floor(zyx)
+    frac = zyx - base
+    base = base.long()
+    for dz in (0, 1):
+        for dy in (0, 1):
+            for dx in (0, 1):
+                off = torch.tensor([dz, dy, dx], device=zyx.device)
+                w = torch.where(off.bool(), frac, 1. - frac).prod(-1)
+                yield base + off, w
 
 
 class FourierReconstructor:
@@ -115,29 +192,28 @@ class FourierReconstructor:
         Args:
             box_size (int): The particle image side, in pixels
             sampling_rate (float): Å/pixel
-            symmetry (str): Point symmetry (e.g. C1, C4, D2)
+            symmetry (str): Point symmetry (C1, Cn, Dn, T, O, I, I1-I4), with RELION's axis conventions
             padding_factor (float): Oversampling of the 3D Fourier grid (RELION --pad). 2 by default.
             regularization_ratio (float): Fourier weights are floored to shellMean(weights)/regularization_ratio, \
                 as RELION does (1000)
             device: torch device used for the computations
-            dtype: Floating point type of the accumulators
+            dtype: Floating point type of the accumulators (float32 or float64)
         """
         self.box_size = int(box_size)
         self.sampling_rate = float(sampling_rate)
         self.symmetry = symmetry.upper()
-        self.padding_factor = float(padding_factor)
         self.regularization_ratio = float(regularization_ratio)
         self.device = torch.device(device)
         self.dtype = dtype
 
-        # Padded size, even. The accumulation grid has a margin of 1 voxel (on both sides of the centred axes)
-        # so that all trilinear neighbours of any sample up to Nyquist are inside the array
-        self.pad_size = 2 * int(round(self.padding_factor * self.box_size / 2.))
-        self._scale = self.pad_size / self.box_size  # image Fourier pixel -> padded volume Fourier pixel
-        self.grid_size = self.pad_size + 2
+        # As RELION: the padded size is even and the effective padding factor is recomputed from it
+        self.pad_size = _relion_padded_size(self.box_size, padding_factor)
+        self.padding_factor = self.pad_size / self.box_size  # image Fourier pixel -> padded volume Fourier pixel
+        # The accumulation grid has a margin of 2 voxels around the centred axes, so that all trilinear neighbours
+        # of any point up to Nyquist (insertion and symmetry interpolation) are inside the array
+        self.grid_size = self.pad_size + 4
         self._center = self.grid_size // 2
-        n_x = self.pad_size // 2 + 2
-        self._grid_shape = (self.grid_size, self.grid_size, n_x)
+        self._grid_shape = (self.grid_size, self.grid_size, self.pad_size // 2 + 3)
 
         self.data = torch.zeros((2,) + self._grid_shape, dtype=dtype, device=self.device)  # real, imag
         self.weight = torch.zeros(self._grid_shape, dtype=dtype, device=self.device)
@@ -156,12 +232,11 @@ class FourierReconstructor:
         self._plane_idxs = torch.nonzero(r2 <= r_max ** 2).squeeze(-1)  # Same criterion as RELION
         coords = torch.stack([kx.flatten(), ky.flatten(), torch.zeros_like(r2)], -1)  # x, y, z
         self._plane_coords = coords[self._plane_idxs].to(self.dtype)  # [P, 3] in image Fourier pixels
-        self._corner_offsets = torch.tensor([[dz, dy, dx] for dz in (0, 1) for dy in (0, 1) for dx in (0, 1)],
-                                            device=self.device, dtype=torch.long)  # z,y,x
 
     def _image_to_rfft(self, imgs: torch.Tensor) -> torch.Tensor:
-        """Real-space images [B,N,N] -> rfft [B,N,N//2+1], with the image centre at the origin and fftshifted rows"""
-        imgs = torch.fft.fftshift(imgs, dim=(-2, -1))
+        """Real-space images [B,N,N] -> rfft [B,N,N//2+1], with the image centre (N//2) at the origin and rows
+        fftshifted"""
+        imgs = torch.fft.ifftshift(imgs, dim=(-2, -1))
         fimgs = torch.fft.rfftn(imgs, dim=(-2, -1))
         return torch.fft.fftshift(fimgs, dim=(-2,))
 
@@ -187,7 +262,8 @@ class FourierReconstructor:
                 projection matrix)
             shiftsXYAngs (Tensor): [B,2] rlnOriginXAngst, rlnOriginYAngst
             ctf (Optional[Tensor]): [B,N,N//2+1] CTF from ``relion_ctf_rfft``. If None, no CTF correction is applied
-            weights (Optional[Tensor]): [B] per-particle weights (e.g. figure of merit)
+            weights (Optional[Tensor]): [B] per-particle weights (e.g. figure of merit). NaN weights are set to 0 \
+                (RELION would propagate them into a NaN map) and negative weights are kept, as in RELION
         """
         cdtype = torch.complex64 if self.dtype == torch.float32 else torch.complex128
         imgs = imgs.to(self.device, self.dtype)
@@ -203,7 +279,7 @@ class FourierReconstructor:
         else:
             ctf2 = torch.ones(fimgs.shape, dtype=self.dtype, device=self.device)
         if weights is not None:
-            weights = torch.nan_to_num(weights.to(self.device, self.dtype), nan=0.).clamp_min(0.)
+            weights = torch.nan_to_num(weights.to(self.device, self.dtype), nan=0.)
             fimgs = fimgs * weights.reshape(-1, 1, 1)
             ctf2 = ctf2 * weights.reshape(-1, 1, 1)
 
@@ -212,109 +288,140 @@ class FourierReconstructor:
         ctf2 = ctf2.reshape(B, -1)[:, self._plane_idxs]  # [B, P]
         values = torch.stack([fimgs.real, fimgs.imag, ctf2], -1)  # [B, P, 3]
 
-        # Symmetry expansion. A symmetric volume V(x) = sum_k V(R_k x), which is equivalent to inserting each image
-        # with the projection matrix A @ R_k (RELION convention), i.e. with rotMat_k = R_k^T @ rotMat
-        K = self.sym_matrices.shape[0]
-        if K > 1:
-            rotMats = (self.sym_matrices.transpose(-1, -2)[None, ...] @ rotMats[:, None, ...]).reshape(-1, 3, 3)
-            values = values.unsqueeze(1).expand(-1, K, -1, -1).reshape(B * K, *values.shape[1:])
-
         # Rotate the central slice: 3D frequency (x,y,z) = rotMat @ (kx, ky, 0), in padded voxel units
-        coords = torch.einsum("bij,pj->bpi", rotMats, self._plane_coords) * self._scale  # [BK, P, 3] x,y,z
+        coords = torch.einsum("bij,pj->bpi", rotMats, self._plane_coords) * self.padding_factor  # [B, P, 3]
         # Friedel: only the kx>=0 half is stored. Points with kx<0 are inserted at -k with conjugated value
-        neg = coords[..., 0] < 0
-        sign = torch.where(neg, -1., 1.).to(self.dtype)
+        sign = torch.where(coords[..., 0] < 0, -1., 1.).to(self.dtype)
         coords = coords * sign.unsqueeze(-1)
         values = torch.cat([values[..., :1], values[..., 1:2] * sign.unsqueeze(-1), values[..., 2:]], -1)
 
         self._insert(coords.reshape(-1, 3), values.reshape(-1, 3))
 
+    def _xyz_to_zyx_index(self, coords: torch.Tensor) -> torch.Tensor:
+        c = self._center
+        return torch.stack([coords[:, 2] + c, coords[:, 1] + c, coords[:, 0]], -1)
+
     def _insert(self, coords: torch.Tensor, values: torch.Tensor):
         """Trilinear insertion. coords [M,3] x,y,z in padded Fourier voxels; values [M,3] (real, imag, ctf2)."""
-        c = self._center
-        zyx = torch.stack([coords[:, 2] + c, coords[:, 1] + c, coords[:, 0]], -1)
-        base = torch.floor(zyx)
-        frac = zyx - base
-        base = base.long()
         D, H, W = self._grid_shape
-        flat_vol = torch.cat([self.data.reshape(2, -1), self.weight.reshape(1, -1)], 0)
-        for off in self._corner_offsets:
-            idx = base + off
-            w = torch.where(off.bool(), frac, 1. - frac).prod(-1)  # [M]
-            # The margin of the grid guarantees that indices are in bounds within Nyquist. Guard anyway.
-            valid = ((idx >= 0) & (idx < torch.tensor([D, H, W], device=idx.device))).all(-1)
-            flat_idx = idx[:, 0] * (H * W) + idx[:, 1] * W + idx[:, 2]
-            flat_idx = torch.where(valid, flat_idx, torch.zeros_like(flat_idx))
-            w = torch.where(valid, w, torch.zeros_like(w))
-            flat_vol.index_add_(1, flat_idx, (values * w[:, None]).T)
-        self.data = flat_vol[:2].reshape(self.data.shape)
-        self.weight = flat_vol[2].reshape(self.weight.shape)
+        dims = torch.tensor([D, H, W], device=self.device)
+        flat_data = self.data.view(2, -1)
+        flat_weight = self.weight.view(-1)
+        for idx, w in _trilinear_corners(self._xyz_to_zyx_index(coords)):
+            valid = ((idx >= 0) & (idx < dims)).all(-1)  # Always true within Nyquist thanks to the margin
+            flat_idx = torch.where(valid, idx[:, 0] * (H * W) + idx[:, 1] * W + idx[:, 2], 0)
+            w = torch.where(valid, w, 0.)
+            flat_data.index_add_(1, flat_idx, (values[:, :2] * w[:, None]).T)
+            flat_weight.index_add_(0, flat_idx, values[:, 2] * w)
 
     def _enforce_hermitian_symmetry(self):
         """On the kx=0 plane, F(0,ky,kz) and F(0,-ky,-kz) are conjugate. Both are set to their (conj.) sum."""
         sl = (slice(1, None), slice(1, None), 0)  # index i in [1, G-1] <-> mirror G-i, with centre G/2
-        data = self.data[(slice(None),) + sl]
-        mirror = data.flip(-1, -2)
-        self.data[(0,) + sl] = data[0] + mirror[0]
-        self.data[(1,) + sl] = data[1] - mirror[1]
-        w = self.weight[sl]
+        real, imag, w = self.data[(0,) + sl], self.data[(1,) + sl], self.weight[sl]
+        self.data[(0,) + sl] = real + real.flip(-1, -2)
+        self.data[(1,) + sl] = imag - imag.flip(-1, -2)
         self.weight[sl] = w + w.flip(-1, -2)
 
-    def _shell_radius(self) -> torch.Tensor:
-        """Radius of each voxel of the (cropped) half Fourier grid, in padded voxels."""
+    def _slab_coords(self, z0: int, z1: int):
+        """x,y,z coordinates (padded voxels, centred) and r^2 of the grid planes z0:z1."""
         G, n_x = self.grid_size, self._grid_shape[-1]
-        z = torch.arange(G, device=self.device, dtype=torch.float64) - self._center
-        x = torch.arange(n_x, device=self.device, dtype=torch.float64)
-        return torch.sqrt(z[:, None, None] ** 2 + z[None, :, None] ** 2 + x[None, None, :] ** 2)
+        z = torch.arange(z0, z1, device=self.device, dtype=self.dtype) - self._center
+        y = torch.arange(G, device=self.device, dtype=self.dtype) - self._center
+        x = torch.arange(n_x, device=self.device, dtype=self.dtype)
+        zz, yy, xx = torch.meshgrid(z, y, x, indexing="ij")
+        return xx, yy, zz, xx ** 2 + yy ** 2 + zz ** 2
 
-    def reconstruct(self, apply_soft_mask: bool = True, mask_edge_width: float = 3.) -> np.ndarray:
+    def _symmetrise(self, slab: int = 8):
+        """RELION's applyPointGroupSymmetry: adds the data/weights interpolated at R@k for every non-identity R."""
+        if self.sym_matrices.shape[0] == 1:
+            return
+        D, H, W = self._grid_shape
+        dims = torch.tensor([D, H, W], device=self.device)
+        rmax2 = int(math.floor((self.box_size // 2) * self.padding_factor + 0.5)) ** 2  # ROUND(r_max*pad)^2
+        src_data, src_weight = self.data.view(2, -1), self.weight.view(-1)
+        sum_data, sum_weight = self.data.clone(), self.weight.clone()
+        for z0 in range(0, D, slab):
+            z1 = min(z0 + slab, D)
+            xx, yy, zz, r2 = self._slab_coords(z0, z1)
+            inside = r2 <= rmax2
+            if not inside.any():
+                continue
+            xyz = torch.stack([xx[inside], yy[inside], zz[inside]], -1)
+            acc = torch.zeros((xyz.shape[0], 3), dtype=self.dtype, device=self.device)
+            for R in self.sym_matrices[1:]:
+                rxyz = xyz @ R.T
+                sign = torch.where(rxyz[:, 0] < 0, -1., 1.).to(self.dtype)
+                rxyz = rxyz * sign[:, None]
+                for idx, w in _trilinear_corners(self._xyz_to_zyx_index(rxyz)):
+                    valid = ((idx >= 0) & (idx < dims)).all(-1)
+                    flat_idx = torch.where(valid, idx[:, 0] * (H * W) + idx[:, 1] * W + idx[:, 2], 0)
+                    w = torch.where(valid, w, 0.)
+                    acc[:, 0] += src_data[0, flat_idx] * w
+                    acc[:, 1] += src_data[1, flat_idx] * w * sign
+                    acc[:, 2] += src_weight[flat_idx] * w
+            sum_data[0, z0:z1][inside] += acc[:, 0]
+            sum_data[1, z0:z1][inside] += acc[:, 1]
+            sum_weight[z0:z1][inside] += acc[:, 2]
+        self.data, self.weight = sum_data, sum_weight
+
+    def reconstruct(self, apply_soft_mask: bool = True, mask_edge_width: float = 3., slab: int = 16) -> np.ndarray:
         """
-        Computes the real space volume from the accumulated data.
+        Computes the real space volume from the accumulated data. It can only be called once.
 
         Args:
             apply_soft_mask (bool): Apply RELION's soft spherical mask (radius N/2, cosine edge)
             mask_edge_width (float): Soft edge width, in pixels
+            slab (int): Number of Fourier planes processed at once (lower it to reduce memory)
         Returns:
             np.ndarray: [N,N,N] float32 volume
         """
         self._enforce_hermitian_symmetry()
-        r = self._shell_radius()
-        r_max_pad = self._scale * (self.box_size // 2)
-        inside = r < r_max_pad
+        self._symmetrise()
+
+        N, P, D = self.box_size, self.pad_size, self.grid_size
+        r_max_pad = self.padding_factor * (N // 2)
+        n_shells = N // 2 + 2
 
         # Frequency-dependent regularization (RELION): weight >= shell_mean(weight)/1000, shells in original pixels
-        shell = torch.floor(r / self._scale).long().clamp_max(self.box_size)
-        n_shells = self.box_size + 1
-        weight = self.weight.to(torch.float64)
         shell_sum = torch.zeros(n_shells, dtype=torch.float64, device=self.device)
         shell_cnt = torch.zeros(n_shells, dtype=torch.float64, device=self.device)
-        shell_sum.index_add_(0, shell[inside], weight[inside])
-        shell_cnt.index_add_(0, shell[inside], torch.ones_like(weight[inside]))
-        shell_mean = shell_sum / shell_cnt.clamp_min(1.)
-        weight = torch.maximum(weight, shell_mean[shell] / self.regularization_ratio)
+        for z0 in range(0, D, slab):
+            _, _, _, r2 = self._slab_coords(z0, min(z0 + slab, D))
+            r = torch.sqrt(r2)
+            inside = r < r_max_pad
+            shell = torch.floor(r[inside] / self.padding_factor).long().clamp_max(n_shells - 1)
+            shell_sum.index_add_(0, shell, self.weight[z0:z0 + slab][inside].to(torch.float64))
+            shell_cnt.index_add_(0, shell, torch.ones_like(shell, dtype=torch.float64))
+        floor = (shell_sum / shell_cnt.clamp_min(1.) / self.regularization_ratio).to(self.dtype)
 
-        valid = inside & (weight > 1e-20)
-        fvol = torch.zeros(self._grid_shape, dtype=torch.complex128, device=self.device)
-        data = self.data.to(torch.float64)
-        fvol[valid] = torch.complex(data[0][valid], data[1][valid]) / weight[valid]
-
-        # Remove the accumulation margin -> fftshifted rfft volume of the padded size
-        P = self.pad_size
+        # Fourier volume without the accumulation margin: fftshifted (z, y) rfft of the padded size
+        cdtype = torch.complex64 if self.dtype == torch.float32 else torch.complex128
         lo = self._center - P // 2
-        fvol = fvol[lo:lo + P, lo:lo + P, :P // 2 + 1]
+        fvol = torch.zeros((P, P, P // 2 + 1), dtype=cdtype, device=self.device)
+        for z0 in range(lo, lo + P, slab):
+            z1 = min(z0 + slab, lo + P)
+            _, _, _, r2 = self._slab_coords(z0, z1)
+            r = torch.sqrt(r2)[:, lo:lo + P, :P // 2 + 1]
+            shell = torch.floor(r / self.padding_factor).long().clamp_max(n_shells - 1)
+            w = self.weight[z0:z1, lo:lo + P, :P // 2 + 1]
+            w = torch.maximum(w, floor[shell])
+            valid = (r < r_max_pad) & (w > 1e-20)
+            d = self.data[:, z0:z1, lo:lo + P, :P // 2 + 1]
+            fvol[z0 - lo:z1 - lo] = torch.where(valid, torch.complex(d[0], d[1]) / torch.where(valid, w, 1.), 0)
+        del self.data, self.weight  # Free memory before the inverse FFT
+
         fvol = torch.fft.ifftshift(fvol, dim=(0, 1))
         vol = torch.fft.irfftn(fvol, s=(P, P, P), dim=(0, 1, 2))
+        del fvol
         vol = torch.fft.fftshift(vol, dim=(0, 1, 2))
 
         # Window to the original box. With torch's normalised irfftn, the scale already matches relion_reconstruct
-        N = self.box_size
         start = P // 2 - N // 2
-        vol = vol[start:start + N, start:start + N, start:start + N]
+        vol = vol[start:start + N, start:start + N, start:start + N].to(torch.float64)
 
         # Gridding correction for trilinear interpolation (RELION's radial sinc^2)
         coords = torch.arange(N, device=self.device, dtype=torch.float64) - N // 2
-        zz, yy, xx = torch.meshgrid(coords, coords, coords, indexing="ij")
-        rr = torch.sqrt(zz ** 2 + yy ** 2 + xx ** 2)
+        rr = torch.sqrt(coords[:, None, None] ** 2 + coords[None, :, None] ** 2 + coords[None, None, :] ** 2)
         vol = vol / torch.sinc(rr / P) ** 2
 
         if apply_soft_mask:
@@ -324,12 +431,11 @@ class FourierReconstructor:
 
 def soft_mask_outside_map(vol: torch.Tensor, radius: float, edge_width: float = 3.,
                           rr: Optional[torch.Tensor] = None) -> torch.Tensor:
-    """RELION's softMaskOutsideMap: subtract the mean of the background and apply a raised-cosine spherical mask."""
+    """RELION's softMaskOutsideMap: replace the outside by the background mean, with a raised-cosine transition."""
     if rr is None:
         N = vol.shape[-1]
         coords = torch.arange(N, device=vol.device, dtype=vol.dtype) - N // 2
-        zz, yy, xx = torch.meshgrid(coords, coords, coords, indexing="ij")
-        rr = torch.sqrt(zz ** 2 + yy ** 2 + xx ** 2)
+        rr = torch.sqrt(coords[:, None, None] ** 2 + coords[None, :, None] ** 2 + coords[None, None, :] ** 2)
     radius_p = radius + edge_width
     # Background weight: 0 inside the sphere, raised cosine in the edge, 1 outside
     bg_w = 0.5 + 0.5 * torch.cos(torch.pi * (radius_p - rr) / edge_width)
@@ -344,6 +450,31 @@ def _resolve_device(device: str) -> torch.device:
     return torch.device(device)
 
 
+def _check_star(md: pd.DataFrame, optics: pd.DataFrame, correctCtf: bool, starFname: str):
+    for flag in _UNSUPPORTED_OPTICS_FLAGS:
+        if flag in optics.columns and optics[flag].astype(int).any():
+            raise NotImplementedError(f"{flag}=1 in {starFname} is not supported by the python reconstruction. "
+                                      f"Use the relion backend")
+    present = [c for c in _UNSUPPORTED_OPTICS_LABELS if c in optics.columns or c in md.columns]
+    if present:
+        warnings.warn(f"The following optical parameters are ignored by the python reconstruction: {present}")
+    if "rlnImageSize" in optics.columns and optics["rlnImageSize"].nunique() > 1:
+        raise ValueError(f"All optics groups in {starFname} must have the same rlnImageSize")
+    if "rlnImagePixelSize" in optics.columns and optics["rlnImagePixelSize"].astype(float).nunique() > 1:
+        raise ValueError(f"All optics groups in {starFname} must have the same rlnImagePixelSize")
+    if "rlnOpticsGroup" in md.columns and "rlnOpticsGroup" in optics.columns:
+        unknown = set(md["rlnOpticsGroup"].astype(int)) - set(optics["rlnOpticsGroup"].astype(int))
+        if unknown:
+            raise ValueError(f"Particles in {starFname} refer to optics groups not in the optics table: {unknown}")
+    missing = [c for c in RELION_ANGLES_NAMES if c not in md.columns]
+    if correctCtf:
+        missing += [c for c in ("rlnDefocusU", "rlnDefocusV") if c not in md.columns]
+        missing += [c for c in ("rlnVoltage", "rlnSphericalAberration", "rlnAmplitudeContrast")
+                    if c not in optics.columns]
+    if missing:
+        raise ValueError(f"Missing columns in {starFname}: {missing}")
+
+
 def reconstruct_starfile(starFname: str, outFname: Optional[str] = None, particlesDir: Optional[str] = None,
                          symmetry: str = "C1", correctCtf: bool = True, useFomWeighting: bool = False,
                          paddingFactor: float = 2., batchSize: int = 64, device: str = "auto",
@@ -351,14 +482,15 @@ def reconstruct_starfile(starFname: str, outFname: Optional[str] = None, particl
     """
     Reconstructs a volume from the particles and poses stored in a RELION starfile, without using RELION.
 
-    Equivalent to ``relion_reconstruct --i starFname --o outFname --sym symmetry --pad paddingFactor [--ctf]
-    [--fom_weighting]``.
+    Follows ``relion_reconstruct --i starFname --o outFname --sym symmetry --pad paddingFactor [--ctf]
+    [--fom_weighting]``. Results agree closely with RELION but are not bit-identical.
 
     Args:
         starFname (str): The starfile with the particles and their poses
         outFname (Optional[str]): The .mrc file where the volume will be saved. If None, it is not saved
-        particlesDir (Optional[str]): The root directory for the rlnImageName paths. Default: the starfile directory
-        symmetry (str): The point symmetry (e.g. C1, C4, D2)
+        particlesDir (Optional[str]): The root directory for the rlnImageName paths. Default: the starfile directory \
+            (note that relion_reconstruct resolves them relative to the working directory instead)
+        symmetry (str): The point symmetry: C1, Cn, Dn, T, O, I, I1-I4 (RELION conventions)
         correctCtf (bool): Correct the CTF (RELION --ctf)
         useFomWeighting (bool): Weight particles by rlnParticleFigureOfMerit (RELION --fom_weighting)
         paddingFactor (float): Fourier oversampling factor (RELION --pad)
@@ -368,6 +500,8 @@ def reconstruct_starfile(starFname: str, outFname: Optional[str] = None, particl
     Returns:
         tuple[np.ndarray, float]: The volume and its sampling rate
     """
+    if not starFname:
+        raise ValueError("starFname is required")
     starFname = os.path.expanduser(starFname)
     if particlesDir is None:
         particlesDir = os.path.dirname(os.path.abspath(starFname))
@@ -380,17 +514,11 @@ def reconstruct_starfile(starFname: str, outFname: Optional[str] = None, particl
     sampling_rate = float(pset.sampling_rate)
     box_size = int(pset.particle_shape[-1])
 
-    present = [c for c in _UNSUPPORTED_OPTICS_LABELS if c in optics.columns or c in md.columns]
-    if present:
-        warnings.warn(f"The following optical parameters are ignored by the Python reconstruction: {present}")
+    _check_star(md, optics, correctCtf, starFname)
     if useFomWeighting and RELION_PRED_POSE_CONFIDENCE_NAME not in md.columns:
         warnings.warn(f"{RELION_PRED_POSE_CONFIDENCE_NAME} not found in {starFname}. FOM weighting disabled")
         useFomWeighting = False
-
     optics = optics.set_index("rlnOpticsGroup") if "rlnOpticsGroup" in optics.columns else optics
-    for col in ("rlnImagePixelSize",):
-        if col in optics.columns and not np.allclose(optics[col].values.astype(float), sampling_rate):
-            raise ValueError("All optics groups must have the same pixel size")
 
     reconstructor = FourierReconstructor(box_size, sampling_rate, symmetry=symmetry, padding_factor=paddingFactor,
                                          device=device)
@@ -427,20 +555,19 @@ def _batch_ctf(batch_md: pd.DataFrame, optics: pd.DataFrame, box_size: int, samp
         return torch.full((len(batch_md),), float(default), dtype=torch.float64)
 
     groups = batch_md["rlnOpticsGroup"].values.astype(int) if "rlnOpticsGroup" in batch_md.columns \
-        else np.ones(len(batch_md), dtype=int)
+        else np.full(len(batch_md), -1)
     ctf = torch.empty((len(batch_md), box_size, box_size // 2 + 1), dtype=torch.float64, device=device)
     for group in np.unique(groups):
-        sel = np.where(groups == group)[0]
-        opt = optics.loc[group] if group in optics.index else optics.iloc[0]
-        sel_t = torch.as_tensor(sel)
-        ctf[sel_t.to(device)] = relion_ctf_rfft(
+        sel = torch.as_tensor(np.where(groups == group)[0])
+        opt = optics.loc[group] if group in optics.index else optics.iloc[0]  # -1: no optics group column
+        ctf[sel.to(device)] = relion_ctf_rfft(
             box_size, sampling_rate,
-            dfu=_col("rlnDefocusU", 0.)[sel_t], dfv=_col("rlnDefocusV", 0.)[sel_t],
-            dfang=_col("rlnDefocusAngle", 0.)[sel_t],
+            dfu=_col("rlnDefocusU", 0.)[sel], dfv=_col("rlnDefocusV", 0.)[sel],
+            dfang=_col("rlnDefocusAngle", 0.)[sel],
             volt=float(opt["rlnVoltage"]), cs=float(opt["rlnSphericalAberration"]),
             amp_contrast=float(opt["rlnAmplitudeContrast"]),
-            phase_shift=_col("rlnPhaseShift", 0.)[sel_t], bfactor=_col("rlnCtfBfactor", 0.)[sel_t],
-            scale=_col("rlnCtfScalefactor", 1.)[sel_t], device=device)
+            phase_shift=_col("rlnPhaseShift", 0.)[sel], bfactor=_col("rlnCtfBfactor", 0.)[sel],
+            scale=_col("rlnCtfScalefactor", 1.)[sel], device=device)
     return ctf
 
 
