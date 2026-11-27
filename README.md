@@ -104,7 +104,7 @@ singularity build relionSingularity.sif relionSingularity.def
 ```
 and edit the config file to point where the singularity image file is located, or use the command line argument
 ```
---singularityImgFile /path/to/relionSingularity.sif
+--relionSingularity /path/to/relionSingularity.sif
 ```
 
 #### Evaluating without RELION (`--reconstructionBackend python`)

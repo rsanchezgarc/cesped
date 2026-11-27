@@ -20,10 +20,6 @@ which skips the iterative gridding correction by default):
 Optical aberrations stored in the optics table (beam tilt, odd/even Zernikes, anisotropic magnification) are NOT
 modelled; a warning is printed when they are present.
 
-The trilinear-insertion approach was adapted from cryoPARES (https://github.com/rsanchezgarc/cryoPARES), which in
-turn derives from torch-fourier-slice (https://github.com/teamtomo/torch-fourier-slice,
-BSD 3-Clause License, Copyright (c) 2023 Alister Burt). See THIRD-PARTY-LICENSES.
-
 Command line usage:
 
 ```
