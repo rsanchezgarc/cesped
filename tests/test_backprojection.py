@@ -105,7 +105,7 @@ class TestSymmetryGroups(TestCase):
 
 class TestCTF(TestCase):
     def test_compute_ctf_matches_relion_convention_with_astigmatism(self):
-        """Regression test: cesped's compute_ctf used rows as x, mis-orienting astigmatism (fixed after v26.09.0)."""
+        """Regression test: cesped's compute_ctf used rows as x, mis-orienting astigmatism (fixed in v26.11.0)."""
         N = 64
         for dfang in (0., 30., 90., 137.):
             kw = dict(dfu=torch.tensor([15000.]), dfv=torch.tensor([12000.]), dfang=torch.tensor([dfang]))

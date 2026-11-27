@@ -30,7 +30,7 @@ def _compute_ctf(freqs, dfu, dfv, dfang, volt, cs, w, phase_shift=0, bfactor=Non
 
     # lam = sqrt(h^2/(2*m*e*Vr)); Vr = V + (e/(2*m*c^2))*V^2
     lam = 12.2639 / (volt + 0.97845e-6 * volt ** 2) ** .5
-    y = freqs[..., 0]  # rows. Up to v26.09.0 rows were wrongly used as x, mis-orienting the astigmatism
+    y = freqs[..., 0]  # rows. Before v26.11.0 rows were wrongly used as x, mis-orienting the astigmatism
     x = freqs[..., 1]  # columns
     ang = torch.atan2(y, x)
     s2 = x ** 2 + y ** 2

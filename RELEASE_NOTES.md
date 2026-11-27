@@ -1,6 +1,8 @@
 # Release notes
 
-## Unreleased
+## v26.11.0 (2026-11-27)
+
+Changes since v25.12.0, the previous release.
 
 ### New: RELION-free evaluation
 
@@ -39,3 +41,10 @@
 - `evaluate` crashed while writing `metrics.json` because numpy `float32` values are not JSON serializable, so
   the final report was never printed. Metrics are now stored as Python floats.
 - The evaluation report printed the `cor_diff (masked, unmasked)` values in reversed order.
+
+### Packaging
+
+- cesped now requires Python 3.13 or newer (`python_requires='>=3.13'`), and the dependencies in `requirements.txt`
+  were updated accordingly. An `environment.yml` replaces `conda_cesped.env`
+  (`conda env create -f environment.yml`).
+- Fixed `install_requires` in `setup.py`, which was passed as a nested list.
