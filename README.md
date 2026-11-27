@@ -104,7 +104,47 @@ singularity build relionSingularity.sif relionSingularity.def
 ```
 and edit the config file to point where the singularity image file is located, or use the command line argument
 ```
---singularityImgFile /path/to/relionSingularity.sif
+--relionSingularity /path/to/relionSingularity.sif
+```
+
+#### Evaluating without RELION (`--reconstructionBackend python`)
+
+If you cannot install RELION, add `--reconstructionBackend python`. Volumes are then reconstructed with a
+PyTorch reimplementation of `relion_reconstruct --ctf --pad 2` ([cesped/utils/backprojection.py](cesped/utils/backprojection.py)),
+and none of the RELION settings (`relionBinDir`, `mpirun`, `relionSingularity`) are needed.
+```
+python -m cesped.evaluateEntry  --predictionType SO3 --targetName 11120  \
+--half0PredsFname particles_preds_0.star  --half1PredsFname particles_preds_1.star \
+--outdir evaluation/ --reconstructionBackend python --device auto
+```
+`--device` can be `auto` (GPU if available, default), `cpu`, `cuda` or `cuda:N`. From Python, use
+`evaluate(..., reconstructionBackend="python")`.
+
+**Which backend should I use?** RELION (the default) is the reference used for all published CESPED results, so
+use it whenever you want numbers that are directly comparable with them. The Python backend follows the same
+algorithm (trilinear Fourier insertion at 2x padding, CTF correction, figure-of-merit weighting, point-group
+symmetry applied as RELION does, RELION's regularisation, gridding correction and soft mask) and agrees closely with
+RELION 4.0.1. On the TEST entry, maps have FSC > 0.994 against RELION's at every frequency (C1, C4, D3, T and I), and
+evaluation resolutions differ by at most 0.03 Å. Small differences remain, though, so **do not mix numbers computed
+with different backends in a single comparison**. The backend used is recorded in `metrics.json`
+(`reconstructionBackend`), and cached maps are stored with a `_python` suffix so that they are never mixed with
+RELION maps.
+
+Limitations of the Python backend:
+- Symmetries: C*n*, D*n*, T, O and I (I1-I4), with RELION's axis conventions. Groups with mirrors or inversion
+  (e.g. C*n*v, D*n*h) raise an error. Helical symmetry is not supported.
+- Optical aberrations (beam tilt, higher-order Zernikes, anisotropic magnification) are not modelled (a warning is
+  printed), and phase-flipped or CTF-premultiplied particles are rejected.
+- Odd box sizes: maps differ from relion_reconstruct 4.0.1. On synthetic data with a known answer, the Python
+  backend recovers the true volume (correlation 0.999) while RELION does not (0.81), so the Python result is kept.
+  All CESPED entries have even box sizes.
+- Memory: about 5 GB at box 284 (C1 or symmetric). High-order symmetries are slow on CPU (I: about 10 min at box
+  284).
+
+The reconstruction can also be used on its own:
+```
+python -m cesped.utils.backprojection --starFname particles.star --particlesDir /path/to/stacks \
+--outFname vol.mrc --symmetry C1 [--useFomWeighting] [--device cuda]
 ```
 
 ### Cross-plataform usage.

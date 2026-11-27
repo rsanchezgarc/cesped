@@ -10,7 +10,8 @@ def _compute_ctf(freqs, dfu, dfv, dfang, volt, cs, w, phase_shift=0, bfactor=Non
     Compute the 2D CTF
 
     Input:
-        freqs (Tensor) Nx2 or BxNx2 tensor of 2D spatial frequencies
+        freqs (Tensor) Nx2 or BxNx2 tensor of 2D spatial frequencies, in (y, x) order, i.e. (row, column),
+            as produced by torch.meshgrid(..., indexing='ij'). The astigmatism angle is measured from the x axis.
         dfu (float or Bx1 tensor): DefocusU (Angstrom)
         dfv (float or Bx1 tensor): DefocusV (Angstrom)
         dfang (float or Bx1 tensor): DefocusAngle (degrees)
@@ -29,8 +30,8 @@ def _compute_ctf(freqs, dfu, dfv, dfang, volt, cs, w, phase_shift=0, bfactor=Non
 
     # lam = sqrt(h^2/(2*m*e*Vr)); Vr = V + (e/(2*m*c^2))*V^2
     lam = 12.2639 / (volt + 0.97845e-6 * volt ** 2) ** .5
-    x = freqs[..., 0]
-    y = freqs[..., 1]
+    y = freqs[..., 0]  # rows. Up to v26.09.0 rows were wrongly used as x, mis-orienting the astigmatism
+    x = freqs[..., 1]  # columns
     ang = torch.atan2(y, x)
     s2 = x ** 2 + y ** 2
     df = .5 * (dfu + dfv + (dfu - dfv) * torch.cos(2 * (ang - dfang)))

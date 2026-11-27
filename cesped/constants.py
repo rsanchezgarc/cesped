@@ -39,5 +39,4 @@ mpirunCmd = osp.expanduser(_defaultRelionConf["Relion"]["mpirun"]) if _defaultRe
 relionSingularity = osp.expanduser(_defaultRelionConf["Relion"]["relionSingularity"]) if _defaultRelionConf["Relion"]["relionSingularity"] else None
 """The singularity image to run Relion"""
 
-assert relionSingularity is not None or (relionBinDir is not None and mpirunCmd is not None), ("Error, either relionSingularity or "
-                                                                                                "relionBinDir and mpirunCmd should be provided")
+# Whether RELION is configured is checked by cesped.evaluateEntry.Evaluator, only when the relion backend is used
